@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "phone",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": ["-d", "646678c0"]
+        },
+        {
+            "name": "emulator",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": ["-d", "emulator-5554"]
+        }
+    ]
+}
