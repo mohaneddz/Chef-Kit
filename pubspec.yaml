@@ -12,6 +12,7 @@ dependencies:
 
   flutter_bloc: ^9.1.1
   bloc: ^9.0.1
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:
@@ -22,6 +23,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/ingredients/
     - assets/images/
 
   fonts:

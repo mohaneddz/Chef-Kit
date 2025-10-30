@@ -56,7 +56,6 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
             child: Icon(
               widget.trailingIcon,
               color: AppColors.red600,
-              fontWeight: FontWeight.bold,
               size: 20,
             ),
           ),
