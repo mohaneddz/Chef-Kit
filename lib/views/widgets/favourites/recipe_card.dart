@@ -9,14 +9,14 @@ class RecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 60.0),
+      margin: const EdgeInsets.only(bottom: 20),
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.topCenter,
         children: [
           Container(
             margin: const EdgeInsets.only(top: 50),
-            width: 160,
+            width: 170,
             height: 140,
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             decoration: BoxDecoration(
@@ -24,9 +24,12 @@ class RecipeCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
+                  color: Colors.black.withOpacity(
+                    0.2,
+                  ), // Increased shadow visibility
+                  blurRadius:
+                      15, // Increased blur for a softer, more visible shadow
+                  offset: const Offset(0, 8), // Adjusted offset for more depth
                 ),
               ],
             ),
@@ -47,22 +50,34 @@ class RecipeCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   recipe.category,
-                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  style: const TextStyle(
+                    color: Color(0xFFC65B42),
+                    fontSize: 14,
+                  ), // Applied the new color
                 ),
-
                 const Spacer(),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Icon(Icons.access_time, color: Colors.grey, size: 14),
+                    Icon(
+                      Icons.access_time,
+                      color: Colors.grey[600],
+                      size: 14,
+                    ), // Slightly darker grey for icons
                     const SizedBox(width: 4),
                     Text(
                       '${recipe.duration} min',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ), // Slightly darker grey for text
                     ),
                     const SizedBox(width: 8),
-                    Container(height: 16, width: 1, color: Colors.grey[300]),
+                    Container(
+                      height: 16,
+                      width: 1,
+                      color: Colors.grey[400],
+                    ), // Slightly darker grey for divider
                     const SizedBox(width: 8),
                     Icon(
                       recipe.isReady ? Icons.check_circle : Icons.cancel,
