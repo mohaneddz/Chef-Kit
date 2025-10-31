@@ -14,7 +14,7 @@ class Recipe {
   });
 }
 
-final List<Recipe> traditionalRecipes = [
+final List<Recipe> recipes = [
   Recipe(
     name: 'Couscous',
     category: 'Traditional',

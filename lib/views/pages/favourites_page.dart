@@ -1,14 +1,24 @@
+import 'package:chefkit/data/category_data.dart';
 import 'package:chefkit/data/recipe_data.dart';
 import 'package:chefkit/views/widgets/favourites/collection_card.dart';
 import 'package:chefkit/views/widgets/favourites/recipe_card.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 
-class FavouritesPage extends StatelessWidget {
+class FavouritesPage extends StatefulWidget {
   const FavouritesPage({super.key});
 
   @override
+  State<FavouritesPage> createState() => _FavouritesPageState();
+}
+
+class _FavouritesPageState extends State<FavouritesPage> {
+  int _selectedIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
+    final List<Recipe> selectedRecipes =
+        categories[_selectedIndex]['recipes'] as List<Recipe>;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -68,34 +78,26 @@ class FavouritesPage extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Row(
-                      children: const [
-                        CollectionCard(
-                          title: "Traditional",
-                          subtitle: "5 recipes",
-                          imagePaths: [
-                            'assets/images/recipes/couscous.png',
-                            'assets/images/recipes/hrira.png',
-                            'assets/images/recipes/roqaq.png',
-                          ],
-                          isActive: true,
-                        ),
-                        CollectionCard(
-                          title: "Quick & Easy",
-                          subtitle: "1 recipe",
-                          imagePaths: ['assets/images/recipes/bastilla.png'],
-                          isActive: false,
-                        ),
-                        CollectionCard(
-                          title: "All Saved",
-                          subtitle: "5 recipe",
-                          imagePaths: [
-                            'assets/images/recipes/couscous.png',
-                            'assets/images/recipes/hrira.png',
-                            'assets/images/recipes/roqaq.png',
-                          ],
-                          isActive: false,
-                        ),
-                      ],
+                      children: categories.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        Map<String, dynamic> categoryData = entry.value;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = index;
+                            });
+                          },
+                          child: CollectionCard(
+                            title: categoryData['title'],
+                            subtitle: categoryData['subtitle'],
+                            imagePaths: List<String>.from(
+                              categoryData['imagePaths'],
+                            ),
+                            isActive: _selectedIndex == index,
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ),
@@ -110,7 +112,7 @@ class FavouritesPage extends StatelessWidget {
                 Center(
                   child: Wrap(
                     spacing: 16,
-                    children: traditionalRecipes
+                    children: selectedRecipes
                         .map((r) => RecipeCard(recipe: r))
                         .toList(),
                   ),
