@@ -3,7 +3,12 @@ import 'package:chefkit/views/widgets/triangle_painter.dart';
 import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
-  const SearchBarWidget({super.key});
+  final String hintText;
+
+  const SearchBarWidget({
+    super.key,
+    this.hintText = 'Search ingredient ... ',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +34,10 @@ class SearchBarWidget extends StatelessWidget {
                 fontSize: 18,
                 fontFamily: "LeagueSpartan",
               ),
-              decoration: const InputDecoration(
-                hintText: 'Search ingredient ... ',
+              decoration: InputDecoration(
+                hintText: hintText,
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
+                contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 14,
                 ),
