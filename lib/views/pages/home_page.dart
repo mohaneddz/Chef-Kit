@@ -11,7 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 1; // Start with Inventory (index 1)
+  int _selectedIndex = 0; // Start with Recipe Discovery (index 0)
 
   // Placeholder screens - you can replace these with actual pages later
   final List<Widget> _screens = [
