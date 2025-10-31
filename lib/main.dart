@@ -1,6 +1,4 @@
-import 'package:chefkit/views/pages/inventory_page.dart';
-import 'package:chefkit/views/pages/item_page.dart';
-// import 'package:chefkit/views/pages/login_page.dart';
+import 'package:chefkit/views/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,7 +13,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: "Poppins"),
-      home: InventoryPage(),
+      home: HomePage(),
     );
   }
 }
