@@ -1,3 +1,4 @@
+import 'package:chefkit/common/app_colors.dart';
 import 'package:chefkit/data/recipe_data.dart';
 import 'package:chefkit/views/pages/item_page.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +14,7 @@ class RecipeCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => ItemPage(),
-          ),
+          MaterialPageRoute(builder: (context) => ItemPage()),
         );
       },
       child: Container(
@@ -26,20 +25,22 @@ class RecipeCard extends StatelessWidget {
           children: [
             Container(
               margin: const EdgeInsets.only(top: 50),
-              width: 170,
+              width: 160,
               height: 140,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(
-                      0.2,
-                    ),
-                    blurRadius:
-                        15,
-                    offset: const Offset(0, 8),
+                    color: Colors.black.withOpacity(0.25),
+                    offset: const Offset(4, 4),
+                    blurRadius: 8,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFFF5F3EF),
+                    offset: const Offset(-5, -5),
+                    blurRadius: 5,
                   ),
                 ],
               ),
@@ -52,7 +53,7 @@ class RecipeCard extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: Colors.black87,
+                      color: AppColors.black,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -77,21 +78,16 @@ class RecipeCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${recipe.duration} min',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        height: 16,
-                        width: 1,
-                        color: Colors.grey[400],
-                      ),
+                      Container(height: 16, width: 1, color: Colors.grey[400]),
                       const SizedBox(width: 8),
                       Icon(
                         recipe.isReady ? Icons.check_circle : Icons.cancel,
-                        color: recipe.isReady ? Colors.green : Colors.red,
+                        color: recipe.isReady
+                            ? AppColors.green
+                            : AppColors.red600,
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -101,7 +97,9 @@ class RecipeCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: recipe.isReady ? Colors.green : Colors.red,
+                            color: recipe.isReady
+                                ? AppColors.green
+                                : AppColors.red600,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,

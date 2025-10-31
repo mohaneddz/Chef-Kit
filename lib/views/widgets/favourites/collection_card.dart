@@ -1,3 +1,4 @@
+import 'package:chefkit/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CollectionCard extends StatelessWidget {
@@ -22,16 +23,21 @@ class CollectionCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(20),
         border: isActive
-            ? Border.all(color: Colors.orangeAccent, width: 1.5)
+            ? Border.all(color: AppColors.orange, width: 1.5)
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.25),
+            offset: const Offset(4, 4),
+            blurRadius: 8,
+          ),
+          BoxShadow(
+            color: const Color(0xFFF5F3EF),
+            offset: const Offset(-5, -5),
+            blurRadius: 5,
           ),
         ],
       ),
@@ -48,7 +54,7 @@ class CollectionCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isActive ? Colors.orangeAccent : Colors.black,
+                  color: isActive ? AppColors.orange : AppColors.black,
                 ),
               ),
               const SizedBox(height: 2),

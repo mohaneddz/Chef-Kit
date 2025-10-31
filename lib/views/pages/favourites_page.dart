@@ -1,3 +1,4 @@
+import 'package:chefkit/common/app_colors.dart';
 import 'package:chefkit/data/category_data.dart';
 import 'package:chefkit/data/recipe_data.dart';
 import 'package:chefkit/views/widgets/favourites/collection_card.dart';
@@ -20,13 +21,13 @@ class _FavouritesPageState extends State<FavouritesPage> {
     final List<Recipe> selectedRecipes =
         categories[_selectedIndex]['recipes'] as List<Recipe>;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         leadingWidth: 72,
         leading: Align(
           alignment: Alignment.centerRight,
-          child: Image.asset("assets/images/heart-icon.png", width: 52),
+          child: Icon(Icons.favorite, size: 52, color: Color(0xFFFF6B6B)),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +41,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
               ),
             ),
             const Text(
-              "See what you have saved",
+              "Find Your Saved Recipes",
               style: TextStyle(
                 color: Color(0xFF4A5565),
                 fontSize: 14,
@@ -52,73 +53,70 @@ class _FavouritesPageState extends State<FavouritesPage> {
         ),
         centerTitle: false,
       ),
-      body: SafeArea(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-          child: SingleChildScrollView(
-            clipBehavior: Clip.none,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                SearchBarWidget(),
-                const SizedBox(height: 20),
-                const Text(
-                  "Categories",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 15),
+              SearchBarWidget(hintText: "Search Your Recipes..."),
+              const SizedBox(height: 25),
+              const Text(
+                "Categories",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.black,
                 ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  clipBehavior: Clip.none,
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Row(
-                      children: categories.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        Map<String, dynamic> categoryData = entry.value;
+              ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                clipBehavior: Clip.none,
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Row(
+                    children: categories.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> categoryData = entry.value;
 
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedIndex = index;
-                            });
-                          },
-                          child: CollectionCard(
-                            title: categoryData['title'],
-                            subtitle: categoryData['subtitle'],
-                            imagePaths: List<String>.from(
-                              categoryData['imagePaths'],
-                            ),
-                            isActive: _selectedIndex == index,
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = index;
+                          });
+                        },
+                        child: CollectionCard(
+                          title: categoryData['title'],
+                          subtitle: categoryData['subtitle'],
+                          imagePaths: List<String>.from(
+                            categoryData['imagePaths'],
                           ),
-                        );
-                      }).toList(),
-                    ),
+                          isActive: _selectedIndex == index,
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Divider(
-                  color: Colors.grey,
-                  thickness: 0.6,
-                  indent: 20,
-                  endIndent: 20,
+              ),
+              const SizedBox(height: 30),
+              Divider(
+                color: Colors.grey,
+                thickness: 0.6,
+                indent: 20,
+                endIndent: 20,
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Wrap(
+                  spacing: 16,
+                  children: selectedRecipes
+                      .map((r) => RecipeCard(recipe: r))
+                      .toList(),
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Wrap(
-                    spacing: 16,
-                    children: selectedRecipes
-                        .map((r) => RecipeCard(recipe: r))
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

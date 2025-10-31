@@ -1,3 +1,4 @@
+import 'package:chefkit/views/pages/favourites_page.dart';
 import 'package:chefkit/views/pages/inventory_page.dart';
 import './discovery_page.dart';
 import 'package:chefkit/views/widgets/custom_bottom_navbar.dart';
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
     RecipeDiscoveryScreen(),
     InventoryPage(), // Your existing inventory page
     _PlaceholderScreen(title: 'Refresh/Recipe', icon: Icons.refresh),
-    _PlaceholderScreen(title: 'Favorite', icon: Icons.favorite),
+    FavouritesPage(),
     _PlaceholderScreen(title: 'Profile', icon: Icons.person),
   ];
 
@@ -43,18 +44,12 @@ class _PlaceholderScreen extends StatelessWidget {
   final String title;
   final IconData icon;
 
-  const _PlaceholderScreen({
-    required this.title,
-    required this.icon,
-  });
+  const _PlaceholderScreen({required this.title, required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: Text(title), backgroundColor: Colors.white),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -72,10 +67,7 @@ class _PlaceholderScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'Coming soon...',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[400],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[400]),
             ),
           ],
         ),
