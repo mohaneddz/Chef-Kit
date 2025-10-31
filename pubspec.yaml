@@ -25,6 +25,7 @@ flutter:
   assets:
     - assets/images/ingredients/
     - assets/images/recipes/
+    - assets/images/chefs/
     - assets/images/
 
   fonts:
