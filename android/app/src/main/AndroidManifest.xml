@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Add Internet Permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
     <application
         android:label="chefkit"
         android:name="${applicationName}"
