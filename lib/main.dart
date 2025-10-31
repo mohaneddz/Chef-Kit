@@ -1,5 +1,5 @@
 import 'package:chefkit/views/pages/favourites_page.dart';
-import 'package:chefkit/views/pages/inventory_page.dart';
+// import 'package:chefkit/views/pages/inventory_page.dart';
 // import 'package:chefkit/views/pages/item_page.dart';
 // import 'package:chefkit/views/pages/login_page.dart';
 import 'package:flutter/material.dart';

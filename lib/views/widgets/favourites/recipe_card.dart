@@ -1,4 +1,5 @@
 import 'package:chefkit/data/recipe_data.dart';
+import 'package:chefkit/views/pages/item_page.dart';
 import 'package:flutter/material.dart';
 
 class RecipeCard extends StatelessWidget {
@@ -8,108 +9,118 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.topCenter,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 50),
-            width: 170,
-            height: 140,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(
-                    0.2,
-                  ), // Increased shadow visibility
-                  blurRadius:
-                      15, // Increased blur for a softer, more visible shadow
-                  offset: const Offset(0, 8), // Adjusted offset for more depth
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 34),
-                Text(
-                  recipe.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.black87,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ItemPage(),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.topCenter,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 50),
+              width: 170,
+              height: 140,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(
+                      0.2,
+                    ),
+                    blurRadius:
+                        15,
+                    offset: const Offset(0, 8),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  recipe.category,
-                  style: const TextStyle(
-                    color: Color(0xFFC65B42),
-                    fontSize: 14,
-                  ), // Applied the new color
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      color: Colors.grey[600],
-                      size: 14,
-                    ), // Slightly darker grey for icons
-                    const SizedBox(width: 4),
-                    Text(
-                      '${recipe.duration} min',
-                      style: TextStyle(
-                        fontSize: 12,
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 34),
+                  Text(
+                    recipe.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    recipe.category,
+                    style: const TextStyle(
+                      color: Color(0xFFC65B42),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.access_time,
                         color: Colors.grey[600],
-                      ), // Slightly darker grey for text
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      height: 16,
-                      width: 1,
-                      color: Colors.grey[400],
-                    ), // Slightly darker grey for divider
-                    const SizedBox(width: 8),
-                    Icon(
-                      recipe.isReady ? Icons.check_circle : Icons.cancel,
-                      color: recipe.isReady ? Colors.green : Colors.red,
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        recipe.isReady ? 'Ready' : 'Missing',
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${recipe.duration} min',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: recipe.isReady ? Colors.green : Colors.red,
+                          color: Colors.grey[600],
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 16,
+                        width: 1,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        recipe.isReady ? Icons.check_circle : Icons.cancel,
+                        color: recipe.isReady ? Colors.green : Colors.red,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          recipe.isReady ? 'Ready' : 'Missing',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: recipe.isReady ? Colors.green : Colors.red,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          Positioned(
-            top: 0,
-            height: 100,
-            child: ClipRRect(
-              child: Image.asset(recipe.imagePath, fit: BoxFit.cover),
+            Positioned(
+              top: 0,
+              height: 100,
+              child: ClipRRect(
+                child: Image.asset(recipe.imagePath, fit: BoxFit.cover),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
