@@ -5,6 +5,9 @@ import '../widgets/discovery/section_header_widget.dart';
 import '../widgets/discovery/chef_card_widget.dart';
 import '../widgets/discovery/recipe_card_widget.dart';
 import '../widgets/discovery/seasonal_item_widget.dart';
+import './all_chefs_page.dart';
+import './all_hot_recipes_page.dart';
+import './all_seasonal_page.dart';
 
 class RecipeDiscoveryScreen extends StatelessWidget {
   const RecipeDiscoveryScreen({Key? key}) : super(key: key);
@@ -63,7 +66,10 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               SectionHeaderWidget(
                 title: 'Chefs ON Fire',
                 onSeeAllPressed: () {
-                  // TODO: Navigate to all chefs
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AllChefsPage()),
+                  );
                 },
               ),
               const SizedBox(height: 14),
@@ -128,7 +134,10 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               SectionHeaderWidget(
                 title: 'Hot Recipes',
                 onSeeAllPressed: () {
-                  // TODO: Navigate to all recipes
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AllHotRecipesPage()),
+                  );
                 },
               ),
               const SizedBox(height: 14),
@@ -198,13 +207,14 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               const SizedBox(height: 30),
 
               // Seasonal Delights
-              const Text(
-                'Seasonal Delights',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                ),
+              SectionHeaderWidget(
+                title: 'Seasonal Delights',
+                onSeeAllPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AllSeasonalPage()),
+                  );
+                },
               ),
               const SizedBox(height: 14),
               SeasonalItemWidget(
