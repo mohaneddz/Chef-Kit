@@ -70,7 +70,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
           height: 72,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            spacing: 10,
+            spacing: 5,
             children: [
               Expanded(
                 child: _buildNavItem(
@@ -141,7 +141,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
               label,
               style: TextStyle(
                 color: isSelected ? color : Colors.grey[400],
-                fontSize: 12,
+                fontSize: isSelected ? 12 : 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
