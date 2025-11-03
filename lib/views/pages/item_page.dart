@@ -4,14 +4,41 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:chefkit/views/widgets/recipe/recipe_widget.dart';
 
 class ItemPage extends StatefulWidget {
-  const ItemPage({super.key});
+  final String title;
+  final String imagePath;
+  final String servings;
+  final String calories;
+  final String time;
+  final List<String> ingredients;
+  final List<String> tags;
+  final String recipeText;
+  final bool initialFavorite;
+
+  const ItemPage({
+    super.key,
+    required this.title,
+    required this.imagePath,
+    required this.servings,
+    required this.calories,
+    required this.time,
+    required this.ingredients,
+    required this.tags,
+    required this.recipeText,
+    this.initialFavorite = false,
+  });
 
   @override
   State<ItemPage> createState() => _ItemPageState();
 }
 
 class _ItemPageState extends State<ItemPage> {
-  bool isFavorite = false;
+  late bool isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.initialFavorite;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +51,9 @@ class _ItemPageState extends State<ItemPage> {
           icon: const Icon(LucideIcons.chevronLeft, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Focused Recipe',
-          style: TextStyle(
+        title: Text(
+          widget.title,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -44,28 +71,20 @@ class _ItemPageState extends State<ItemPage> {
               children: [
                 // Recipe Image Card
                 RecipeWidget(
-                  title: 'Couscous',
-                  imagePath: 'assets/images/couscous.png',
+                  title: widget.title,
+                  imagePath: widget.imagePath,
                   isFavorite: isFavorite,
                   onFavoriteTap: () {
                     setState(() {
                       isFavorite = !isFavorite;
                     });
                   },
-                  servings: '20 g',
-                  calories: '300 Kcal',
-                  time: '20 m',
-                  ingredients: [
-                    'Potatoes',
-                    'Tomatoes',
-                    'Carrots',
-                    'Seasonings',
-                    'Serrano',
-                    'Texano',
-                  ],
-                  tags: ['Seafood', 'Herbs', 'Beef', '+2'],
-                  recipeText:
-                      'Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem ipsum.',
+                  servings: widget.servings,
+                  calories: widget.calories,
+                  time: widget.time,
+                  ingredients: widget.ingredients,
+                  tags: widget.tags,
+                  recipeText: widget.recipeText,
                 ),
               ],
             ),
