@@ -9,4 +9,5 @@ class AppColors {
   static const green = Color(0xFF008236);
   static const browmpod = Color(0xFF32201C);
   static const black = Color(0xFF1C0F0D);
+  static const navcolor = Color(0xFF9DB2CE);
 }

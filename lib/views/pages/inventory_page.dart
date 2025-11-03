@@ -1,5 +1,5 @@
 import 'package:chefkit/common/app_colors.dart';
-import 'package:chefkit/views/widgets/ingredient_card.dart';
+import 'package:chefkit/views/inventory/ingredient_card.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +21,7 @@ class _InventoryPageState extends State<InventoryPage> {
     {
       "imageUrl": "assets/images/tomato.png",
       "name": "Tomato",
-      "type": "Vegetable",
+      "type": "Vegetables",
     },
     {
       "imageUrl": "assets/images/potato.png",
@@ -49,6 +49,12 @@ class _InventoryPageState extends State<InventoryPage> {
   void _updateIngredientType(value) {
     selectedType = value;
     setState(() {});
+  }
+
+  List<Map<String, String>> get filteredIngredients {
+    if (selectedType == 0) return ingredients;
+    String selected = ingredientTypes[selectedType];
+    return ingredients.where((item) => item["type"] == selected).toList();
   }
 
   Widget headerText({required String title, required String subtitle}) {
@@ -214,7 +220,7 @@ class _InventoryPageState extends State<InventoryPage> {
                 },
               ),
               // Show more
-              SizedBox(height: 5),
+              SizedBox(height: 20),
               Center(
                 child: Column(
                   children: [
@@ -304,13 +310,14 @@ class _InventoryPageState extends State<InventoryPage> {
                   mainAxisSpacing: 15,
                   mainAxisExtent: 180,
                 ),
-                itemCount: ingredients.length,
+                itemCount: filteredIngredients.length,
                 itemBuilder: (context, index) {
-                  final item = ingredients[index];
+                  final item = filteredIngredients[index];
                   return IngredientCard(
                     imageUrl: item["imageUrl"]!,
                     ingredientName: item["name"]!,
                     ingredientType: item["type"]!,
+                    addIngredient: true,
                   );
                 },
               ),
