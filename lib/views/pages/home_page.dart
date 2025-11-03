@@ -1,5 +1,5 @@
 import 'package:chefkit/views/pages/favourites_page.dart';
-import 'package:chefkit/views/pages/ingredient_selection_page.dart';
+import 'package:chefkit/views/pages/recipe_loading_page.dart';
 import 'package:chefkit/views/pages/inventory_page.dart';
 import 'package:chefkit/views/pages/profile_page.dart';
 import './discovery_page.dart';
@@ -7,14 +7,22 @@ import 'package:chefkit/views/widgets/custom_bottom_navbar.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final int initialIndex;
+
+  const HomePage({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; // Start with Recipe Discovery (index 0)
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   // Placeholder screens - you can replace these with actual pages later
   final List<Widget> _screens = [
@@ -32,12 +40,26 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemTapped: (index) {
-          // If fire button (index 2) is tapped, navigate to ingredient selection
+          // If fire button (index 2) is tapped, navigate directly to recipe loading
           if (index == 2) {
+            // Get all available ingredients (mock data for now)
+            final List<String> availableIngredients = [
+              "Escalope",
+              "Tomato",
+              "Potato",
+              "Paprika",
+              "Chicken",
+              "Onion",
+              "Carrot",
+              "Cumin",
+            ];
+
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => IngredientSelectionPage(),
+                builder: (context) => RecipeLoadingPage(
+                  selectedIngredients: availableIngredients,
+                ),
               ),
             );
           } else {

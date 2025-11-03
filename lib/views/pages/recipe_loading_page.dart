@@ -12,57 +12,55 @@ class RecipeLoadingPage extends StatefulWidget {
 }
 
 class _RecipeLoadingPageState extends State<RecipeLoadingPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+    with TickerProviderStateMixin {
+  late AnimationController _rotationController;
+  late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _rotationAnimation;
-  
+
   int _currentStep = 0;
   final List<String> _loadingSteps = [
     "Analyzing your ingredients...",
-    "Searching recipe database...",
-    "Matching flavor profiles...",
+    "Searching recipes...",
+    "Matching...",
     "Finding perfect recipes...",
   ];
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+
+    // 🔁 Rotation controller — smooth, continuous
+    _rotationController = AnimationController(
+      duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat();
 
+    // 💫 Scale controller — smooth pulsing (zooms in/out repeatedly)
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
 
-    _rotationAnimation = Tween<double>(begin: 0, end: 2 * 3.14159).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.linear,
-      ),
-    );
-
-    // Simulate loading steps
+    // Simulate loading process
     _simulateLoading();
   }
 
   void _simulateLoading() async {
     for (int i = 0; i < _loadingSteps.length; i++) {
-      await Future.delayed(Duration(milliseconds: 1200));
+      await Future.delayed(const Duration(milliseconds: 1200));
       if (mounted) {
         setState(() {
           _currentStep = i;
         });
       }
     }
-    
-    // Wait a bit more then navigate to results
-    await Future.delayed(Duration(milliseconds: 800));
+
+    // Navigate after final step
+    await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
       Navigator.pushReplacement(
         context,
@@ -77,7 +75,8 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _rotationController.dispose();
+    _scaleController.dispose();
     super.dispose();
   }
 
@@ -92,20 +91,23 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              
-              // Animated cooking icon
+
+              // 🍳 Animated cooking icon
               AnimatedBuilder(
-                animation: _animationController,
+                animation: Listenable.merge([
+                  _rotationController,
+                  _scaleController,
+                ]),
                 builder: (context, child) {
                   return Transform.scale(
                     scale: _scaleAnimation.value,
                     child: Transform.rotate(
-                      angle: _rotationAnimation.value,
+                      angle: _rotationController.value * 2 * 3.14159,
                       child: Container(
                         width: 120,
                         height: 120,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [
                               Color(0xFFFF6B6B),
                               Color(0xFFFF8E8E),
@@ -124,7 +126,7 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                             ),
                           ],
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.local_fire_department,
                           color: Colors.white,
                           size: 60,
@@ -134,10 +136,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                   );
                 },
               ),
-              
+
               const SizedBox(height: 50),
-              
-              // Loading text
+
+              // Title
               Text(
                 "Finding Recipes",
                 style: TextStyle(
@@ -146,12 +148,12 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                   color: AppColors.black,
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
-              // Current step text with animation
+
+              // Step text
               AnimatedSwitcher(
-                duration: Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 500),
                 child: Text(
                   _loadingSteps[_currentStep],
                   key: ValueKey<int>(_currentStep),
@@ -163,10 +165,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                   textAlign: TextAlign.center,
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
-              // Progress indicator
+
+              // Progress bar
               SizedBox(
                 width: 200,
                 child: LinearProgressIndicator(
@@ -175,12 +177,12 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                   minHeight: 6,
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
-              // Selected ingredients
+
+              // Ingredients list
               Container(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
                   borderRadius: BorderRadius.circular(16),
@@ -196,7 +198,7 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                           color: AppColors.red600,
                           size: 20,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           "Your Selected Ingredients:",
                           style: TextStyle(
@@ -207,13 +209,16 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: widget.selectedIngredients.map((ingredient) {
                         return Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.red600.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(20),
@@ -235,7 +240,7 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                   ],
                 ),
               ),
-              
+
               const Spacer(),
             ],
           ),

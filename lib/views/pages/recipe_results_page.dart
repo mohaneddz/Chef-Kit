@@ -1,5 +1,6 @@
 import 'package:chefkit/common/app_colors.dart';
 import 'package:chefkit/data/recipe_data.dart';
+import 'package:chefkit/views/pages/item_page.dart';
 import 'package:flutter/material.dart';
 
 class RecipeResultsPage extends StatefulWidget {
@@ -24,10 +25,17 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
     // Simple matching: find recipes that contain at least one of the selected ingredients
     matchedRecipes = dummyRecipes.where((recipe) {
       // Check if any recipe ingredient matches any selected ingredient (case-insensitive partial match)
-      return recipe.ingredients.any((recipeIngredient) =>
-          widget.selectedIngredients.any((selectedIngredient) =>
-              recipeIngredient.toLowerCase().contains(selectedIngredient.toLowerCase()) ||
-              selectedIngredient.toLowerCase().contains(recipeIngredient.toLowerCase())));
+      return recipe.ingredients.any(
+        (recipeIngredient) => widget.selectedIngredients.any(
+          (selectedIngredient) =>
+              recipeIngredient.toLowerCase().contains(
+                selectedIngredient.toLowerCase(),
+              ) ||
+              selectedIngredient.toLowerCase().contains(
+                recipeIngredient.toLowerCase(),
+              ),
+        ),
+      );
     }).toList();
 
     // If no matches, show all recipes as suggestions
@@ -39,9 +47,15 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
   int _calculateMatchPercentage(Recipe recipe) {
     int matchCount = 0;
     for (var recipeIngredient in recipe.ingredients) {
-      if (widget.selectedIngredients.any((selectedIngredient) =>
-          recipeIngredient.toLowerCase().contains(selectedIngredient.toLowerCase()) ||
-          selectedIngredient.toLowerCase().contains(recipeIngredient.toLowerCase()))) {
+      if (widget.selectedIngredients.any(
+        (selectedIngredient) =>
+            recipeIngredient.toLowerCase().contains(
+              selectedIngredient.toLowerCase(),
+            ) ||
+            selectedIngredient.toLowerCase().contains(
+              recipeIngredient.toLowerCase(),
+            ),
+      )) {
         matchCount++;
       }
     }
@@ -99,9 +113,7 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppColors.red600.withOpacity(0.3),
-                  ),
+                  border: Border.all(color: AppColors.red600.withOpacity(0.3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +142,10 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                       runSpacing: 8,
                       children: widget.selectedIngredients.map((ingredient) {
                         return Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -152,9 +167,9 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                   ],
                 ),
               ),
-              
+
               SizedBox(height: 30),
-              
+
               // Results header
               Text(
                 "Recipes You Can Make",
@@ -173,9 +188,9 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              
+
               SizedBox(height: 20),
-              
+
               // Recipe list
               ListView.builder(
                 shrinkWrap: true,
@@ -184,199 +199,250 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                 itemBuilder: (context, index) {
                   final recipe = matchedRecipes[index];
                   final matchPercentage = _calculateMatchPercentage(recipe);
-                  
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Image and basic info
-                        ClipRRect(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                          child: Stack(
-                            children: [
-                              Image.asset(
-                                recipe.imagePath,
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    height: 200,
-                                    color: Colors.grey[300],
-                                    child: Icon(Icons.restaurant, size: 60, color: Colors.grey),
-                                  );
-                                },
-                              ),
-                              // Match percentage badge
-                              Positioned(
-                                top: 12,
-                                right: 12,
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: _getMatchColor(matchPercentage),
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        blurRadius: 4,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.local_fire_department,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        "$matchPercentage% Match",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ItemPage(
+                            title: recipe.name,
+                            imagePath: recipe.imagePath,
+                            servings: recipe.servings,
+                            calories: recipe.calories,
+                            time: '${recipe.duration} min',
+                            ingredients: recipe.ingredients,
+                            tags: recipe.tags,
+                            recipeText: recipe.recipeText,
+                            initialFavorite: recipe.isFavorite,
                           ),
                         ),
-                        
-                        // Recipe details
-                        Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                recipe.name,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              
-                              // Recipe info row
-                              Row(
-                                children: [
-                                  _buildInfoChip(
-                                    Icons.access_time,
-                                    "${recipe.duration} min",
-                                  ),
-                                  SizedBox(width: 12),
-                                  _buildInfoChip(
-                                    Icons.restaurant,
-                                    recipe.servings,
-                                  ),
-                                  SizedBox(width: 12),
-                                  _buildInfoChip(
-                                    Icons.local_fire_department_outlined,
-                                    recipe.calories,
-                                  ),
-                                ],
-                              ),
-                              
-                              SizedBox(height: 12),
-                              
-                              // Tags
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: recipe.tags.map((tag) {
-                                  return Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.red600.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      tag,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: AppColors.red600,
-                                        fontWeight: FontWeight.w500,
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          // Image and basic info
+                          ClipRRect(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  recipe.imagePath,
+                                  width: double.infinity,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      height: 200,
+                                      color: Colors.grey[300],
+                                      child: Icon(
+                                        Icons.restaurant,
+                                        size: 60,
+                                        color: Colors.grey,
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              
-                              SizedBox(height: 12),
-                              
-                              // Matched ingredients
-                              Text(
-                                "Matching ingredients:",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey[700],
+                                    );
+                                  },
                                 ),
-                              ),
-                              SizedBox(height: 6),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: recipe.ingredients
-                                    .where((ingredient) => widget.selectedIngredients.any(
-                                        (selected) =>
-                                            ingredient.toLowerCase().contains(selected.toLowerCase()) ||
-                                            selected.toLowerCase().contains(ingredient.toLowerCase())))
-                                    .map((ingredient) {
-                                  return Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                // Match percentage badge
+                                Positioned(
+                                  top: 12,
+                                  right: 12,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.success1.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                        color: AppColors.green.withOpacity(0.3),
-                                      ),
+                                      color: _getMatchColor(matchPercentage),
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          blurRadius: 4,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
-                                          Icons.check,
-                                          size: 12,
-                                          color: AppColors.green,
+                                          Icons.local_fire_department,
+                                          color: Colors.white,
+                                          size: 16,
                                         ),
                                         SizedBox(width: 4),
                                         Text(
-                                          ingredient,
+                                          "$matchPercentage% Match",
                                           style: TextStyle(
-                                            fontSize: 11,
-                                            color: AppColors.green,
-                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  );
-                                }).toList(),
-                              ),
-                            ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+
+                          // Recipe details
+                          Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  recipe.name,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+
+                                // Recipe info row
+                                Row(
+                                  children: [
+                                    _buildInfoChip(
+                                      Icons.access_time,
+                                      "${recipe.duration} min",
+                                    ),
+                                    SizedBox(width: 12),
+                                    _buildInfoChip(
+                                      Icons.restaurant,
+                                      recipe.servings,
+                                    ),
+                                    SizedBox(width: 12),
+                                    _buildInfoChip(
+                                      Icons.local_fire_department_outlined,
+                                      recipe.calories,
+                                    ),
+                                  ],
+                                ),
+
+                                SizedBox(height: 12),
+
+                                // Tags
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  children: recipe.tags.map((tag) {
+                                    return Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.red600.withOpacity(
+                                          0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        tag,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.red600,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+
+                                SizedBox(height: 12),
+
+                                // Matched ingredients
+                                Text(
+                                  "Matching ingredients:",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                SizedBox(height: 6),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  children: recipe.ingredients
+                                      .where(
+                                        (
+                                          ingredient,
+                                        ) => widget.selectedIngredients.any(
+                                          (selected) =>
+                                              ingredient.toLowerCase().contains(
+                                                selected.toLowerCase(),
+                                              ) ||
+                                              selected.toLowerCase().contains(
+                                                ingredient.toLowerCase(),
+                                              ),
+                                        ),
+                                      )
+                                      .map((ingredient) {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.success1
+                                                .withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            border: Border.all(
+                                              color: AppColors.green
+                                                  .withOpacity(0.3),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.check,
+                                                size: 12,
+                                                color: AppColors.green,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                ingredient,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: AppColors.green,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      })
+                                      .toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
