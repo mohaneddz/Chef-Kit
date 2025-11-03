@@ -40,9 +40,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemTapped: (index) {
-          // If fire button (index 2) is tapped, navigate directly to recipe loading
           if (index == 2) {
-            // Get all available ingredients (mock data for now)
             final List<String> availableIngredients = [
               "Escalope",
               "Tomato",
@@ -73,7 +71,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Temporary placeholder widget for screens that haven't been created yet
 class _PlaceholderScreen extends StatelessWidget {
   final String title;
   final IconData icon;

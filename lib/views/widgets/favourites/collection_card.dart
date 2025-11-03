@@ -30,7 +30,7 @@ class CollectionCard extends StatelessWidget {
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             offset: const Offset(4, 4),
             blurRadius: 8,
           ),

@@ -28,14 +28,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
   @override
   void initState() {
     super.initState();
-
-    // 🔁 Rotation controller — smooth, continuous
     _rotationController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat();
-
-    // 💫 Scale controller — smooth pulsing (zooms in/out repeatedly)
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -44,8 +40,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
-
-    // Simulate loading process
     _simulateLoading();
   }
 
@@ -58,8 +52,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
         });
       }
     }
-
-    // Navigate after final step
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
       Navigator.pushReplacement(
@@ -91,8 +83,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-
-              // 🍳 Animated cooking icon
               AnimatedBuilder(
                 animation: Listenable.merge([
                   _rotationController,
@@ -119,7 +109,9 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFFF6B6B).withOpacity(0.4),
+                              color: const Color(
+                                0xFFFF6B6B,
+                              ).withValues(alpha: 0.4),
                               blurRadius: 30,
                               spreadRadius: 5,
                               offset: const Offset(0, 10),
@@ -138,8 +130,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               ),
 
               const SizedBox(height: 50),
-
-              // Title
               Text(
                 "Finding Recipes",
                 style: TextStyle(
@@ -150,8 +140,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               ),
 
               const SizedBox(height: 20),
-
-              // Step text
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
                 child: Text(
@@ -167,8 +155,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               ),
 
               const SizedBox(height: 40),
-
-              // Progress bar
               SizedBox(
                 width: 200,
                 child: LinearProgressIndicator(
@@ -179,8 +165,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               ),
 
               const SizedBox(height: 40),
-
-              // Ingredients list
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -220,10 +204,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.red600.withOpacity(0.1),
+                            color: AppColors.red600.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: AppColors.red600.withOpacity(0.3),
+                              color: AppColors.red600.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Text(
