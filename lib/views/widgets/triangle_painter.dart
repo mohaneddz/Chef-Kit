@@ -15,7 +15,7 @@ class TrianglePainter extends CustomPainter {
     this.gradient,
     this.shadowColor = Colors.black,
     this.elevation = 8.0,
-    this.adjustment = 0,
+    this.adjustment = 1,
     required this.stratProportion,
     required this.endProportion,
     this.isReversed = false,
