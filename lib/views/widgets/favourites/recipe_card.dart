@@ -25,7 +25,7 @@ class RecipeCard extends StatelessWidget {
           children: [
             Container(
               margin: const EdgeInsets.only(top: 50),
-              width: 160,
+              constraints: const BoxConstraints(minWidth: 160, maxWidth: 180),
               height: 140,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               decoration: BoxDecoration(

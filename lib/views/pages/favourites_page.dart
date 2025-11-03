@@ -33,7 +33,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "My Favourite Recipes",
+              "Favourites",
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
@@ -108,13 +108,37 @@ class _FavouritesPageState extends State<FavouritesPage> {
                 endIndent: 20,
               ),
               const SizedBox(height: 16),
-              Center(
-                child: Wrap(
-                  spacing: 16,
-                  children: selectedRecipes
-                      .map((r) => RecipeCard(recipe: r))
-                      .toList(),
-                ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final availableWidth = constraints.maxWidth;
+                  int crossAxisCount;
+
+                  if (availableWidth < 250) {
+                    crossAxisCount = 1;
+                  } else if (availableWidth < 540) {
+                    crossAxisCount = 2;
+                  } else if (availableWidth < 740) {
+                    crossAxisCount = 3;
+                  } else {
+                    crossAxisCount = 4;
+                  }
+
+                  return Center(
+                    child: Wrap(
+                      spacing: 16,
+                      runSpacing: 0,
+                      alignment: WrapAlignment.center,
+                      children: selectedRecipes.map((r) {
+                        return SizedBox(
+                          width: crossAxisCount == 1
+                              ? availableWidth * 0.8
+                              : (availableWidth / crossAxisCount) - 20,
+                          child: RecipeCard(recipe: r),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
