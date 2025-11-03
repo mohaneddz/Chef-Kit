@@ -1,4 +1,6 @@
 import 'package:chefkit/common/app_colors.dart';
+import 'package:chefkit/views/pages/home_page.dart';
+import 'package:chefkit/views/pages/singup_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:chefkit/views/widgets/triangle_painter.dart';
@@ -27,7 +29,11 @@ class _LoginPageState extends State<LoginPage> {
               MediaQuery.of(context).size.width,
               MediaQuery.of(context).size.height,
             ),
-            painter: TrianglePainter(color: AppColors.orange, stratProportion: 0.4, endProportion: 0.2),
+            painter: TrianglePainter(
+              color: AppColors.orange,
+              stratProportion: 0.4,
+              endProportion: 0.2,
+            ),
           ),
           LayoutBuilder(
             builder: (context, constraints) => SingleChildScrollView(
@@ -63,19 +69,27 @@ class _LoginPageState extends State<LoginPage> {
                           TextFieldWidget(
                             controller: emailController,
                             hintText: "Email Address",
-                            trailingIcon: Icons.email_outlined
+                            trailingIcon: Icons.email_outlined,
                           ),
                           SizedBox(height: 20),
                           TextFieldWidget(
                             controller: passwordController,
                             hintText: "Password",
-                            trailingIcon: Icons.visibility_off_outlined
+                            trailingIcon: Icons.visibility_off_outlined,
                           ),
                         ],
                       ),
                       Column(
                         children: [
-                          ButtonWidget(text: "Log In",),
+                          ButtonWidget(
+                            text: "Log In",
+                            onTap: () => Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomePage(),
+                              ),
+                            ),
+                          ),
                           SizedBox(height: 25),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -90,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               SizedBox(width: 3),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const SingupPage(),)),
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: Size.zero,

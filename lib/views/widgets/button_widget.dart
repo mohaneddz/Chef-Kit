@@ -2,15 +2,17 @@ import 'package:chefkit/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class ButtonWidget extends StatelessWidget {
-  const ButtonWidget({super.key, required this.text});
+  const ButtonWidget({super.key, required this.text, required this.onTap});
 
+  final VoidCallback? onTap;
   final String text;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
-        onPressed: () {},
+        onPressed: onTap,
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.white,
           padding: EdgeInsets.all(16),

@@ -1,4 +1,6 @@
 import 'package:chefkit/common/app_colors.dart';
+import 'package:chefkit/views/pages/home_page.dart';
+import 'package:chefkit/views/pages/login_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:chefkit/views/widgets/triangle_painter.dart';
@@ -93,7 +95,7 @@ class _SingupPageState extends State<SingupPage> {
                         Column(
                           children: [
                             const SizedBox(height: 30),
-                            ButtonWidget(text: "Sign Up"),
+                            ButtonWidget(text: "Sign Up", onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const HomePage(),)),),
                             const SizedBox(height: 25),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -107,7 +109,7 @@ class _SingupPageState extends State<SingupPage> {
                                 ),
                                 const SizedBox(width: 3),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const LoginPage(),)),
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,
