@@ -1,4 +1,5 @@
 import 'package:chefkit/views/pages/favourites_page.dart';
+import 'package:chefkit/views/pages/ingredient_selection_page.dart';
 import 'package:chefkit/views/pages/inventory_page.dart';
 import './discovery_page.dart';
 import 'package:chefkit/views/widgets/custom_bottom_navbar.dart';
@@ -30,9 +31,19 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemTapped: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          // If fire button (index 2) is tapped, navigate to ingredient selection
+          if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => IngredientSelectionPage(),
+              ),
+            );
+          } else {
+            setState(() {
+              _selectedIndex = index;
+            });
+          }
         },
       ),
     );

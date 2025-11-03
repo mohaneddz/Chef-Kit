@@ -14,33 +14,44 @@ class IngredientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      width: 144,
+      height: 180,
       child: Stack(
-        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
         children: [
-          Container(
-            width: 144,
-            height: 117,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
-                  offset: Offset(4, 4),
-                  blurRadius: 8,
-                ),
-                BoxShadow(
-                  color: Color(0xFFF5F3EF),
-                  offset: Offset(-5, -5),
-                  blurRadius: 5,
-                ),
-              ],
+          // Background card
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 140,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    offset: Offset(4, 4),
+                    blurRadius: 8,
+                  ),
+                  BoxShadow(
+                    color: Color(0xFFF5F3EF),
+                    offset: Offset(-5, -5),
+                    blurRadius: 5,
+                  ),
+                ],
+              ),
             ),
           ),
+          // Image positioned at the top
           Positioned(
-            top: 10,
+            top: 0,
+            left: 0,
+            right: 0,
             child: Container(
+              height: 90,
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -52,32 +63,50 @@ class IngredientCard extends StatelessWidget {
               ),
               child: Image.asset(
                 imageUrl,
+                height: 90,
                 fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(
+                    Icons.fastfood,
+                    size: 60,
+                    color: Colors.grey[400],
+                  );
+                },
               ),
             ),
           ),
+          // Text and badge at bottom
           Positioned(
             bottom: 10,
+            left: 0,
+            right: 0,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   ingredientName,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 3),
+                SizedBox(height: 2),
                 Text(
                   ingredientType,
                   style: TextStyle(
                     color: Color(0xFFC65B42),
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.normal,
                   ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 6),
                 Container(
                   width: 86,
                   height: 19,
@@ -101,7 +130,6 @@ class IngredientCard extends StatelessWidget {
                             Icons.check,
                             color: Colors.white,
                             size: 10,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -109,7 +137,7 @@ class IngredientCard extends StatelessWidget {
                         "In Stock",
                         style: TextStyle(
                           color: Color(0xFF008236),
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
