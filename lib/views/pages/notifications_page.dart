@@ -93,20 +93,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
     },
   ];
 
-  void _markAsRead(int index) {
-    setState(() {
-      _notifications[index]['isRead'] = true;
-    });
-  }
-
-  void _markAllAsRead() {
-    setState(() {
-      for (var notification in _notifications) {
-        notification['isRead'] = true;
-      }
-    });
-  }
-
   int get _unreadCount => _notifications.where((n) => !n['isRead']).length;
 
   @override
@@ -147,7 +133,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         actions: [
           if (_unreadCount > 0)
             TextButton(
-              onPressed: _markAllAsRead,
+              onPressed: () {},
               child: Text(
                 'Mark all read',
                 style: TextStyle(
@@ -220,7 +206,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         );
       },
       child: GestureDetector(
-        onTap: () => _markAsRead(index),
+        onTap: () {},
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),

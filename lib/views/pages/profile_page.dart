@@ -63,423 +63,381 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               const SizedBox(height: 10),
               // Profile Header Card
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 600),
-                curve: Curves.easeOut,
-                builder: (context, value, child) {
-                  return Transform.scale(
-                    scale: value,
-                    child: Opacity(opacity: value, child: child),
-                  );
-                },
-                child: Center(
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
+              Center(
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.red600.withOpacity(0.1),
+                                AppColors.red600.withOpacity(0.05),
+                              ],
+                            ),
+                            border: Border.all(
+                              color: AppColors.red600.withOpacity(0.2),
+                              width: 2,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 48,
+                            backgroundColor: Colors.white,
+                            child: Icon(
+                              Icons.person,
+                              size: 50,
+                              color: AppColors.red600,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
                               gradient: LinearGradient(
-                                colors: [
-                                  AppColors.red600.withOpacity(0.1),
-                                  AppColors.red600.withOpacity(0.05),
-                                ],
+                                colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
                               ),
-                              border: Border.all(
-                                color: AppColors.red600.withOpacity(0.2),
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 48,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                Icons.person,
-                                size: 50,
-                                color: AppColors.red600,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.red600.withOpacity(0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
                                 ),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.red600.withOpacity(0.3),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.camera_alt,
-                                size: 14,
-                                color: Colors.white,
-                              ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 14,
+                              color: Colors.white,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Chef Ramsay",
-                        style: TextStyle(
-                          color: AppColors.black,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Poppins",
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Chef Ramsay",
+                      style: TextStyle(
+                        color: AppColors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Poppins",
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "chef.ramsay@chefkit.com",
-                        style: TextStyle(
-                          color: const Color(0xFF6A7282),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Poppins",
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "chef.ramsay@chefkit.com",
+                      style: TextStyle(
+                        color: const Color(0xFF6A7282),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: "Poppins",
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 25),
               // Stats Row
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOut,
-                builder: (context, value, child) {
-                  return Transform.translate(
-                    offset: Offset(0, 30 * (1 - value)),
-                    child: Opacity(opacity: value, child: child),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        icon: Icons.restaurant_menu,
-                        value: "24",
-                        label: "Recipes",
-                        color1: AppColors.red600,
-                        color2: AppColors.red600.withOpacity(0.7),
-                      ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.restaurant_menu,
+                      value: "24",
+                      label: "Recipes",
+                      color1: AppColors.red600,
+                      color2: AppColors.red600.withOpacity(0.7),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        icon: Icons.favorite,
-                        value: "48",
-                        label: "Favorites",
-                        color1: AppColors.orange,
-                        color2: AppColors.orange.withOpacity(0.7),
-                      ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.favorite,
+                      value: "48",
+                      label: "Favorites",
+                      color1: AppColors.orange,
+                      color2: AppColors.orange.withOpacity(0.7),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        icon: Icons.bookmark,
-                        value: "12",
-                        label: "Saved",
-                        color1: AppColors.red600,
-                        color2: AppColors.orange,
-                      ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.bookmark,
+                      value: "12",
+                      label: "Saved",
+                      color1: AppColors.red600,
+                      color2: AppColors.orange,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               const SizedBox(height: 25),
               // Account Settings Section
-              _buildSectionWithAnimation(
-                delay: 900,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
                           ),
-                          child: const Icon(
-                            Icons.settings,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          "Account Settings",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.black,
-                            fontFamily: "Poppins",
-                          ),
+                        child: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 20,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSettingsTile(
-                      icon: Icons.person_outline,
-                      title: "Edit Profile",
-                      subtitle: "Update your personal information",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSettingsTile(
-                      icon: Icons.notifications_outlined,
-                      title: "Notifications",
-                      subtitle: "Manage notification preferences",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationsPage()),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSettingsTile(
-                      icon: Icons.lock_outline,
-                      title: "Privacy & Security",
-                      subtitle: "Password and security settings",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      ),
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              // Preferences Section
-              _buildSectionWithAnimation(
-                delay: 1100,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.red600,
-                                AppColors.red600.withOpacity(0.8),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.tune,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        "Account Settings",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.black,
+                          fontFamily: "Poppins",
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          "Preferences",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.black,
-                            fontFamily: "Poppins",
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSettingsTile(
-                      icon: Icons.language,
-                      title: "Language",
-                      subtitle: "English (US)",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      ),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const LanguagePopup(),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSettingsTile(
-                      icon: Icons.restaurant,
-                      title: "Dietary Preferences",
-                      subtitle: "Manage your dietary restrictions",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      ),
-                      onTap: () {},
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSettingsTile(
-                      icon: Icons.palette_outlined,
-                      title: "Theme",
-                      subtitle: "Light mode",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      ),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const ThemePopup(),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              // Support Section
-              _buildSectionWithAnimation(
-                delay: 1300,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.help_outline,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          "Support",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.black,
-                            fontFamily: "Poppins",
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSettingsTile(
-                      icon: Icons.help_outline,
-                      title: "Help & Support",
-                      subtitle: "Get help with the app",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      ),
-                      onTap: () {},
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSettingsTile(
-                      icon: Icons.info_outline,
-                      title: "About",
-                      subtitle: "App version & information",
-                      gradient: LinearGradient(
-                        colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AboutPage()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              // Logout Button
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 1500),
-                curve: Curves.easeOut,
-                builder: (context, value, child) {
-                  return Transform.scale(
-                    scale: value,
-                    child: Opacity(opacity: value, child: child),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.red600.withOpacity(0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Implement logout
+                  const SizedBox(height: 16),
+                  _buildSettingsTile(
+                    icon: Icons.person_outline,
+                    title: "Edit Profile",
+                    subtitle: "Update your personal information",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    icon: Icons.notifications_outlined,
+                    title: "Notifications",
+                    subtitle: "Manage notification preferences",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.logout, color: Colors.white, size: 20),
-                        SizedBox(width: 12),
-                        Text(
-                          "Logout",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: "Poppins",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    icon: Icons.lock_outline,
+                    title: "Privacy & Security",
+                    subtitle: "Password and security settings",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    ),
+                    onTap: () {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              // Preferences Section
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.red600,
+                              AppColors.red600.withOpacity(0.8),
+                            ],
                           ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
+                        child: const Icon(
+                          Icons.tune,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        "Preferences",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.black,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSettingsTile(
+                    icon: Icons.language,
+                    title: "Language",
+                    subtitle: "English (US)",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
                     ),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const LanguagePopup(),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    icon: Icons.restaurant,
+                    title: "Dietary Preferences",
+                    subtitle: "Manage your dietary restrictions",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    ),
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    icon: Icons.palette_outlined,
+                    title: "Theme",
+                    subtitle: "Light mode",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    ),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const ThemePopup(),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              // Support Section
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.help_outline,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        "Support",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.black,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSettingsTile(
+                    icon: Icons.help_outline,
+                    title: "Help & Support",
+                    subtitle: "Get help with the app",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    ),
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    icon: Icons.info_outline,
+                    title: "About",
+                    subtitle: "App version & information",
+                    gradient: LinearGradient(
+                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AboutPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              // Logout Button
+              Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.red600.withOpacity(0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: Implement logout
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.logout, color: Colors.white, size: 20),
+                      SizedBox(width: 12),
+                      Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -548,24 +506,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionWithAnimation({
-    required int delay,
-    required Widget child,
-  }) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: delay),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(opacity: value, child: child),
-        );
-      },
-      child: child,
     );
   }
 
