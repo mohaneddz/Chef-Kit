@@ -26,7 +26,7 @@ class CollectionCard extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(20),
         border: isActive
-            ? Border.all(color: AppColors.orange, width: 1.5)
+            ? Border.all(color: AppColors.red600, width: 1.5)
             : null,
         boxShadow: [
           BoxShadow(
@@ -54,7 +54,7 @@ class CollectionCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isActive ? AppColors.orange : AppColors.black,
+                  color: isActive ? AppColors.red600 : AppColors.black,
                 ),
               ),
               const SizedBox(height: 2),
