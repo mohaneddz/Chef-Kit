@@ -1,6 +1,7 @@
 import 'package:chefkit/views/pages/favourites_page.dart';
 import 'package:chefkit/views/pages/ingredient_selection_page.dart';
 import 'package:chefkit/views/pages/inventory_page.dart';
+import 'package:chefkit/views/pages/profile_page.dart';
 import './discovery_page.dart';
 import 'package:chefkit/views/widgets/custom_bottom_navbar.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +19,10 @@ class _HomePageState extends State<HomePage> {
   // Placeholder screens - you can replace these with actual pages later
   final List<Widget> _screens = [
     RecipeDiscoveryScreen(),
-    InventoryPage(), // Your existing inventory page
+    InventoryPage(),
     _PlaceholderScreen(title: 'Refresh/Recipe', icon: Icons.refresh),
     FavouritesPage(),
-    _PlaceholderScreen(title: 'Profile', icon: Icons.person),
+    ProfilePage(),
   ];
 
   @override
