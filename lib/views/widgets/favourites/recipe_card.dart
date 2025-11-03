@@ -14,7 +14,19 @@ class RecipeCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ItemPage()),
+          MaterialPageRoute(
+            builder: (context) => ItemPage(
+              title: recipe.name,
+              imagePath: recipe.imagePath,
+              servings: recipe.servings,
+              calories: recipe.calories,
+              time: '${recipe.duration} min',
+              ingredients: recipe.ingredients,
+              tags: recipe.tags,
+              recipeText: recipe.recipeText,
+              initialFavorite: recipe.isFavorite,
+            ),
+          ),
         );
       },
       child: Container(

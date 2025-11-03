@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../common/app_colors.dart';
 import '../widgets/discovery/recipe_card_widget.dart';
+import './item_page.dart';
 
 class AllHotRecipesPage extends StatefulWidget {
   const AllHotRecipesPage({Key? key}) : super(key: key);
@@ -21,6 +22,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Traditional',
       'trending': true,
+      'servings': '4 servings',
+      'calories': '450 Kcal',
+      'time': '45 min',
+      'ingredients': ['Semolina', 'Tomatoes', 'Onions', 'Peppers', 'Spices'],
+      'tags': ['Traditional', 'Algerian', 'Savory'],
+      'recipeText': 'Mahjouba is a traditional Algerian flatbread stuffed with a savory tomato and pepper mixture. Start by preparing the thin semolina dough, then cook the filling with tomatoes, onions, and spices. Fold the dough over the filling and cook on a griddle until golden brown.',
     },
     {
       'title': 'Couscous/ Berbousha',
@@ -29,6 +36,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Traditional',
       'trending': true,
+      'servings': '6 servings',
+      'calories': '650 Kcal',
+      'time': '120 min',
+      'ingredients': ['Couscous', 'Chicken', 'Zucchini', 'Carrots', 'Chickpeas', 'Turnips'],
+      'tags': ['Traditional', 'Algerian', 'Main Dish'],
+      'recipeText': 'A traditional North African dish made with steamed semolina granules. First, prepare the vegetables by cutting them into large pieces. Cook the meat with onions and spices. Steam the couscous grains multiple times for a fluffy texture. Serve with the meat and vegetables on top.',
     },
     {
       'title': 'Barkoukes',
@@ -37,6 +50,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Soup',
       'trending': false,
+      'servings': '5 servings',
+      'calories': '380 Kcal',
+      'time': '90 min',
+      'ingredients': ['Barkoukes pasta', 'Lamb', 'Chickpeas', 'Tomatoes', 'Spices', 'Herbs'],
+      'tags': ['Traditional', 'Soup', 'Hearty'],
+      'recipeText': 'Barkoukes is a traditional North African soup made with handmade pasta pearls. Cook the meat with chickpeas and spices. Add the barkoukes pasta and simmer until tender. Season with fresh herbs and serve hot.',
     },
     {
       'title': 'Escalope',
@@ -45,6 +64,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Quick',
       'trending': true,
+      'servings': '4 servings',
+      'calories': '520 Kcal',
+      'time': '30 min',
+      'ingredients': ['Chicken breast', 'Eggs', 'Breadcrumbs', 'Flour', 'Oil', 'Spices'],
+      'tags': ['Quick', 'Fried', 'Crispy'],
+      'recipeText': 'Crispy breaded chicken cutlets that are golden and delicious. Pound the chicken breast thin, coat in flour, dip in beaten eggs, then cover with breadcrumbs. Fry in hot oil until golden brown on both sides. Serve with fries or salad.',
     },
     {
       'title': 'Tajine',
@@ -53,6 +78,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Traditional',
       'trending': false,
+      'servings': '4 servings',
+      'calories': '580 Kcal',
+      'time': '150 min',
+      'ingredients': ['Lamb', 'Prunes', 'Almonds', 'Onions', 'Saffron', 'Ginger'],
+      'tags': ['Traditional', 'Sweet & Savory', 'Slow-cooked'],
+      'recipeText': 'A traditional Moroccan slow-cooked stew. Brown the lamb with spices including saffron and ginger. Add onions, prunes, and almonds. Let it simmer slowly in a traditional tagine pot for hours until the meat is tender and falls off the bone.',
     },
     {
       'title': 'Chorba',
@@ -61,6 +92,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Soup',
       'trending': true,
+      'servings': '6 servings',
+      'calories': '320 Kcal',
+      'time': '60 min',
+      'ingredients': ['Lamb', 'Vermicelli', 'Chickpeas', 'Tomatoes', 'Spices', 'Lemon'],
+      'tags': ['Traditional', 'Soup', 'Ramadan'],
+      'recipeText': 'A hearty Algerian soup perfect for breaking fast during Ramadan. Cook lamb with tomatoes and spices. Add chickpeas and vermicelli pasta. Season with lemon juice and fresh cilantro before serving.',
     },
     {
       'title': 'Rechta',
@@ -69,6 +106,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Traditional',
       'trending': false,
+      'servings': '5 servings',
+      'calories': '620 Kcal',
+      'time': '90 min',
+      'ingredients': ['Flour', 'Chicken', 'Chickpeas', 'Onions', 'Turnips', 'Spices'],
+      'tags': ['Traditional', 'Pasta', 'Festive'],
+      'recipeText': 'Rechta features homemade flat noodles served with chicken and vegetables in a flavorful sauce. Make the pasta dough, roll it thin, and cut into strips. Cook chicken with chickpeas and vegetables. Serve the noodles topped with the chicken mixture.',
     },
     {
       'title': 'Chakhchoukha',
@@ -77,6 +120,12 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
       'isFavorite': false,
       'category': 'Traditional',
       'trending': false,
+      'servings': '6 servings',
+      'calories': '680 Kcal',
+      'time': '120 min',
+      'ingredients': ['Rougag bread', 'Lamb', 'Chickpeas', 'Tomatoes', 'Spices', 'Vegetables'],
+      'tags': ['Traditional', 'Algerian', 'Festive'],
+      'recipeText': 'A traditional Algerian dish from the Biskra region. Prepare torn pieces of rougag bread. Cook lamb with vegetables and chickpeas in a rich tomato sauce. Pour the sauce over the bread pieces and let it soak before serving.',
     },
   ];
 
@@ -211,12 +260,20 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
                           imageUrl: recipe['imageUrl'],
                           isFavorite: recipe['isFavorite'],
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Opening ${recipe['title']}...'),
-                                duration: const Duration(seconds: 1),
-                                behavior: SnackBarBehavior.floating,
-                                backgroundColor: AppColors.red600,
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ItemPage(
+                                  title: recipe['title'],
+                                  imagePath: recipe['imageUrl'],
+                                  servings: recipe['servings'],
+                                  calories: recipe['calories'],
+                                  time: recipe['time'],
+                                  ingredients: List<String>.from(recipe['ingredients']),
+                                  tags: List<String>.from(recipe['tags']),
+                                  recipeText: recipe['recipeText'],
+                                  initialFavorite: recipe['isFavorite'],
+                                ),
                               ),
                             );
                           },
