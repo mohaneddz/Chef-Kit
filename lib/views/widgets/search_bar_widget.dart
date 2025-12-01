@@ -1,5 +1,5 @@
-import 'package:chefkit/common/app_colors.dart';
-import 'package:chefkit/views/widgets/triangle_painter.dart';
+import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/views/layout/triangle_painter.dart';
 import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
