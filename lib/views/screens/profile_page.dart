@@ -1,8 +1,9 @@
-import '../../common/constants.dart';
+import 'package:chefkit/common/constants.dart';
 import 'package:flutter/material.dart';
 import 'notifications_page.dart';
 import 'edit_profile_page.dart';
 import 'about_page.dart';
+import 'my_recipes_page.dart';
 import '../../blocs/profile/popups/theme_popup.dart';
 import '../../blocs/profile/popups/language_popup.dart';
 
@@ -14,574 +15,316 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Dummy variable to simulate if the user is a chef
+  final bool isChef = true; 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leadingWidth: 72,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: Icon(
-            Icons.person,
-            size: 52,
-            color: AppColors.red600,
+        centerTitle: true,
+        title: const Text(
+          "Profile",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            fontFamily: "Poppins",
           ),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "My Profile",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Poppins",
-              ),
-            ),
-            const Text(
-              "Manage your account",
-              style: TextStyle(
-                color: Color(0xFF4A5565),
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                fontFamily: "Poppins",
-              ),
-            ),
-          ],
-        ),
-        centerTitle: false,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.more_horiz, color: Colors.black),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              // Profile Header Card
-              Center(
-                child: Column(
-                  children: [
-                    Stack(
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.red600.withOpacity(0.1),
-                                AppColors.red600.withOpacity(0.05),
-                              ],
-                            ),
-                            border: Border.all(
-                              color: AppColors.red600.withOpacity(0.2),
-                              width: 2,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 48,
-                            backgroundColor: Colors.white,
-                            child: Icon(
-                              Icons.person,
-                              size: 50,
-                              color: AppColors.red600,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                              ),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.red600.withOpacity(0.3),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      "Chef Ramsay",
-                      style: TextStyle(
-                        color: AppColors.black,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Poppins",
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "chef.ramsay@chefkit.com",
-                      style: TextStyle(
-                        color: const Color(0xFF6A7282),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "Poppins",
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 25),
-              // Stats Row
-              Row(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            // Profile Header
+            Center(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      icon: Icons.restaurant_menu,
-                      value: "24",
-                      label: "Recipes",
-                      color1: AppColors.red600,
-                      color2: AppColors.red600.withOpacity(0.7),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatCard(
-                      icon: Icons.favorite,
-                      value: "48",
-                      label: "Favorites",
-                      color1: AppColors.orange,
-                      color2: AppColors.orange.withOpacity(0.7),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatCard(
-                      icon: Icons.bookmark,
-                      value: "12",
-                      label: "Saved",
-                      color1: AppColors.red600,
-                      color2: AppColors.orange,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 25),
-              // Account Settings Section
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                  Stack(
+                    alignment: Alignment.bottomRight,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.red600.withOpacity(0.2),
+                            width: 2,
                           ),
-                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
-                          Icons.settings,
-                          color: Colors.white,
-                          size: 20,
+                        child: const CircleAvatar(
+                          radius: 55,
+                          backgroundImage:
+                              AssetImage('assets/images/chefs/chef_1.png'),
+                          backgroundColor: Colors.transparent,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        "Account Settings",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.black,
-                          fontFamily: "Poppins",
+                      Container(
+                        margin: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.red600,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                        ),
+                        child: const Icon(
+                          Icons.edit,
+                          size: 14,
+                          color: Colors.white,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildSettingsTile(
-                    icon: Icons.person_outline,
-                    title: "Edit Profile",
-                    subtitle: "Update your personal information",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                  const Text(
+                    "Chef Ramsay",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Poppins",
+                      color: Colors.black,
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                      );
-                    },
                   ),
-                  const SizedBox(height: 12),
-                  _buildSettingsTile(
+                  const SizedBox(height: 4),
+                  Text(
+                    "chef.ramsay@chefkit.com",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 30),
+            
+            // Stats Row
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                children: [
+                  Expanded(child: _buildStatItem("Recipes", "24")),
+                  Container(width: 1, height: 40, color: Colors.grey[200]),
+                  Expanded(child: _buildStatItem("Following", "48")),
+                  Container(width: 1, height: 40, color: Colors.grey[200]),
+                  Expanded(child: _buildStatItem("Followers", "12k")),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+            Divider(height: 1, color: Colors.grey[100]),
+            const SizedBox(height: 20),
+
+            // Menu Items
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isChef) ...[
+                    _buildSectionTitle("Chef's Corner"),
+                    const SizedBox(height: 16),
+                    _buildMenuItem(
+                      icon: Icons.restaurant_menu_rounded,
+                      title: "My Recipes",
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MyRecipesPage()),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+
+                  _buildSectionTitle("General"),
+                  const SizedBox(height: 16),
+                  _buildMenuItem(
+                    icon: Icons.person_outline_rounded,
+                    title: "Personal Info",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                    ),
+                  ),
+                  _buildMenuItem(
                     icon: Icons.notifications_outlined,
                     title: "Notifications",
-                    subtitle: "Manage notification preferences",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const NotificationsPage()),
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const NotificationsPage()),
-                      );
-                    },
                   ),
-                  const SizedBox(height: 12),
-                  _buildSettingsTile(
-                    icon: Icons.lock_outline,
-                    title: "Privacy & Security",
-                    subtitle: "Password and security settings",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                    ),
+                  _buildMenuItem(
+                    icon: Icons.security_outlined,
+                    title: "Security",
                     onTap: () {},
                   ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              // Preferences Section
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.red600,
-                              AppColors.red600.withOpacity(0.8),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.tune,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        "Preferences",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.black,
-                          fontFamily: "Poppins",
-                        ),
-                      ),
-                    ],
-                  ),
+
+                  const SizedBox(height: 32),
+                  _buildSectionTitle("Preferences"),
                   const SizedBox(height: 16),
-                  _buildSettingsTile(
-                    icon: Icons.language,
+                  _buildMenuItem(
+                    icon: Icons.language_rounded,
                     title: "Language",
-                    subtitle: "English (US)",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
+                    trailing: "English (US)",
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => const LanguagePopup(),
                     ),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const LanguagePopup(),
-                      );
-                    },
                   ),
-                  const SizedBox(height: 12),
-                  _buildSettingsTile(
-                    icon: Icons.restaurant,
-                    title: "Dietary Preferences",
-                    subtitle: "Manage your dietary restrictions",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                    ),
-                    onTap: () {},
+                  _buildMenuItem(
+                    icon: Icons.dark_mode_outlined,
+                    title: "Dark Mode",
+                    isSwitch: true,
+                    onTap: () {}, // Toggle logic
                   ),
-                  const SizedBox(height: 12),
-                  _buildSettingsTile(
-                    icon: Icons.palette_outlined,
-                    title: "Theme",
-                    subtitle: "Light mode",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                    ),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const ThemePopup(),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              // Support Section
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.help_outline,
-                          color: Colors.white,
-                          size: 20,
+
+                  const SizedBox(height: 40),
+                  
+                  // Logout Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: AppColors.red600.withOpacity(0.05),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        "Support",
+                      child: Text(
+                        "Log Out",
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.black,
-                          fontFamily: "Poppins",
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSettingsTile(
-                    icon: Icons.help_outline,
-                    title: "Help & Support",
-                    subtitle: "Get help with the app",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                    ),
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSettingsTile(
-                    icon: Icons.info_outline,
-                    title: "About",
-                    subtitle: "App version & information",
-                    gradient: LinearGradient(
-                      colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const AboutPage()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              // Logout Button
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: [AppColors.red600, AppColors.red600.withOpacity(0.8)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.red600.withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: Implement logout
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.logout, color: Colors.white, size: 20),
-                      SizedBox(width: 12),
-                      Text(
-                        "Logout",
-                        style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.red600,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           fontFamily: "Poppins",
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 40),
+                ],
               ),
-              const SizedBox(height: 30),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color1,
-    required Color color2,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color1.withOpacity(0.15), color2.withOpacity(0.15)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color1.withOpacity(0.3), width: 1.5),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [color1, color2]),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: color1.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Icon(icon, size: 24, color: Colors.white),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              color: color1,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Poppins",
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: color1,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              fontFamily: "Poppins",
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required LinearGradient gradient,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.grey.withOpacity(0.15),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            fontFamily: "Poppins",
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[500],
+            fontFamily: "Poppins",
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        fontFamily: "Poppins",
+        color: Colors.black,
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    String? trailing,
+    bool isSwitch = false,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: AppColors.red600.withOpacity(0.08),
+                color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
                 size: 22,
-                color: AppColors.red600,
+                color: Colors.black87,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: AppColors.black,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "Poppins",
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: const Color(0xFF6A7282),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: "Poppins",
-                    ),
-                  ),
-                ],
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: "Poppins",
+                  color: Colors.black87,
+                ),
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-              size: 24,
-            ),
+            if (isSwitch)
+              Switch(
+                value: false, 
+                onChanged: (val) {},
+                activeColor: AppColors.red600,
+              )
+            else if (trailing != null)
+              Row(
+                children: [
+                  Text(
+                    trailing,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+                ],
+              )
+            else
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
           ],
         ),
       ),
