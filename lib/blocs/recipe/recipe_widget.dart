@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:chefkit/blocs/inventory/ingredients_widget.dart';
+import 'package:chefkit/views/widgets/inventory/ingredients_widget.dart';
 import 'package:chefkit/blocs/recipe/recipe_image_widget.dart';
 import 'package:chefkit/blocs/recipe/recipe_title_widget.dart';
 import 'package:chefkit/blocs/recipe/recipe_info_widget.dart';
