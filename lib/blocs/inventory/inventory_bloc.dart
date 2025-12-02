@@ -6,8 +6,8 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
   InventoryBloc()
       : super(
           InventoryState(
-            available: [],        
-            browse: [              
+            available: [], // list of the user's current available ingredients        
+            browse: [      // list of all ingredietns that we have          
               {
                 "imageUrl": "assets/images/escalope.png",
                 "name": "Escalope",

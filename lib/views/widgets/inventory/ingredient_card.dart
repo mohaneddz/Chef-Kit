@@ -84,49 +84,8 @@ class IngredientCard extends StatelessWidget {
                 SizedBox(height: 8),
                 addIngredient
                     ? GestureDetector(
-                      onTap: onAdd,
-                      child: Container(
-                          width: 86,
-                          height: 23,
-                          decoration: BoxDecoration(
-                            color: AppColors.red600.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.red600),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                width: 13,
-                                height: 13,
-                                decoration: BoxDecoration(
-                                  color: AppColors.red600,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Colors.white,
-                                    size: 12,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                "Add",
-                                style: TextStyle(
-                                  color: AppColors.red600,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    )
-                    : GestureDetector(
-                      onTap: onRemove,
-                      child: Container(
+                        onTap: onAdd,
+                        child: Container(
                           width: 86,
                           height: 23,
                           decoration: BoxDecoration(
@@ -146,15 +105,15 @@ class IngredientCard extends StatelessWidget {
                                 ),
                                 child: Center(
                                   child: Icon(
-                                    Icons.check,
+                                    Icons.add,
                                     color: Colors.white,
-                                    size: 10,
-                                    fontWeight: FontWeight.bold,
+                                    size: 12,
+                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
                               ),
                               Text(
-                                "In Stock",
+                                "Add",
                                 style: TextStyle(
                                   color: Color(0xFF008236),
                                   fontSize: 12,
@@ -164,7 +123,53 @@ class IngredientCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                    ),
+                      )
+                    : GestureDetector(
+                        onTap: onRemove,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 86,
+                              height: 23,
+                              decoration: BoxDecoration(
+                                color: AppColors.red600.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: AppColors.red600),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Container(
+                                    width: 13,
+                                    height: 13,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.red600,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.delete_outline_outlined,
+                                        color: Colors.white,
+                                        size: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    "Delete",
+                                    style: TextStyle(
+                                      color: AppColors.red600,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
               ],
             ),
           ),
