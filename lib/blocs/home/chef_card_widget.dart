@@ -5,14 +5,14 @@ class ChefCardWidget extends StatelessWidget {
   final String name;
   final String? imageUrl;
   final VoidCallback? onTap;
-  final bool isOnFire; // New attribute for premium feature
+  final bool isOnFire;
 
   const ChefCardWidget({
     Key? key,
     required this.name,
     this.imageUrl,
     this.onTap,
-    this.isOnFire = false, // Default is false, i.e., not activated
+    this.isOnFire = false,
   }) : super(key: key);
 
   @override
@@ -21,67 +21,75 @@ class ChefCardWidget extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: isOnFire
-                      ? Border.all(
-                          color: AppColors.red600,
-                          width: 4,
-                        ) // Red border if isOnFire is true
-                      : null,
-                  borderRadius: BorderRadius.circular(360), // Circular border
-                ),
-                child: CircleAvatar(
-                  radius: 48,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: imageUrl != null
-                      ? (imageUrl!.startsWith('http')
-                            ? NetworkImage(imageUrl!) as ImageProvider
-                            : AssetImage(imageUrl!))
-                      : const AssetImage('assets/images/chef.png'),
-                ),
+          Container(
+            padding: const EdgeInsets.all(3), // Space for the border
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              // Gradient border if on fire, transparent if not
+              gradient: isOnFire
+                  ? const LinearGradient(
+                      colors: [Color(0xFFFF9966), Color(0xFFFF5E62)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              boxShadow: isOnFire
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E62).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      )
+                    ]
+                  : null,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(2), // White gap
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
               ),
-              if (isOnFire) ...[
-                // Fire icon placed just below the image
-                Positioned(
-                  bottom: -0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFFF6B6B),
-                          Color(0xFFFF8E8E),
-                          Color(0xFFFFAA6B),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.local_fire_department,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            name,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins',
+              child: CircleAvatar(
+                radius: 34, // Trim radius to reduce decode/memory footprint
+                backgroundColor: Colors.grey[100],
+                backgroundImage: imageUrl != null
+                    ? (imageUrl!.startsWith('http')
+                        ? NetworkImage(imageUrl!) as ImageProvider
+                        : AssetImage(imageUrl!))
+                    : const AssetImage('assets/images/chef.png'),
+              ),
             ),
           ),
+          const SizedBox(height: 10),
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
+              color: isOnFire ? Colors.black : Colors.grey[700],
+            ),
+          ),
+          if (isOnFire)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFECEC),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.local_fire_department, size: 10, color: Color(0xFFFF5E62)),
+                  SizedBox(width: 2),
+                  Text(
+                    "TRENDING",
+                    style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFFFF5E62)),
+                  )
+                ],
+              ),
+            )
         ],
       ),
     );

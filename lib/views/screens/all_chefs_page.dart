@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../common/constants.dart';
 import '../../blocs/home/chef_card_widget.dart';
+import 'chef_profile_public_page.dart';
 
 class AllChefsPage extends StatefulWidget {
   const AllChefsPage({Key? key}) : super(key: key);
@@ -51,7 +52,8 @@ class _AllChefsPageState extends State<AllChefsPage> {
   
   List<Map<String, dynamic>> get displayedChefs {
     final startIndex = (_currentPage - 1) * _chefsPerPage;
-    final endIndex = (startIndex + _chefsPerPage).clamp(0, regularChefs.length);
+    final endIndex =
+        ((startIndex + _chefsPerPage).clamp(0, regularChefs.length)).toInt();
     return regularChefs.sublist(startIndex, endIndex);
   }
   
@@ -193,7 +195,7 @@ class _AllChefsPageState extends State<AllChefsPage> {
                 itemCount: superHotChefs.length,
                 itemBuilder: (context, index) {
                   final chef = superHotChefs[index];
-                  return _buildAnimatedChefCard(chef, index);
+                  return _buildChefCard(chef);
                 },
               ),
               const SizedBox(height: 32),
@@ -252,7 +254,7 @@ class _AllChefsPageState extends State<AllChefsPage> {
                 itemCount: displayedChefs.length,
                 itemBuilder: (context, index) {
                   final chef = displayedChefs[index];
-                  return _buildAnimatedChefCard(chef, index);
+                  return _buildChefCard(chef);
                 },
               ),
               
@@ -295,35 +297,23 @@ class _AllChefsPageState extends State<AllChefsPage> {
     );
   }
 
-  Widget _buildAnimatedChefCard(Map<String, dynamic> chef, int index) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 300 + (index * 50)),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: value,
-          child: Opacity(
-            opacity: value,
-            child: child,
+  Widget _buildChefCard(Map<String, dynamic> chef) {
+    return ChefCardWidget(
+      name: chef['name'],
+      imageUrl: chef['imageUrl'],
+      isOnFire: chef['isOnFire'],
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChefProfilePublicPage(
+              name: chef['name'],
+              imageUrl: chef['imageUrl'],
+              isOnFire: chef['isOnFire'],
+            ),
           ),
         );
       },
-      child: ChefCardWidget(
-        name: chef['name'],
-        imageUrl: chef['imageUrl'],
-        isOnFire: chef['isOnFire'],
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening ${chef['name']} profile...'),
-              duration: const Duration(seconds: 1),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: AppColors.red600,
-            ),
-          );
-        },
-      ),
     );
   }
 

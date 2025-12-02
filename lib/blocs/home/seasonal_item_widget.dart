@@ -19,26 +19,28 @@ class SeasonalItemWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
+          // Softer shadow
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 6,
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
+          border: Border.all(color: Colors.grey.withOpacity(0.1)),
         ),
         child: Row(
           children: [
+            // Image
             Container(
-              height: 80,
-              width: 80,
+              height: 70,
+              width: 70,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(12),
                 image: imageUrl != null
                     ? DecorationImage(
                         image: AssetImage(imageUrl!),
@@ -51,6 +53,7 @@ class SeasonalItemWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
+            // Text
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,30 +61,36 @@ class SeasonalItemWidget extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Poppins',
+                      color: Color(0xFF1D1617),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: 12,
                       fontFamily: 'Poppins',
+                      color: Colors.grey[500],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+            // Arrow Button
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFC5C8),
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_forward, size: 24),
+              child: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: Colors.grey,
+              ),
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-import 'package:chefkit/common/constants.dart';
+import '../../common/constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
