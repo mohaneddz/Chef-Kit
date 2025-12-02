@@ -56,3 +56,5 @@ windows/flutter/generated_plugins.cmake
 
 netsh
 No
+
+BLOC_MIGRATION_REPORT.md
