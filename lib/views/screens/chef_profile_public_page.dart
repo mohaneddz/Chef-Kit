@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../common/constants.dart'; // Keep your existing constants
+import '../../common/constants.dart';
 
 class ChefProfilePublicPage extends StatefulWidget {
   final String name;
@@ -82,14 +82,14 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
               ],
             ),
 
-            // 2. Profile Info Section
+            
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    // Avatar with Fire Status
+                    
                     Stack(
                       alignment: Alignment.bottomRight,
                       children: [
@@ -123,7 +123,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
                     ),
                     const SizedBox(height: 16),
                     
-                    // Name & Verification
+                    
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -142,7 +142,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
                     ),
                     const SizedBox(height: 8),
                     
-                    // Bio / Tagline
+                    
                     Text(
                       "Michelin Star Chef • Fusion Cuisine • Food Artist",
                       textAlign: TextAlign.center,
@@ -155,7 +155,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
 
                     const SizedBox(height: 24),
 
-                    // Stats Row
+                    
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -169,7 +169,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
 
                     const SizedBox(height: 24),
 
-                    // Action Buttons
+                    
                     Row(
                       children: [
                         Expanded(
@@ -221,7 +221,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
               ),
             ),
 
-            // 3. Sticky Tab Bar
+            
             SliverPersistentHeader(
               delegate: _SliverAppBarDelegate(
                 TabBar(
@@ -242,11 +242,11 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
             ),
           ];
         },
-        // 4. Content Body
+        
         body: TabBarView(
           controller: _tabController,
           children: [
-            // Recipes Grid Tab
+            
             ListView(
               padding: EdgeInsets.zero,
               physics: const ClampingScrollPhysics(),
@@ -273,7 +273,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
               ],
             ),
 
-            // About Tab (Simple placeholder)
+            
             SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -313,7 +313,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
     );
   }
 
-  // Helper Widget for Stats
+  
   Widget _buildStatItem(String label, String value) {
     return Column(
       children: [
@@ -338,7 +338,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
     );
   }
 
-  // Helper Widget for About Chips
+  
   Widget _buildChip(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -353,7 +353,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
     );
   }
 
-  // Updated Recipe Card
+  
   Widget _buildPremiumRecipeCard(Map<String, String> recipe) {
     return Container(
       decoration: BoxDecoration(
@@ -370,7 +370,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
+          
           Expanded(
             child: Stack(
               children: [
@@ -398,7 +398,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
               ],
             ),
           ),
-          // Info
+          
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -449,7 +449,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
   }
 }
 
-// Helper Class to make TabBar sticky
+// TabBar persistent header
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate(this._tabBar);
 

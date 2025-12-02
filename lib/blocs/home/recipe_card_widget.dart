@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; // Required for ImageFilter
+import 'dart:ui';
 
 class RecipeCardWidget extends StatelessWidget {
   final String title;
@@ -24,7 +24,7 @@ class RecipeCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 240, // Taller for better proportion
+        height: 240,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -40,7 +40,7 @@ class RecipeCardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section
+            
             Expanded(
               flex: 3,
               child: Stack(
@@ -60,7 +60,7 @@ class RecipeCardWidget extends StatelessWidget {
                             ),
                     ),
                   ),
-                  // Glassmorphic Favorite Button
+                  
                   Positioned(
                     top: 12,
                     right: 12,
@@ -91,7 +91,7 @@ class RecipeCardWidget extends StatelessWidget {
                 ],
               ),
             ),
-            // Text Section
+            
             Expanded(
               flex: 2,
               child: Padding(

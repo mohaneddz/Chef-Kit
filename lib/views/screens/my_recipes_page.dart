@@ -9,7 +9,6 @@ class MyRecipesPage extends StatefulWidget {
 }
 
 class _MyRecipesPageState extends State<MyRecipesPage> {
-  // Dummy data for recipes
   final List<Map<String, dynamic>> _myRecipes = [
     {
       'id': '1',
@@ -37,7 +36,6 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
     },
   ];
 
-  // In a real app this would come from ImagePicker / backend
   String? _newRecipeImage;
 
   void _addNewRecipe() {
@@ -51,7 +49,6 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
   }
 
   void _editRecipe(String id) {
-    // Logic to edit recipe
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Edit recipe $id')),
     );
@@ -155,7 +152,7 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
       ),
       child: Row(
         children: [
-          // Recipe Image
+          
           Container(
             width: 100,
             height: 100,
@@ -176,7 +173,7 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
                 : null,
           ),
           
-          // Content
+          
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -317,7 +314,7 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
           Expanded(
             child: ListView(
               children: [
-                // Image picker (dummy)
+                
                 GestureDetector(
                   onTap: () {
                     // Dummy logic: toggle between null and a sample image

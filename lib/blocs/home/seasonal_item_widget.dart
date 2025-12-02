@@ -23,7 +23,7 @@ class SeasonalItemWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          // Softer shadow
+          
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.03),
@@ -35,7 +35,7 @@ class SeasonalItemWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Image
+            
             Container(
               height: 70,
               width: 70,
@@ -53,7 +53,7 @@ class SeasonalItemWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            // Text
+            
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +79,7 @@ class SeasonalItemWidget extends StatelessWidget {
                 ],
               ),
             ),
-            // Arrow Button
+            
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(

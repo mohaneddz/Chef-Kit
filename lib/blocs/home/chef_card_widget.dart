@@ -22,7 +22,7 @@ class ChefCardWidget extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(3), // Space for the border
+            padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               // Gradient border if on fire, transparent if not
@@ -44,13 +44,13 @@ class ChefCardWidget extends StatelessWidget {
                   : null,
             ),
             child: Container(
-              padding: const EdgeInsets.all(2), // White gap
+              padding: const EdgeInsets.all(2),
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,
               ),
               child: CircleAvatar(
-                radius: 34, // Trim radius to reduce decode/memory footprint
+                radius: 34, 
                 backgroundColor: Colors.grey[100],
                 backgroundImage: imageUrl != null
                     ? (imageUrl!.startsWith('http')

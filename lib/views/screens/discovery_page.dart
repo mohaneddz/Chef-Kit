@@ -17,12 +17,12 @@ class RecipeDiscoveryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFC), // Very clean off-white
+      backgroundColor: const Color(0xFFFCFCFC),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFCFCFC), // Matches body
+        backgroundColor: const Color(0xFFFCFCFC),
         elevation: 0,
         scrolledUnderElevation: 0,
-        toolbarHeight: 80, // Taller header for better look
+        toolbarHeight: 80,
         title: Padding(
           padding: const EdgeInsets.only(top: 10),
           child: Column(
@@ -34,7 +34,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   color: Color(0xFF1D1617),
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
-                  fontFamily: 'Poppins', // Changed to match your other fonts
+                  fontFamily: 'Poppins',
                 ),
               ),
               const SizedBox(height: 4),
@@ -62,7 +62,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                 border: Border.all(color: Colors.grey.withOpacity(0.1)),
               ),
               child: const Icon(
-                Icons.notifications_outlined, // Changed to notification icon
+                Icons.notifications_outlined,
                 size: 24,
                 color: Colors.black,
               ),
@@ -71,18 +71,16 @@ class RecipeDiscoveryScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(), // Makes scrolling feel better
+        physics: const BouncingScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              // Search bar
               const SearchBarWidget(hintText: "Search Recipes or Chefs"),
               const SizedBox(height: 30),
 
-              // Chefs
               SectionHeaderWidget(
                 title: 'Chefs',
                 onSeeAllPressed: () {
@@ -96,7 +94,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
-                clipBehavior: Clip.none, // Allows shadows to paint outside
+                clipBehavior: Clip.none,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -194,7 +192,6 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
-              // Hot Recipes
               SectionHeaderWidget(
                 title: 'Hot Recipes',
                 onSeeAllPressed: () {
@@ -205,7 +202,6 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-              // ROW 1
               Row(
                 children: [
                   Expanded(
@@ -214,7 +210,6 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                       subtitle: 'Algerian Classic',
                       imageUrl: 'assets/images/Mahjouba.jpeg',
                       onTap: () {
-                         // Your navigation code...
                          Navigator.push(context, MaterialPageRoute(builder: (context) => ItemPage(
                               title: 'Mahjouba',
                               imagePath: 'assets/images/Mahjouba.jpeg',
@@ -236,14 +231,12 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                       subtitle: 'Steamed semolina',
                       imageUrl: 'assets/images/couscous.png',
                       onTap: () {
-                         // Your navigation code...
                       },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              // ROW 2
               Row(
                 children: [
                   Expanded(
@@ -252,7 +245,6 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                       subtitle: 'Traditional Soup',
                       imageUrl: 'assets/images/Barkoukes.jpg',
                       onTap: () {
-                         // Your navigation code...
                       },
                     ),
                   ),
@@ -263,7 +255,6 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                       subtitle: 'Crispy Chicken',
                       imageUrl: 'assets/images/escalope.png',
                       onTap: () {
-                         // Your navigation code...
                       },
                     ),
                   ),
@@ -271,7 +262,6 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
-              // Seasonal Delights
               SectionHeaderWidget(
                 title: 'Seasonal Delights',
                 onSeeAllPressed: () {
