@@ -1,31 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../common/constants.dart';
+import '../../blocs/chef_profile/chef_profile_bloc.dart';
+import '../../blocs/chef_profile/chef_profile_state.dart';
+import '../../blocs/chef_profile/chef_profile_events.dart';
 
 class ChefProfilePublicPage extends StatefulWidget {
-  final String name;
-  final String imageUrl;
-  final bool isOnFire;
-
-  const ChefProfilePublicPage({
-    Key? key,
-    required this.name,
-    required this.imageUrl,
-    this.isOnFire = false,
-  }) : super(key: key);
+  final String chefId;
+  const ChefProfilePublicPage({Key? key, required this.chefId}) : super(key: key);
 
   @override
   State<ChefProfilePublicPage> createState() => _ChefProfilePublicPageState();
 }
 
 class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with SingleTickerProviderStateMixin {
-  bool _isFollowing = false;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    context.read<ChefProfileBloc>().add(LoadChefProfileEvent(widget.chefId));
   }
 
   @override
@@ -36,14 +32,6 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
 
   @override
   Widget build(BuildContext context) {
-    // Mock Data
-    final List<Map<String, String>> recipes = [
-      {'title': 'Signature Ramen Bowl', 'time': '45 min', 'image': 'assets/images/recipes/recipe_1.png', 'rating': '4.8'},
-      {'title': 'Crispy Chicken Escalope', 'time': '30 min', 'image': 'assets/images/escalope.png', 'rating': '4.9'},
-      {'title': 'Seasonal Barkoukes Soup', 'time': '55 min', 'image': 'assets/images/Barkoukes.jpg', 'rating': '5.0'},
-      {'title': 'Sweet Strawberry Salad', 'time': '15 min', 'image': 'assets/images/tomato.png', 'rating': '4.7'},
-    ];
-
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       body: NestedScrollView(
@@ -84,120 +72,126 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
 
             
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    
-                    Stack(
-                      alignment: Alignment.bottomRight,
+              child: BlocBuilder<ChefProfileBloc, ChefProfileState>(
+                builder: (context, state) {
+                  if (state.loading) {
+                    return const Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (state.chef == null) {
+                    return const Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: Text('Chef not found'),
+                    );
+                  }
+                  final chef = state.chef!;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: widget.isOnFire
-                                ? Border.all(color: const Color(0xFFFF6B6B), width: 2)
-                                : Border.all(color: Colors.transparent),
-                          ),
-                          child: CircleAvatar(
-                            radius: 55,
-                            backgroundColor: Colors.grey[200],
-                            backgroundImage: widget.imageUrl.startsWith('http')
-                                ? NetworkImage(widget.imageUrl) as ImageProvider
-                                : AssetImage(widget.imageUrl),
-                          ),
-                        ),
-                        if (widget.isOnFire)
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF6B6B),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3),
-                            ),
-                            child: const Icon(Icons.local_fire_department, color: Colors.white, size: 20),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          widget.name,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Poppins',
-                            color: Color(0xFF1D1617),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.verified, color: Colors.blue, size: 20),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    
-                    
-                    Text(
-                      "Michelin Star Chef • Fusion Cuisine • Food Artist",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildStatItem("Recipes", "124"),
-                        Container(height: 24, width: 1, color: Colors.grey[300]),
-                        _buildStatItem("Followers", "12.5k"),
-                        Container(height: 24, width: 1, color: Colors.grey[300]),
-                        _buildStatItem("Rating", "4.9"),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => setState(() => _isFollowing = !_isFollowing),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isFollowing ? Colors.white : const Color(0xFFFF6B6B),
-                              foregroundColor: _isFollowing ? Colors.black : Colors.white,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                side: _isFollowing 
-                                  ? BorderSide(color: Colors.grey.withOpacity(0.3)) 
-                                  : BorderSide.none,
+                        const SizedBox(height: 10),
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: chef.isOnFire
+                                    ? Border.all(color: const Color(0xFFFF6B6B), width: 2)
+                                    : Border.all(color: Colors.transparent),
+                              ),
+                              child: CircleAvatar(
+                                radius: 55,
+                                backgroundColor: Colors.grey[200],
+                                backgroundImage: chef.imageUrl.startsWith('http')
+                                    ? NetworkImage(chef.imageUrl) as ImageProvider
+                                    : AssetImage(chef.imageUrl),
                               ),
                             ),
-                            child: Text(
-                              _isFollowing ? "Following" : "Follow",
-                              style: const TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+                            if (chef.isOnFire)
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF6B6B),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 3),
+                                ),
+                                child: const Icon(Icons.local_fire_department, color: Colors.white, size: 20),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              chef.name,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Poppins',
+                                color: Color(0xFF1D1617),
+                              ),
                             ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.verified, color: Colors.blue, size: 20),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Michelin Star Chef • Fusion Cuisine • Food Artist",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontFamily: 'Poppins',
                           ),
                         ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildStatItem("Recipes", state.recipes.length.toString()),
+                            Container(height: 24, width: 1, color: Colors.grey[300]),
+                            _buildStatItem("Followers", chef.isFollowed ? "12.5k" : "12.4k"),
+                            Container(height: 24, width: 1, color: Colors.grey[300]),
+                            _buildStatItem("Rating", "4.9"),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => context.read<ChefProfileBloc>().add(ToggleChefFollowEvent(chef.id)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: chef.isFollowed ? Colors.white : const Color(0xFFFF6B6B),
+                                  foregroundColor: chef.isFollowed ? Colors.black : Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: chef.isFollowed
+                                        ? BorderSide(color: Colors.grey.withOpacity(0.3))
+                                        : BorderSide.none,
+                                  ),
+                                ),
+                                child: Text(
+                                  chef.isFollowed ? "Following" : "Follow",
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
 
@@ -223,71 +217,73 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
           ];
         },
         
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            
-            ListView(
-              padding: EdgeInsets.zero,
-              physics: const ClampingScrollPhysics(),
+        body: BlocBuilder<ChefProfileBloc, ChefProfileState>(
+          builder: (context, state) {
+            return TabBarView(
+              controller: _tabController,
               children: [
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.75, // Taller cards
+                ListView(
+                  padding: EdgeInsets.zero,
+                  physics: const ClampingScrollPhysics(),
+                  children: [
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: state.recipes.length,
+                        itemBuilder: (context, index) {
+                          final recipe = state.recipes[index];
+                          return _buildPremiumRecipeCard(recipe);
+                        },
+                      ),
                     ),
-                    itemCount: recipes.length,
-                    itemBuilder: (context, index) {
-                      return _buildPremiumRecipeCard(recipes[index]);
-                    },
+                    const SizedBox(height: 50),
+                  ],
+                ),
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Story",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Passionate about bold flavors and elevated comfort food. I started cooking when I was 10 years old in my grandmother's kitchen in Algiers. Now, I bring those traditional flavors to modern cuisine.",
+                        style: TextStyle(fontSize: 14, height: 1.6, color: Colors.grey[700], fontFamily: 'Poppins'),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        "Specialties",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _buildChip("Mediterranean"),
+                          _buildChip("Healthy"),
+                          _buildChip("Pastry"),
+                          _buildChip("Fusion"),
+                        ],
+                      )
+                    ],
                   ),
                 ),
-                const SizedBox(height: 50),
               ],
-            ),
-
-            
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Story",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Passionate about bold flavors and elevated comfort food. I started cooking when I was 10 years old in my grandmother's kitchen in Algiers. Now, I bring those traditional flavors to modern cuisine.",
-                    style: TextStyle(fontSize: 14, height: 1.6, color: Colors.grey[700], fontFamily: 'Poppins'),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    "Specialties",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _buildChip("Mediterranean"),
-                      _buildChip("Healthy"),
-                      _buildChip("Pastry"),
-                      _buildChip("Fusion"),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -334,7 +330,8 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
   }
 
   
-  Widget _buildPremiumRecipeCard(Map<String, String> recipe) {
+  Widget _buildPremiumRecipeCard(dynamic recipe) {
+    // recipe expected to be a Recipe model with fields
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -358,7 +355,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                     image: DecorationImage(
-                      image: AssetImage(recipe['image']!),
+                      image: AssetImage(recipe.imageUrl),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -366,13 +363,20 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      shape: BoxShape.circle,
+                  child: GestureDetector(
+                    onTap: () => context.read<ChefProfileBloc>().add(ToggleChefRecipeFavoriteEvent(recipe.id)),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
+                        size: 16,
+                        color: recipe.isFavorite ? const Color(0xFFFF6B6B) : Colors.black,
+                      ),
                     ),
-                    child: const Icon(Icons.favorite_border, size: 16, color: Colors.black),
                   ),
                 )
               ],
@@ -385,7 +389,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  recipe['title']!,
+                  recipe.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -399,9 +403,9 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
                   children: [
                     const Icon(Icons.star, size: 14, color: Color(0xFFFFC107)),
                     const SizedBox(width: 4),
-                    Text(
-                      recipe['rating']!,
-                      style: const TextStyle(
+                    const Text(
+                      '4.9',
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Poppins',
@@ -411,7 +415,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
                     Icon(Icons.access_time_filled, size: 14, color: Colors.grey[400]),
                     const SizedBox(width: 4),
                     Text(
-                      recipe['time']!,
+                      recipe.time,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[500],

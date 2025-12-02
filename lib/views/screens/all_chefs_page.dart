@@ -1,67 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../common/constants.dart';
 import '../../blocs/home/chef_card_widget.dart';
+import '../../blocs/chefs/chefs_bloc.dart';
+import '../../blocs/chefs/chefs_state.dart';
+import '../../blocs/chefs/chefs_events.dart';
+import '../../blocs/chef_profile/chef_profile_bloc.dart';
 import 'chef_profile_public_page.dart';
 
-class AllChefsPage extends StatefulWidget {
+class AllChefsPage extends StatelessWidget {
   const AllChefsPage({Key? key}) : super(key: key);
-
-  @override
-  State<AllChefsPage> createState() => _AllChefsPageState();
-}
-
-class _AllChefsPageState extends State<AllChefsPage> {
-  int _currentPage = 1;
-  final int _chefsPerPage = 9;
-  
-  // Sample chef data - you can replace this with real data later
-  static final List<Map<String, dynamic>> allChefs = [
-    {'name': 'G. Ramsay', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': true},
-    {'name': 'A. Bocuse', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': true},
-    {'name': 'R. Redzepi', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': true},
-    {'name': 'Jamie Oliver', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-    {'name': 'M. Bottura', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': false},
-    {'name': 'A. Ducasse', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': false},
-    {'name': 'J. Robuchon', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': false},
-    {'name': 'T. Keller', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-    {'name': 'M. White', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': false},
-    {'name': 'E. Lagasse', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-    {'name': 'B. Flay', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': false},
-    {'name': 'D. Chang', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-    {'name': 'A. Bourdain', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': false},
-    {'name': 'N. Lawson', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': false},
-    {'name': 'Y. Ottolenghi', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-    {'name': 'H. Blumenthal', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': false},
-    {'name': 'W. Puck', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': false},
-    {'name': 'M. Mina', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-    {'name': 'C. Ramsey', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': false},
-    {'name': 'J. Child', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': false},
-    {'name': 'I. Orkin', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-    {'name': 'D. Barber', 'imageUrl': 'assets/images/chefs/chef_1.png', 'isOnFire': false},
-    {'name': 'S. Yoon', 'imageUrl': 'assets/images/chefs/chef_3.png', 'isOnFire': false},
-    {'name': 'A. Boulud', 'imageUrl': 'assets/images/chefs/chef_2.png', 'isOnFire': false},
-  ];
-
-  List<Map<String, dynamic>> get superHotChefs => 
-      allChefs.where((chef) => chef['isOnFire'] == true).toList();
-  
-  List<Map<String, dynamic>> get regularChefs => 
-      allChefs.where((chef) => chef['isOnFire'] == false).toList();
-  
-  int get totalPages => (regularChefs.length / _chefsPerPage).ceil();
-  
-  List<Map<String, dynamic>> get displayedChefs {
-    final startIndex = (_currentPage - 1) * _chefsPerPage;
-    final endIndex =
-        ((startIndex + _chefsPerPage).clamp(0, regularChefs.length)).toInt();
-    return regularChefs.sublist(startIndex, endIndex);
-  }
-  
-  void _goToPage(int page) {
-    setState(() {
-      _currentPage = page;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,197 +24,131 @@ class _AllChefsPageState extends State<AllChefsPage> {
         ),
         title: const Text(
           'All Chefs',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
-          ),
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
         ),
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Stats Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFFF6B6B),
-                      Color(0xFFFF8E8E),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF6B6B).withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      Icons.local_fire_department,
-                      '${superHotChefs.length}',
-                      'Super Hot',
-                    ),
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: Colors.white.withOpacity(0.3),
-                    ),
-                    _buildStatItem(
-                      Icons.restaurant_menu,
-                      '${regularChefs.length}',
-                      'All Chefs',
-                    ),
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: Colors.white.withOpacity(0.3),
-                    ),
-                    _buildStatItem(
-                      Icons.people,
-                      '${allChefs.length}',
-                      'Total',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Super Hot Chefs Section
-              Row(
+      body: BlocBuilder<ChefsBloc, ChefsState>(
+        builder: (context, state) {
+          if (state.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF6B6B), Color(0xFFFFAA6B)],
+                        colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF6B6B).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
                     ),
-                    child: const Icon(
-                      Icons.local_fire_department,
-                      color: Colors.white,
-                      size: 20,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatItem(Icons.local_fire_department, '${state.superHotChefs.length}', 'Super Hot'),
+                        Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
+                        _buildStatItem(Icons.restaurant_menu, '${state.allChefs.where((c)=>!c.isOnFire).length}', 'All Chefs'),
+                        Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
+                        _buildStatItem(Icons.people, '${state.allChefs.length}', 'Total'),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Super Hot Chefs',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [Color(0xFFFF6B6B), Color(0xFFFFAA6B)]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.local_fire_department, color: Colors.white, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text('Super Hot Chefs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                    ],
                   ),
+                  const SizedBox(height: 8),
+                  Text('The most trending chefs right now', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontFamily: 'Poppins')),
+                  const SizedBox(height: 16),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 24,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemCount: state.superHotChefs.length,
+                    itemBuilder: (context, index) {
+                      final chef = state.superHotChefs[index];
+                      return _buildChefCard(context, chef);
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: [AppColors.orange.withOpacity(0.8), AppColors.orange]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.restaurant_menu, color: Colors.white, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text('All Chefs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Page ${state.currentPage} of ${state.totalPages} • ${state.displayedChefs.length} chefs', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontFamily: 'Poppins')),
+                  const SizedBox(height: 16),
+                  GridView.builder(
+                    key: ValueKey(state.currentPage),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 24,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemCount: state.displayedChefs.length,
+                    itemBuilder: (context, index) {
+                      final chef = state.displayedChefs[index];
+                      return _buildChefCard(context, chef);
+                    },
+                  ),
+                  if (state.totalPages > 1) ...[
+                    const SizedBox(height: 20),
+                    _buildPaginationControls(context, state),
+                  ],
+                  const SizedBox(height: 20),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                'The most trending chefs right now',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              const SizedBox(height: 16),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 24,
-                  childAspectRatio: 0.75,
-                ),
-                itemCount: superHotChefs.length,
-                itemBuilder: (context, index) {
-                  final chef = superHotChefs[index];
-                  return _buildChefCard(chef);
-                },
-              ),
-              const SizedBox(height: 32),
-
-              // All Chefs Section
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.orange.withOpacity(0.8),
-                          AppColors.orange,
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.restaurant_menu,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'All Chefs',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Page $_currentPage of $totalPages • ${displayedChefs.length} chefs',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              const SizedBox(height: 16),
-              GridView.builder(
-                key: ValueKey(_currentPage), // Force rebuild on page change
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 24,
-                  childAspectRatio: 0.75,
-                ),
-                itemCount: displayedChefs.length,
-                itemBuilder: (context, index) {
-                  final chef = displayedChefs[index];
-                  return _buildChefCard(chef);
-                },
-              ),
-              
-              // Pagination Controls
-              if (totalPages > 1) ...[
-                const SizedBox(height: 20),
-                _buildPaginationControls(),
-              ],
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -276,40 +158,24 @@ class _AllChefsPageState extends State<AllChefsPage> {
       children: [
         Icon(icon, color: Colors.white, size: 24),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontFamily: 'Poppins',
-          ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white,
-            fontFamily: 'Poppins',
-          ),
-        ),
+        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Poppins')),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.white, fontFamily: 'Poppins')),
       ],
     );
   }
 
-  Widget _buildChefCard(Map<String, dynamic> chef) {
+  Widget _buildChefCard(BuildContext ctx, dynamic chef) {
     return ChefCardWidget(
-      name: chef['name'],
-      imageUrl: chef['imageUrl'],
-      isOnFire: chef['isOnFire'],
+      name: chef.name,
+      imageUrl: chef.imageUrl,
+      isOnFire: chef.isOnFire,
       onTap: () {
         Navigator.push(
-          context,
+          ctx,
           MaterialPageRoute(
-            builder: (_) => ChefProfilePublicPage(
-              name: chef['name'],
-              imageUrl: chef['imageUrl'],
-              isOnFire: chef['isOnFire'],
+            builder: (_) => BlocProvider.value(
+              value: ctx.read<ChefProfileBloc>(),
+              child: ChefProfilePublicPage(chefId: chef.id),
             ),
           ),
         );
@@ -317,7 +183,7 @@ class _AllChefsPageState extends State<AllChefsPage> {
     );
   }
 
-  Widget _buildPaginationControls() {
+  Widget _buildPaginationControls(BuildContext context, ChefsState state) {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(8),
@@ -335,84 +201,55 @@ class _AllChefsPageState extends State<AllChefsPage> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Previous button
-            _buildNavButton(
-              icon: Icons.chevron_left,
-              onTap: _currentPage > 1 ? () => _goToPage(_currentPage - 1) : null,
-            ),
+            _buildNavButton(icon: Icons.chevron_left, onTap: state.currentPage > 1 ? () => context.read<ChefsBloc>().add(GoToChefsPage(state.currentPage - 1)) : null),
             const SizedBox(width: 8),
-            
-            // Page numbers
-            ..._buildPageNumbers(),
-            
+            ..._buildPageNumbers(context, state),
             const SizedBox(width: 8),
-            // Next button
-            _buildNavButton(
-              icon: Icons.chevron_right,
-              onTap: _currentPage < totalPages ? () => _goToPage(_currentPage + 1) : null,
-            ),
+            _buildNavButton(icon: Icons.chevron_right, onTap: state.currentPage < state.totalPages ? () => context.read<ChefsBloc>().add(GoToChefsPage(state.currentPage + 1)) : null),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildPageNumbers() {
+  List<Widget> _buildPageNumbers(BuildContext context, ChefsState state) {
     List<Widget> pageButtons = [];
-    
-    // Show max 5 page buttons at a time
     int startPage = 1;
-    int endPage = totalPages;
-    
-    if (totalPages > 5) {
-      if (_currentPage <= 3) {
+    int endPage = state.totalPages;
+    if (state.totalPages > 5) {
+      if (state.currentPage <= 3) {
         endPage = 5;
-      } else if (_currentPage >= totalPages - 2) {
-        startPage = totalPages - 4;
+      } else if (state.currentPage >= state.totalPages - 2) {
+        startPage = state.totalPages - 4;
       } else {
-        startPage = _currentPage - 2;
-        endPage = _currentPage + 2;
+        startPage = state.currentPage - 2;
+        endPage = state.currentPage + 2;
       }
     }
-    
-    // First page if not visible
     if (startPage > 1) {
-      pageButtons.add(_buildPageButton(1));
-      if (startPage > 2) {
-        pageButtons.add(_buildDots());
-      }
+      pageButtons.add(_buildPageButton(context, 1, state));
+      if (startPage > 2) pageButtons.add(_buildDots());
     }
-    
-    // Page numbers
     for (int i = startPage; i <= endPage; i++) {
-      pageButtons.add(_buildPageButton(i));
+      pageButtons.add(_buildPageButton(context, i, state));
     }
-    
-    // Last page if not visible
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        pageButtons.add(_buildDots());
-      }
-      pageButtons.add(_buildPageButton(totalPages));
+    if (endPage < state.totalPages) {
+      if (endPage < state.totalPages - 1) pageButtons.add(_buildDots());
+      pageButtons.add(_buildPageButton(context, state.totalPages, state));
     }
-    
     return pageButtons;
   }
 
-  Widget _buildPageButton(int pageNumber) {
-    final isActive = pageNumber == _currentPage;
+  Widget _buildPageButton(BuildContext context, int pageNumber, ChefsState state) {
+    final isActive = pageNumber == state.currentPage;
     return GestureDetector(
-      onTap: () => _goToPage(pageNumber),
+      onTap: () => context.read<ChefsBloc>().add(GoToChefsPage(pageNumber)),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4),
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          gradient: isActive
-              ? const LinearGradient(
-                  colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
-                )
-              : null,
+          gradient: isActive ? const LinearGradient(colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)]) : null,
           color: isActive ? null : Colors.grey[200],
           borderRadius: BorderRadius.circular(12),
         ),
@@ -437,14 +274,7 @@ class _AllChefsPageState extends State<AllChefsPage> {
       width: 36,
       height: 36,
       child: Center(
-        child: Text(
-          '...',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-            fontFamily: 'Poppins',
-          ),
-        ),
+        child: Text('...', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontFamily: 'Poppins')),
       ),
     );
   }
@@ -460,11 +290,7 @@ class _AllChefsPageState extends State<AllChefsPage> {
           color: isEnabled ? AppColors.red600 : Colors.grey[300],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(
-          icon,
-          color: isEnabled ? Colors.white : Colors.grey[500],
-          size: 20,
-        ),
+        child: Icon(icon, color: isEnabled ? Colors.white : Colors.grey[500], size: 20),
       ),
     );
   }
