@@ -2,7 +2,8 @@ import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/data/examples/category_data.dart';
 import 'package:chefkit/data/examples/recipe_data.dart';
 import 'package:chefkit/blocs/favourites/collection_card.dart';
-import 'package:chefkit/blocs/favourites/recipe_card.dart';
+import 'package:chefkit/blocs/home/recipe_card_widget.dart';
+import 'package:chefkit/views/screens/item_page.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,38 @@ class FavouritesPage extends StatefulWidget {
 
 class _FavouritesPageState extends State<FavouritesPage> {
   int _selectedIndex = 0;
+  late PageController _pageController;
+  static const int _multiplier = 1000; // For simulating infinite scroll
+
+  @override
+  void initState() {
+    super.initState();
+    // Start at a large middle offset so user can scroll both directions
+    final initialPage = _multiplier * categories.length + _selectedIndex;
+    _pageController = PageController(
+      viewportFraction: 0.55,
+      initialPage: initialPage,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onCategoryTap(int pageIndex) {
+    final realIndex = pageIndex % categories.length;
+    setState(() {
+      _selectedIndex = realIndex;
+    });
+    // Animate directly to the tapped page
+    _pageController.animateToPage(
+      pageIndex,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,33 +104,30 @@ class _FavouritesPageState extends State<FavouritesPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              SingleChildScrollView(
-                clipBehavior: Clip.none,
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Row(
-                    children: categories.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      Map<String, dynamic> categoryData = entry.value;
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedIndex = index;
-                          });
-                        },
+              SizedBox(
+                height: 130,
+                child: PageView.builder(
+                  controller: _pageController,
+                  clipBehavior: Clip.none,
+                  itemBuilder: (context, index) {
+                    final realIndex = index % categories.length;
+                    final categoryData = categories[realIndex];
+                    return GestureDetector(
+                      onTap: () => _onCategoryTap(index),
+                      child: AnimatedScale(
+                        scale: _selectedIndex == realIndex ? 1.0 : 0.9,
+                        duration: const Duration(milliseconds: 200),
                         child: CollectionCard(
                           title: categoryData['title'],
                           subtitle: categoryData['subtitle'],
                           imagePaths: List<String>.from(
                             categoryData['imagePaths'],
                           ),
-                          isActive: _selectedIndex == index,
+                          isActive: _selectedIndex == realIndex,
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 30),
@@ -126,14 +156,42 @@ class _FavouritesPageState extends State<FavouritesPage> {
                   return Center(
                     child: Wrap(
                       spacing: 16,
-                      runSpacing: 0,
-                      alignment: WrapAlignment.center,
+                      runSpacing: 16,
+                      alignment: WrapAlignment.start,
                       children: selectedRecipes.map((r) {
                         return SizedBox(
-                          width: crossAxisCount == 1
-                              ? availableWidth * 0.8
-                              : (availableWidth / crossAxisCount) - 20,
-                          child: RecipeCard(recipe: r),
+                          width:
+                              (availableWidth - (crossAxisCount - 1) * 16) /
+                              crossAxisCount,
+                          child: RecipeCardWidget(
+                            title: r.name,
+                            subtitle: r.category,
+                            imageUrl: r.imagePath,
+                            isFavorite: r.isFavorite,
+                            onFavoritePressed: () {
+                              setState(() {
+                                r.isFavorite = !r.isFavorite;
+                              });
+                            },
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ItemPage(
+                                    title: r.name,
+                                    imagePath: r.imagePath,
+                                    servings: r.servings,
+                                    calories: r.calories,
+                                    time: '${r.duration} min',
+                                    ingredients: r.ingredients,
+                                    tags: r.tags,
+                                    recipeText: r.recipeText,
+                                    initialFavorite: r.isFavorite,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         );
                       }).toList(),
                     ),
