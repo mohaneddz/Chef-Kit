@@ -13,6 +13,7 @@ import 'chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
 import 'all_seasonal_page.dart';
 import 'item_page.dart';
+import '../../common/constants.dart';
 
 class RecipeDiscoveryScreen extends StatelessWidget {
   const RecipeDiscoveryScreen({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFC),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFFCFCFC),
         elevation: 0,
