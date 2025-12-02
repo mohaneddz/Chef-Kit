@@ -1,4 +1,4 @@
-import '../../common/config.dart';
+import '../../common/constants.dart';
 import 'package:flutter/material.dart';
 import '../widgets/search_bar_widget.dart';
 import '../../blocs/home/section_header_widget.dart';
@@ -6,7 +6,6 @@ import '../../blocs/home/chef_card_widget.dart';
 import '../../blocs/home/recipe_card_widget.dart';
 import '../../blocs/home/seasonal_item_widget.dart';
 import 'all_chefs_page.dart';
-import 'chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
 import 'all_seasonal_page.dart';
 import 'item_page.dart';
@@ -17,72 +16,56 @@ class RecipeDiscoveryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFC),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFCFCFC),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        toolbarHeight: 80,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Discover Recipes",
-                style: TextStyle(
-                  color: Color(0xFF1D1617),
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "Find your next favorite meal",
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  fontFamily: "LeagueSpartan",
-                ),
-              ),
-            ],
+        backgroundColor: Colors.white,
+        leadingWidth: 72,
+        leading: Align(
+          alignment: Alignment.centerRight,
+          child: Icon(
+            Icons.explore,
+            size: 52,
+            color: Color(0xFFFF6B6B),
           ),
         ),
-        centerTitle: false,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 25.0, top: 10),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.withOpacity(0.1)),
-              ),
-              child: const Icon(
-                Icons.notifications_outlined,
-                size: 24,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Discover Recipes",
+              style: TextStyle(
                 color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          )
-        ],
+            const Text(
+              "Find your next favorite meal",
+              style: TextStyle(
+                color: Color(0xFF4A5565),
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                fontFamily: "LeagueSpartan",
+              ),
+            ),
+          ],
+        ),
+        centerTitle: false,
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25),
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
-              const SearchBarWidget(hintText: "Search Recipes or Chefs"),
-              const SizedBox(height: 30),
+              const SizedBox(height: 15),
+              // Search bar
+              const SearchBarWidget(hintText: "Search Recipes or Chefs",),
+              const SizedBox(height: 25),
 
+              // Chefs ON Fire
               SectionHeaderWidget(
-                title: 'Chefs',
+                title: 'Chefs ON Fire',
                 onSeeAllPressed: () {
                   Navigator.push(
                     context,
@@ -90,101 +73,57 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                clipBehavior: Clip.none,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ChefCardWidget(
                       name: 'G. Ramsay',
                       imageUrl: 'assets/images/chefs/chef_1.png',
                       isOnFire: true,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ChefProfilePublicPage(
-                              name: 'G. Ramsay',
-                              imageUrl: 'assets/images/chefs/chef_1.png',
-                              isOnFire: true,
-                            ),
-                          ),
-                        );
+                        // TODO: Navigate to chef profile
                       },
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     ChefCardWidget(
                       name: 'Jamie Oliver',
                       imageUrl: 'assets/images/chefs/chef_2.png',
-                      isOnFire: true,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ChefProfilePublicPage(
-                              name: 'Jamie Oliver',
-                              imageUrl: 'assets/images/chefs/chef_2.png',
-                              isOnFire: true,
-                            ),
-                          ),
-                        );
+                        // TODO: Navigate to chef profile
                       },
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     ChefCardWidget(
                       name: 'M. Bottura',
                       imageUrl: 'assets/images/chefs/chef_3.png',
-                      isOnFire: true,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ChefProfilePublicPage(
-                              name: 'M. Bottura',
-                              imageUrl: 'assets/images/chefs/chef_3.png',
-                              isOnFire: true,
-                            ),
-                          ),
-                        );
+                        // TODO: Navigate to chef profile
                       },
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     ChefCardWidget(
                       name: 'A. Ducasse',
                       imageUrl: 'assets/images/chefs/chef_3.png',
-                      isOnFire: true,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ChefProfilePublicPage(
-                              name: 'A. Ducasse',
-                              imageUrl: 'assets/images/chefs/chef_3.png',
-                              isOnFire: true,
-                            ),
-                          ),
-                        );
+                        // TODO: Navigate to chef profile
                       },
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     ChefCardWidget(
                       name: 'J. Robuchon',
                       imageUrl: 'assets/images/chefs/chef_1.png',
-                      isOnFire: true,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ChefProfilePublicPage(
-                              name: 'J. Robuchon',
-                              imageUrl: 'assets/images/chefs/chef_1.png',
-                              isOnFire: true,
-                            ),
-                          ),
-                        );
+                        // TODO: Navigate to chef profile
+                      },
+                    ),
+                    const SizedBox(width: 12),
+                    ChefCardWidget(
+                      name: 'T. Keller',
+                      imageUrl: 'assets/images/chefs/chef_2.png',
+                      onTap: () {
+                        // TODO: Navigate to chef profile
                       },
                     ),
                   ],
@@ -192,6 +131,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
+              // Hot Recipes
               SectionHeaderWidget(
                 title: 'Hot Recipes',
                 onSeeAllPressed: () {
@@ -201,16 +141,19 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Row(
                 children: [
                   Expanded(
                     child: RecipeCardWidget(
                       title: 'Mahjouba',
-                      subtitle: 'Algerian Classic',
+                      subtitle: 'Authentic Algerian\nClassic',
                       imageUrl: 'assets/images/Mahjouba.jpeg',
                       onTap: () {
-                         Navigator.push(context, MaterialPageRoute(builder: (context) => ItemPage(
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItemPage(
                               title: 'Mahjouba',
                               imagePath: 'assets/images/Mahjouba.jpeg',
                               servings: '4 servings',
@@ -218,19 +161,43 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                               time: '45 min',
                               ingredients: ['Semolina', 'Tomatoes', 'Onions', 'Peppers', 'Spices'],
                               tags: ['Traditional', 'Algerian', 'Savory'],
-                              recipeText: 'Mahjouba is a traditional Algerian flatbread...',
+                              recipeText: 'Mahjouba is a traditional Algerian flatbread stuffed with a savory tomato and pepper mixture. Start by preparing the thin semolina dough, then cook the filling with tomatoes, onions, and spices. Fold the dough over the filling and cook on a griddle until golden brown.',
                               initialFavorite: false,
-                            )));
+                            ),
+                          ),
+                        );
+                      },
+                      onFavoritePressed: () {
+                        // TODO: Toggle favorite
                       },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: RecipeCardWidget(
-                      title: 'Couscous',
-                      subtitle: 'Steamed semolina',
+                      title: 'Couscous/ Berbousha',
+                      subtitle: 'steamed and dried semolina flour',
                       imageUrl: 'assets/images/couscous.png',
                       onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItemPage(
+                              title: 'Couscous',
+                              imagePath: 'assets/images/couscous.png',
+                              servings: '6 servings',
+                              calories: '650 Kcal',
+                              time: '120 min',
+                              ingredients: ['Couscous', 'Chicken', 'Zucchini', 'Carrots', 'Chickpeas', 'Turnips'],
+                              tags: ['Traditional', 'Algerian', 'Main Dish'],
+                              recipeText: 'A traditional North African dish made with steamed semolina granules. First, prepare the vegetables by cutting them into large pieces. Cook the meat with onions and spices. Steam the couscous grains multiple times for a fluffy texture. Serve with the meat and vegetables on top.',
+                              initialFavorite: false,
+                            ),
+                          ),
+                        );
+                      },
+                      onFavoritePressed: () {
+                        // TODO: Toggle favorite
                       },
                     ),
                   ),
@@ -245,6 +212,25 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                       subtitle: 'Traditional Soup',
                       imageUrl: 'assets/images/Barkoukes.jpg',
                       onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItemPage(
+                              title: 'Barkoukes',
+                              imagePath: 'assets/images/Barkoukes.jpg',
+                              servings: '5 servings',
+                              calories: '380 Kcal',
+                              time: '90 min',
+                              ingredients: ['Barkoukes pasta', 'Lamb', 'Chickpeas', 'Tomatoes', 'Spices', 'Herbs'],
+                              tags: ['Traditional', 'Soup', 'Hearty'],
+                              recipeText: 'Barkoukes is a traditional North African soup made with handmade pasta pearls. Cook the meat with chickpeas and spices. Add the barkoukes pasta and simmer until tender. Season with fresh herbs and serve hot.',
+                              initialFavorite: false,
+                            ),
+                          ),
+                        );
+                      },
+                      onFavoritePressed: () {
+                        // TODO: Toggle favorite
                       },
                     ),
                   ),
@@ -252,9 +238,28 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   Expanded(
                     child: RecipeCardWidget(
                       title: 'Escalope',
-                      subtitle: 'Crispy Chicken',
+                      subtitle: 'Delicious & Crispy',
                       imageUrl: 'assets/images/escalope.png',
                       onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItemPage(
+                              title: 'Escalope',
+                              imagePath: 'assets/images/escalope.png',
+                              servings: '4 servings',
+                              calories: '520 Kcal',
+                              time: '30 min',
+                              ingredients: ['Chicken breast', 'Eggs', 'Breadcrumbs', 'Flour', 'Oil', 'Spices'],
+                              tags: ['Quick', 'Fried', 'Crispy'],
+                              recipeText: 'Crispy breaded chicken cutlets that are golden and delicious. Pound the chicken breast thin, coat in flour, dip in beaten eggs, then cover with breadcrumbs. Fry in hot oil until golden brown on both sides. Serve with fries or salad.',
+                              initialFavorite: false,
+                            ),
+                          ),
+                        );
+                      },
+                      onFavoritePressed: () {
+                        // TODO: Toggle favorite
                       },
                     ),
                   ),
@@ -262,6 +267,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
+              // Seasonal Delights
               SectionHeaderWidget(
                 title: 'Seasonal Delights',
                 onSeeAllPressed: () {
@@ -271,21 +277,24 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               SeasonalItemWidget(
                 title: 'Barkoukes/ Eich',
                 subtitle: 'Soup',
                 imageUrl: 'assets/images/Barkoukes.jpg',
-                onTap: () {},
+                onTap: () {
+                  // TODO: Navigate to seasonal recipe
+                },
               ),
               const SizedBox(height: 16),
               SeasonalItemWidget(
                 title: 'Strawberry Salad',
                 subtitle: 'with Balsamic Glaze',
                 imageUrl: 'assets/images/tomato.png',
-                onTap: () {},
+                onTap: () {
+                  // TODO: Navigate to seasonal recipe
+                },
               ),
-              const SizedBox(height: 30),
             ],
           ),
         ),

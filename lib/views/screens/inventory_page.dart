@@ -1,7 +1,11 @@
 import 'package:chefkit/common/constants.dart';
-import 'package:chefkit/blocs/inventory/ingredient_card.dart';
+import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
+import 'package:chefkit/blocs/inventory/inventory_event.dart';
+import 'package:chefkit/blocs/inventory/inventory_state.dart';
+import 'package:chefkit/views/widgets/inventory/ingredient_card.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class InventoryPage extends StatefulWidget {
   const InventoryPage({super.key});
@@ -11,31 +15,7 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  // Temporary mock ingredient data
-  final List<Map<String, String>> ingredients = [
-    {
-      "imageUrl": "assets/images/escalope.png",
-      "name": "Escalope",
-      "type": "Protein",
-    },
-    {
-      "imageUrl": "assets/images/tomato.png",
-      "name": "Tomato",
-      "type": "Vegetables",
-    },
-    {
-      "imageUrl": "assets/images/potato.png",
-      "name": "Potato",
-      "type": "Vegetable",
-    },
-    {
-      "imageUrl": "assets/images/paprika.png",
-      "name": "Paprika",
-      "type": "Spices",
-    },
-  ];
-
-  // Current types of ingredients !
+  // Ingredient types (kept exactly as yours)
   final List<String> ingredientTypes = [
     "All",
     "Protein",
@@ -46,38 +26,28 @@ class _InventoryPageState extends State<InventoryPage> {
 
   int selectedType = 0;
 
-  void _updateIngredientType(value) {
+  void _updateIngredientType(int value) {
     selectedType = value;
     setState(() {});
-  }
-
-  List<Map<String, String>> get filteredIngredients {
-    if (selectedType == 0) return ingredients;
-    String selected = ingredientTypes[selectedType];
-    return ingredients.where((item) => item["type"] == selected).toList();
   }
 
   Widget headerText({required String title, required String subtitle}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: Color(0xFF0A0A0A),
-            fontSize: 24,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text(title,
+            style: TextStyle(
+              color: Color(0xFF0A0A0A),
+              fontSize: 24,
+              fontWeight: FontWeight.w500,
+            )),
         SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: TextStyle(
-            color: Color(0xFF6A7282),
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        Text(subtitle,
+            style: TextStyle(
+              color: Color(0xFF6A7282),
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            )),
       ],
     );
   }
@@ -122,209 +92,263 @@ class _InventoryPageState extends State<InventoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leadingWidth: 72,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: Image.asset("assets/images/list-ingredients.png", width: 52),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "My Kitchen Inventory",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+    return BlocBuilder<InventoryBloc, InventoryState>(
+      builder: (context, state) {
+        // FILTER BROWSE LIST
+        List<Map<String, String>> filteredIngredients;
+        if (selectedType == 0) {
+          filteredIngredients = state.browse;
+        } else {
+          final selected = ingredientTypes[selectedType];
+          filteredIngredients =
+              state.browse.where((i) => i["type"] == selected).toList();
+        }
+
+        // AVAILABLE LIST (first 4 or full)
+        final availableToShow =
+            state.showMore ? state.available : state.available.take(4).toList();
+
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            leadingWidth: 72,
+            leading: Align(
+              alignment: Alignment.centerRight,
+              child: Image.asset("assets/images/list-ingredients.png",
+                  width: 52),
             ),
-            const Text(
-              "Manage your ingredients",
-              style: TextStyle(
-                color: Color(0xFF4A5565),
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                fontFamily: "LeagueSpartan",
-              ),
-            ),
-          ],
-        ),
-        centerTitle: false,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 15),
-              const SearchBarWidget(),
-              const SizedBox(height: 25),
-              headerText(
-                title: "Available Ingredients",
-                subtitle: "Your current pantry items",
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  availabilityCard(
-                    borderColor: AppColors.success1.withOpacity(0.3),
-                    gradientColor1: AppColors.success1.withOpacity(0.2),
-                    gradientColor2: AppColors.success2.withOpacity(0.3),
-                    textColor: AppColors.green,
-                    text: "8 Available",
-                    icon: Image.asset(
-                      "assets/images/package_icon.png",
-                      width: 12,
-                      fit: BoxFit.contain,
-                    ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "My Kitchen Inventory",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 20),
-                  availabilityCard(
-                    borderColor: const Color(0xFFFD5D69).withOpacity(0.3),
-                    gradientColor1: const Color(0xFFFD5D69).withOpacity(0.2),
-                    gradientColor2: AppColors.orange.withOpacity(0.2),
-                    textColor: AppColors.red600,
-                    text: "+100 Total Items",
-                    icon: Image.asset(
-                      "assets/images/star_icon.png",
-                      width: 12,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              // Current ingredients View
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  mainAxisExtent: 180,
                 ),
-                itemCount: ingredients.length,
-                itemBuilder: (context, index) {
-                  final item = ingredients[index];
-                  return IngredientCard(
-                    imageUrl: item["imageUrl"]!,
-                    ingredientName: item["name"]!,
-                    ingredientType: item["type"]!,
-                  );
-                },
-              ),
-              // Show more
-              SizedBox(height: 20),
-              Center(
-                child: Column(
-                  children: [
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        minimumSize: Size(0, 0),
-                        padding: EdgeInsets.all(0),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                Text(
+                  "Manage your ingredients",
+                  style: TextStyle(
+                    color: Color(0xFF4A5565),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: "LeagueSpartan",
+                  ),
+                ),
+              ],
+            ),
+            centerTitle: false,
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 15),
+                  const SearchBarWidget(),
+                  const SizedBox(height: 25),
+
+                  // ---------- AVAILABLE INGREDIENTS ----------
+                  headerText(
+                    title: "Available Ingredients",
+                    subtitle: "Your current pantry items",
+                  ),
+                  const SizedBox(height: 10),
+
+                  // availability cards
+                  Row(
+                    children: [
+                      availabilityCard(
+                        borderColor: AppColors.success1.withOpacity(0.3),
+                        gradientColor1: AppColors.success1.withOpacity(0.2),
+                        gradientColor2: AppColors.success2.withOpacity(0.3),
+                        textColor: AppColors.green,
+                        text: "${state.available.length} Available",
+                        icon: Image.asset(
+                          "assets/images/package_icon.png",
+                          width: 12,
+                          fit: BoxFit.contain,
+                        ),
                       ),
-                      onPressed: () {},
-                      child: Text(
-                        "Show more",
-                        style: TextStyle(
-                          color: AppColors.browmpod,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "LeagueSpartan",
+                      const SizedBox(width: 20),
+                      availabilityCard(
+                        borderColor: const Color(0xFFFD5D69).withOpacity(0.3),
+                        gradientColor1: const Color(0xFFFD5D69).withOpacity(0.2),
+                        gradientColor2: AppColors.orange.withOpacity(0.2),
+                        textColor: AppColors.red600,
+                        text: "+100 Total Items",
+                        icon: Image.asset(
+                          "assets/images/star_icon.png",
+                          width: 12,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+
+                  // AVAILABLE LIST GRID
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      crossAxisSpacing: 15,
+                      mainAxisSpacing: 15,
+                      mainAxisExtent: 180,
+                    ),
+                    itemCount: availableToShow.length,
+                    itemBuilder: (context, index) {
+                      final item = availableToShow[index];
+                      return IngredientCard(
+                        imageUrl: item["imageUrl"]!,
+                        ingredientName: item["name"]!,
+                        ingredientType: item["type"]!,
+                        onRemove: () {
+                          context
+                              .read<InventoryBloc>()
+                              .add(RemoveIngredientEvent(item));
+                        },
+                      );
+                    },
+                  ),
+
+                  // SHOW MORE / LESS
+                  SizedBox(height: 20),
+                  Center(
+                    child: Column(
+                      children: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            minimumSize: Size(0, 0),
+                            padding: EdgeInsets.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            context
+                                .read<InventoryBloc>()
+                                .add(ToggleShowMoreEvent());
+                          },
+                          child: Text(
+                            state.showMore ? "Show less" : "Show more",
+                            style: TextStyle(
+                              color: AppColors.browmpod,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "LeagueSpartan",
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            context
+                                .read<InventoryBloc>()
+                                .add(ToggleShowMoreEvent());
+                          },
+                          icon: Icon(
+                            state.showMore
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            size: 24,
+                            color: Color(0xFF8F4A4C),
+                          ),
+                          padding: EdgeInsets.zero,
+                          style: IconButton.styleFrom(
+                            minimumSize: Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 25),
+
+                  // ---------- BROWSE ----------
+                  headerText(
+                    title: "Browse all the ingredients ",
+                    subtitle: "Find what you need ?",
+                  ),
+                  const SizedBox(height: 30),
+
+                  // FILTERS
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      spacing: 30,
+                      children: List.generate(
+                        ingredientTypes.length,
+                        (index) => TextButton(
+                          onPressed: () => _updateIngredientType(index),
+                          style: TextButton.styleFrom(
+                            minimumSize: Size(0, 0),
+                            padding: EdgeInsets.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            ingredientTypes[index],
+                            style: selectedType == index
+                                ? TextStyle(
+                                    color: AppColors.red600,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: "LeagueSpartan",
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.red600,
+                                    decorationThickness: 2,
+                                  )
+                                : TextStyle(
+                                    color: AppColors.black,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: "LeagueSpartan",
+                                  ),
+                          ),
                         ),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.arrow_downward,
-                        size: 24,
-                        color: Color(0xFF8F4A4C),
-                      ),
-                      style: IconButton.styleFrom(
-                        minimumSize: Size(0, 0),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        padding: EdgeInsets.all(0),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 25),
-              headerText(
-                title: "Browse all the ingredients ",
-                subtitle: "Find what you need ?",
-              ),
-              const SizedBox(height: 30),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  spacing: 30,
-                  children: List.generate(
-                    ingredientTypes.length,
-                    (index) => TextButton(
-                      onPressed: () => _updateIngredientType(index),
-                      style: TextButton.styleFrom(
-                        minimumSize: Size(0, 0),
-                        padding: EdgeInsets.all(0),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Text(
-                        ingredientTypes.elementAt(index),
-                        style: selectedType == index
-                            ? TextStyle(
-                                color: AppColors.red600,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: "LeagueSpartan",
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColors.red600,
-                                decorationThickness: 2,
-                              )
-                            : TextStyle(
-                                color: AppColors.black,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "LeagueSpartan",
-                              ),
-                      ),
-                    ),
                   ),
-                ),
+                  SizedBox(height: 30),
+
+                  // BROWSE GRID
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      crossAxisSpacing: 15,
+                      mainAxisSpacing: 15,
+                      mainAxisExtent: 180,
+                    ),
+                    itemCount: filteredIngredients.length,
+                    itemBuilder: (context, index) {
+                      final item = filteredIngredients[index];
+                      return IngredientCard(
+                        imageUrl: item["imageUrl"]!,
+                        ingredientName: item["name"]!,
+                        ingredientType: item["type"]!,
+                        addIngredient: true,
+                        onAdd: () {
+                          context
+                              .read<InventoryBloc>()
+                              .add(AddIngredientEvent(item));
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
-              SizedBox(height: 30),
-              // Browse ingredients
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  mainAxisExtent: 180,
-                ),
-                itemCount: filteredIngredients.length,
-                itemBuilder: (context, index) {
-                  final item = filteredIngredients[index];
-                  return IngredientCard(
-                    imageUrl: item["imageUrl"]!,
-                    ingredientName: item["name"]!,
-                    ingredientType: item["type"]!,
-                    addIngredient: true,
-                  );
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
