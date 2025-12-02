@@ -193,26 +193,6 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage> with Sing
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              side: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              backgroundColor: Colors.white,
-                            ),
-                            child: const Text(
-                              "Message",
-                              style: TextStyle(
-                                color: Colors.black, 
-                                fontWeight: FontWeight.w600, 
-                                fontFamily: 'Poppins'
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
