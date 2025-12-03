@@ -7,6 +7,10 @@ class Recipe {
   final List<String> tags;
   final bool isFavorite;
   final String chefId; // owner chef
+  final String servings;
+  final String calories;
+  final List<String> ingredients;
+  final String recipeText;
 
   Recipe({
     required this.id,
@@ -17,6 +21,10 @@ class Recipe {
     required this.tags,
     this.isFavorite = false,
     required this.chefId,
+    this.servings = '4 servings',
+    this.calories = '500 Kcal',
+    this.ingredients = const [],
+    this.recipeText = 'Recipe details...',
   });
 
   Recipe copyWith({
@@ -28,6 +36,10 @@ class Recipe {
     List<String>? tags,
     bool? isFavorite,
     String? chefId,
+    String? servings,
+    String? calories,
+    List<String>? ingredients,
+    String? recipeText,
   }) {
     return Recipe(
       id: id ?? this.id,
@@ -38,6 +50,10 @@ class Recipe {
       tags: tags ?? this.tags,
       isFavorite: isFavorite ?? this.isFavorite,
       chefId: chefId ?? this.chefId,
+      servings: servings ?? this.servings,
+      calories: calories ?? this.calories,
+      ingredients: ingredients ?? this.ingredients,
+      recipeText: recipeText ?? this.recipeText,
     );
   }
 }
