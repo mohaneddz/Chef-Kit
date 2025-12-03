@@ -1,3 +1,4 @@
+import 'package:chefkit/views/screens/notifications_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/discovery/discovery_bloc.dart';
@@ -42,10 +43,13 @@ class RecipeDiscoveryScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 25.0, top: 10),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
-              child: const Icon(Icons.notifications_outlined, size: 24, color: Colors.black),
+            child: GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => NotificationsPage(),)),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
+                child: const Icon(Icons.notifications_outlined, size: 24, color: Colors.black),
+              ),
             ),
           )
         ],
