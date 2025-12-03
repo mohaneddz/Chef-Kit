@@ -7,31 +7,38 @@ class TextFieldWidget extends StatefulWidget {
     required this.controller,
     required this.hintText,
     this.trailingIcon,
+    this.isPassword = false, 
   });
 
   final TextEditingController controller;
   final String hintText;
   final IconData? trailingIcon;
+  final bool isPassword; 
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
 }
 
 class _TextFieldWidgetState extends State<TextFieldWidget> {
+  bool _obscure = true; 
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
+      obscureText: widget.isPassword ? _obscure : false, // NEW
       cursorColor: Colors.white,
-      style: TextStyle(
+      style: const TextStyle(
         color: Colors.white,
         fontSize: 16,
         fontFamily: "LeagueSpartan",
       ),
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.all(17),
+        fillColor: Colors.white.withOpacity(0.15),
+        filled: true,
+        contentPadding: const EdgeInsets.all(17),
         hintText: widget.hintText,
-        hintStyle: TextStyle(
+        hintStyle: const TextStyle(
           color: Colors.white,
           fontSize: 16,
           fontFamily: "LeagueSpartan",
@@ -44,20 +51,32 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
           borderRadius: BorderRadius.circular(30),
           borderSide: const BorderSide(color: Colors.white, width: 1),
         ),
+
         suffixIcon: Padding(
           padding: const EdgeInsets.only(right: 20.0),
           child: Container(
             width: 35,
             height: 35,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              widget.trailingIcon,
-              color: AppColors.red600,
-              size: 20,
-            ),
+            child: widget.isPassword
+                ? IconButton(
+                    icon: Icon(
+                      _obscure ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.red600,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      setState(() => _obscure = !_obscure);
+                    },
+                  )
+                : Icon(
+                    widget.trailingIcon,
+                    color: AppColors.red600,
+                    size: 20,
+                  ),
           ),
         ),
       ),

@@ -14,8 +14,10 @@ class SingupPage extends StatefulWidget {
 }
 
 class _SingupPageState extends State<SingupPage> {
+  final TextEditingController fullnameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,7 @@ class _SingupPageState extends State<SingupPage> {
                             ),
                             Image.asset(
                               "assets/images/couscous.png",
-                              width: 233,
+                              width: 180,
                             ),
                             const SizedBox(height: 20),
                             const Text(
@@ -68,13 +70,13 @@ class _SingupPageState extends State<SingupPage> {
                             ),
                             const SizedBox(height: 41),
                             TextFieldWidget(
-                              controller: emailController,
+                              controller: fullnameController,
                               hintText: "Full Name",
                               trailingIcon: Icons.person_outline,
                             ),
                             const SizedBox(height: 20),
                             TextFieldWidget(
-                              controller: passwordController,
+                              controller: emailController,
                               hintText: "Email Address",
                               trailingIcon: Icons.email_outlined,
                             ),
@@ -83,12 +85,14 @@ class _SingupPageState extends State<SingupPage> {
                               controller: passwordController,
                               hintText: "Password",
                               trailingIcon: Icons.visibility_off_outlined,
+                              isPassword: true,
                             ),
                             const SizedBox(height: 20),
                             TextFieldWidget(
-                              controller: passwordController,
+                              controller: confirmPasswordController,
                               hintText: "Confirm Password",
                               trailingIcon: Icons.visibility_off_outlined,
+                              isPassword: true,
                             ),
                           ],
                         ),
