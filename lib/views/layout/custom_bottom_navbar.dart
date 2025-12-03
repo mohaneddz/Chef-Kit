@@ -70,7 +70,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
           height: 72,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            spacing: 5,
             children: [
               Expanded(
                 child: _buildNavItem(
@@ -90,7 +89,8 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                   color: AppColors.red600,
                 ),
               ),
-              Expanded(child: _buildCenterButton()),
+              // center button with fixed width so tap areas don't overlap
+              SizedBox(width: 80, child: Center(child: _buildCenterButton())),
               Expanded(
                 child: _buildNavItem(
                   icon: Icons.favorite_border,
@@ -225,23 +225,21 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                         },
                       ),
                       // Button itself
-                      InkWell(
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.local_fire_department,
-                            color: Colors.white,
-                            size: 32,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.3),
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
+                      Container(
+                        width: 60,
+                        height: 60,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.local_fire_department,
+                          color: Colors.white,
+                          size: 32,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.3),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                            ),
+                          ],
                         ),
                       ),
                     ],

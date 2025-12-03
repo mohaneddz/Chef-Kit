@@ -24,7 +24,6 @@ class _HomePageState extends State<HomePage> {
     _selectedIndex = widget.initialIndex;
   }
 
-  // Placeholder screens - you can replace these with actual pages later
   final List<Widget> _screens = [
     RecipeDiscoveryScreen(),
     InventoryPage(),

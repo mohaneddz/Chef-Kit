@@ -39,12 +39,20 @@ final List<Recipe> dummyRecipes = [
     category: 'Traditional',
     duration: 120,
     isReady: true,
-    imagePath: 'assets/images/recipes/couscous.png',
+    imagePath: 'assets/images/couscous.png',
     servings: '4 servings',
     calories: '650 Kcal',
-    ingredients: ['Couscous', 'Chicken', 'Zucchini', 'Carrots', 'Chickpeas', 'Turnips'],
+    ingredients: [
+      'Couscous',
+      'Chicken',
+      'Zucchini',
+      'Carrots',
+      'Chickpeas',
+      'Turnips',
+    ],
     tags: ['Traditional', 'Algerian', 'Main Dish'],
-    recipeText: 'A detailed recipe for Couscous. First, prepare the vegetables. Second, cook the meat. Third, steam the couscous grains...',
+    recipeText:
+        'A detailed recipe for Couscous. First, prepare the vegetables. Second, cook the meat. Third, steam the couscous grains...',
     isFavorite: true,
   ),
   Recipe(
@@ -53,12 +61,20 @@ final List<Recipe> dummyRecipes = [
     category: 'Traditional',
     duration: 60,
     isReady: true,
-    imagePath: 'assets/images/recipes/hrira.png',
+    imagePath: 'assets/images/Barkoukes.jpg',
     servings: '6 servings',
     calories: '300 Kcal',
-    ingredients: ['Tomatoes', 'Lentils', 'Chickpeas', 'Meat', 'Spices', 'Herbs'],
+    ingredients: [
+      'Tomatoes',
+      'Lentils',
+      'Chickpeas',
+      'Meat',
+      'Spices',
+      'Herbs',
+    ],
     tags: ['Traditional', 'Soup', 'Ramadan'],
-    recipeText: 'A detailed recipe for Hrira. Start by browning the meat with onions. Add tomatoes, spices, and legumes. Let it simmer...',
+    recipeText:
+        'A detailed recipe for Hrira. Start by browning the meat with onions. Add tomatoes, spices, and legumes. Let it simmer...',
     isFavorite: true,
   ),
   Recipe(
@@ -67,12 +83,13 @@ final List<Recipe> dummyRecipes = [
     category: 'Traditional',
     duration: 120,
     isReady: true,
-    imagePath: 'assets/images/recipes/roqaq.png',
+    imagePath: 'assets/images/Mahjouba.jpeg',
     servings: '5 servings',
     calories: '700 Kcal',
     ingredients: ['Semolina', 'Water', 'Salt', 'Chicken', 'Onion', 'Spices'],
     tags: ['Traditional', 'Savory', 'Baked'],
-    recipeText: 'A detailed recipe for Roqaq. Prepare the thin dough and cook it. Separately, make the chicken and onion sauce...',
+    recipeText:
+        'A detailed recipe for Roqaq. Prepare the thin dough and cook it. Separately, make the chicken and onion sauce...',
     isFavorite: true,
   ),
   Recipe(
@@ -86,7 +103,8 @@ final List<Recipe> dummyRecipes = [
     calories: '550 Kcal',
     ingredients: ['Lamb', 'Prunes', 'Almonds', 'Onions', 'Saffron', 'Ginger'],
     tags: ['Traditional', 'Sweet & Savory', 'Slow-cooked'],
-    recipeText: 'A detailed recipe for Tagine. Brown the lamb with spices. Add onions and broth. Simmer slowly in the tagine pot...',
+    recipeText:
+        'A detailed recipe for Tagine. Brown the lamb with spices. Add onions and broth. Simmer slowly in the tagine pot...',
     isFavorite: true,
   ),
   Recipe(
@@ -98,9 +116,17 @@ final List<Recipe> dummyRecipes = [
     imagePath: 'assets/images/recipes/bastilla.png',
     servings: '8 servings',
     calories: '800 Kcal',
-    ingredients: ['Phyllo pastry', 'Chicken', 'Almonds', 'Eggs', 'Sugar', 'Cinnamon'],
+    ingredients: [
+      'Phyllo pastry',
+      'Chicken',
+      'Almonds',
+      'Eggs',
+      'Sugar',
+      'Cinnamon',
+    ],
     tags: ['Traditional', 'Pie', 'Festive'],
-    recipeText: 'A detailed recipe for Bastilla. Cook the chicken. Prepare the almond filling. Layer with phyllo pastry and bake until golden.',
+    recipeText:
+        'A detailed recipe for Bastilla. Cook the chicken. Prepare the almond filling. Layer with phyllo pastry and bake until golden.',
     isFavorite: true,
   ),
 ];
