@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                           SizedBox(
                             height: MediaQuery.of(context).size.height * 0.13,
                           ),
-                          Image.asset("assets/images/couscous.png", width: 233),
+                          Image.asset("assets/images/couscous.png", width: 180),
                           SizedBox(height: 20),
                           Text(
                             "Login",
@@ -76,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                             controller: passwordController,
                             hintText: "Password",
                             trailingIcon: Icons.visibility_off_outlined,
+                            isPassword: true,
                           ),
                         ],
                       ),
