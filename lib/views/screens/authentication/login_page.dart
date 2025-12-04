@@ -98,6 +98,7 @@ class _LoginPageState extends State<LoginPage> {
                           children: [
                             ButtonWidget(
                               text: "Log In",
+                              isLoading: context.watch<AuthCubit>().state.loading,
                               onTap: () {
                                 context.read<AuthCubit>().login(
                                   emailController.text.trim(),

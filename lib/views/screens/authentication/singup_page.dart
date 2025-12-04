@@ -118,6 +118,7 @@ class _SingupPageState extends State<SingupPage> {
                               const SizedBox(height: 30),
                               ButtonWidget(
                                 text: "Sign Up",
+                                isLoading: context.watch<AuthCubit>().state.loading,
                                 onTap: () {
                                   context.read<AuthCubit>().signup(
                                     fullnameController.text.trim(),
