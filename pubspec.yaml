@@ -14,6 +14,9 @@ dependencies:
   bloc: ^9.0.1
   lucide_icons: ^0.257.0
   equatable: ^2.0.7
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -21,6 +24,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
+  generate: true
   uses-material-design: true
 
   assets:

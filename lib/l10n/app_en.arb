@@ -1,0 +1,37 @@
+{
+  "appTitle": "Chef Kit",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "discoverRecipes": "Discover Recipes",
+  "findYourNextFavoriteMeal": "Find your next favorite meal",
+  "searchRecipesOrChefs": "Search Recipes or Chefs",
+  "chefs": "Chefs",
+  "hotRecipes": "Hot Recipes",
+  "seasonalDelights": "Seasonal Delights",
+  "seeAll": "See all",
+  "servings": "{count} servings",
+  "@servings": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "calories": "{count} Kcal",
+  "@calories": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "recipeDetailsFor": "Recipe details for {name}",
+  "@recipeDetailsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
+}

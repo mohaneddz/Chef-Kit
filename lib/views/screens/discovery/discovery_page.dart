@@ -1,6 +1,7 @@
 import 'package:chefkit/views/screens/notifications_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 import '../../../blocs/discovery/discovery_bloc.dart';
 import '../../../blocs/discovery/discovery_state.dart';
 import '../../../blocs/discovery/discovery_events.dart';
@@ -33,9 +34,25 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Discover Recipes', style: TextStyle(color: Color(0xFF1D1617), fontSize: 26, fontWeight: FontWeight.w800, fontFamily: 'Poppins')),
+              Text(
+                AppLocalizations.of(context)!.discoverRecipes,
+                style: const TextStyle(
+                  color: Color(0xFF1D1617),
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Poppins',
+                ),
+              ),
               const SizedBox(height: 4),
-              Text('Find your next favorite meal', style: TextStyle(color: Colors.grey[500], fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'LeagueSpartan')),
+              Text(
+                AppLocalizations.of(context)!.findYourNextFavoriteMeal,
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'LeagueSpartan',
+                ),
+              ),
             ],
           ),
         ),
@@ -44,14 +61,25 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 25.0, top: 10),
             child: GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => NotificationsPage(),)),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              ),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
-                child: const Icon(Icons.notifications_outlined, size: 24, color: Colors.black),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                ),
+                child: const Icon(
+                  Icons.notifications_outlined,
+                  size: 24,
+                  color: Colors.black,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: BlocBuilder<DiscoveryBloc, DiscoveryState>(
@@ -65,16 +93,26 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25),
+              padding: const EdgeInsets.symmetric(
+                vertical: 10.0,
+                horizontal: 25,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
-                  const SearchBarWidget(hintText: 'Search Recipes or Chefs'),
+                  SearchBarWidget(
+                    hintText: AppLocalizations.of(
+                      context,
+                    )!.searchRecipesOrChefs,
+                  ),
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
-                    title: 'Chefs',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllChefsPage())),
+                    title: AppLocalizations.of(context)!.chefs,
+                    onSeeAllPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AllChefsPage()),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SingleChildScrollView(
@@ -93,7 +131,8 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ChefProfilePublicPage(chefId: chef.id),
+                                  builder: (_) =>
+                                      ChefProfilePublicPage(chefId: chef.id),
                                 ),
                               );
                             },
@@ -105,8 +144,13 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
-                    title: 'Hot Recipes',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllHotRecipesPage())),
+                    title: AppLocalizations.of(context)!.hotRecipes,
+                    onSeeAllPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AllHotRecipesPage(),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   GridView.builder(
@@ -127,7 +171,9 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                         subtitle: recipe.subtitle,
                         imageUrl: recipe.imageUrl,
                         isFavorite: recipe.isFavorite,
-                        onFavoritePressed: () => context.read<DiscoveryBloc>().add(ToggleDiscoveryRecipeFavorite(recipe.id)),
+                        onFavoritePressed: () => context
+                            .read<DiscoveryBloc>()
+                            .add(ToggleDiscoveryRecipeFavorite(recipe.id)),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -135,12 +181,18 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                               builder: (_) => ItemPage(
                                 title: recipe.title,
                                 imagePath: recipe.imageUrl,
-                                servings: '4 servings',
-                                calories: '450 Kcal',
+                                servings: AppLocalizations.of(
+                                  context,
+                                )!.servings('4'),
+                                calories: AppLocalizations.of(
+                                  context,
+                                )!.calories('450'),
                                 time: recipe.time,
                                 ingredients: const [],
                                 tags: recipe.tags,
-                                recipeText: 'Recipe details for ${recipe.title} ...',
+                                recipeText: AppLocalizations.of(
+                                  context,
+                                )!.recipeDetailsFor(recipe.title),
                                 initialFavorite: recipe.isFavorite,
                               ),
                             ),
@@ -151,8 +203,13 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
-                    title: 'Seasonal Delights',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllSeasonalPage())),
+                    title: AppLocalizations.of(context)!.seasonalDelights,
+                    onSeeAllPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AllSeasonalPage(),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Column(

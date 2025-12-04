@@ -1,0 +1,13 @@
+{
+  "appTitle": "Chef Kit",
+  "discoverRecipes": "Découvrir des recettes",
+  "findYourNextFavoriteMeal": "Trouvez votre prochain repas préféré",
+  "searchRecipesOrChefs": "Rechercher des recettes ou des chefs",
+  "chefs": "Chefs",
+  "hotRecipes": "Recettes populaires",
+  "seasonalDelights": "Délices de saison",
+  "seeAll": "Tout voir",
+  "servings": "{count} portions",
+  "calories": "{count} Kcal",
+  "recipeDetailsFor": "Détails de la recette pour {name}"
+}

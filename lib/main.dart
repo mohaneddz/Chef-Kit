@@ -1,6 +1,8 @@
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 // Repositories
 import 'package:chefkit/domain/repositories/chef_repository.dart';
@@ -18,6 +20,7 @@ import 'package:chefkit/blocs/chefs/chefs_events.dart';
 import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
+import 'package:chefkit/blocs/locale/locale_cubit.dart';
 
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
 
@@ -69,11 +72,28 @@ class MainApp extends StatelessWidget {
                 FavouritesBloc(recipeRepository: recipeRepository)
                   ..add(LoadFavourites()),
           ),
+          BlocProvider(create: (_) => LocaleCubit()),
         ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(fontFamily: 'Poppins'),
-          home: const SingupPage(),
+        child: BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(fontFamily: 'Poppins'),
+              locale: locale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'), // English
+                Locale('fr'), // French
+                Locale('ar'), // Arabic
+              ],
+              home: const SingupPage(),
+            );
+          },
         ),
       ),
     );

@@ -1,0 +1,13 @@
+{
+  "appTitle": "شيف كيت",
+  "discoverRecipes": "اكتشف الوصفات",
+  "findYourNextFavoriteMeal": "اعثر على وجبتك المفضلة التالية",
+  "searchRecipesOrChefs": "ابحث عن وصفات أو طهاة",
+  "chefs": "الطهاة",
+  "hotRecipes": "وصفات ساخنة",
+  "seasonalDelights": "المسرات الموسمية",
+  "seeAll": "عرض الكل",
+  "servings": "{count} حصص",
+  "calories": "{count} سعرة حرارية",
+  "recipeDetailsFor": "تفاصيل الوصفة لـ {name}"
+}
