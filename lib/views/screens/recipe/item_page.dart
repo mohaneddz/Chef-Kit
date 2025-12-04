@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:chefkit/blocs/recipe/recipe_widget.dart';
+import 'package:chefkit/views/widgets/recipe/recipe_widget.dart';
 
 class ItemPage extends StatefulWidget {
   final String title;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../common/constants.dart';
+import '../../../common/constants.dart';
 
 class MyRecipesPage extends StatefulWidget {
   const MyRecipesPage({Key? key}) : super(key: key);

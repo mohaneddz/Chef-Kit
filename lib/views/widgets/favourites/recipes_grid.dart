@@ -1,6 +1,6 @@
-import 'package:chefkit/blocs/home/recipe_card_widget.dart';
+import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
 import 'package:chefkit/domain/models/recipe.dart';
-import 'package:chefkit/views/screens/item_page.dart';
+import 'package:chefkit/views/screens/recipe/item_page.dart';
 import 'package:flutter/material.dart';
 
 class RecipesGrid extends StatelessWidget {

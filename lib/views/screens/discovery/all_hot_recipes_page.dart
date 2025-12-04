@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../common/constants.dart';
-import '../../blocs/home/recipe_card_widget.dart';
-import 'item_page.dart';
+import '../../../common/constants.dart';
+import '../../widgets/recipe/recipe_card_widget.dart';
+import '../recipe/item_page.dart';
 
 class AllHotRecipesPage extends StatefulWidget {
   const AllHotRecipesPage({Key? key}) : super(key: key);

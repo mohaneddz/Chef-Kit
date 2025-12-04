@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../common/constants.dart';
-import '../../blocs/home/seasonal_item_widget.dart';
-import 'item_page.dart';
+import '../../../common/constants.dart';
+import '../../widgets/recipe/seasonal_item_widget.dart';
+import '../recipe/item_page.dart';
 
 class AllSeasonalPage extends StatefulWidget {
   const AllSeasonalPage({Key? key}) : super(key: key);

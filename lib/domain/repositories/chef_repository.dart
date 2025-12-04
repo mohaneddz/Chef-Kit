@@ -1,7 +1,5 @@
 import 'dart:async';
 import '../models/chef.dart';
-import '../models/recipe.dart';
-import 'recipe_repository.dart';
 
 class ChefRepository {
   final List<Chef> _chefs = [

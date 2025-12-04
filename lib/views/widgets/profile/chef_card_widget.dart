@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../common/constants.dart';
-
 class ChefCardWidget extends StatelessWidget {
   final String name;
   final String? imageUrl;

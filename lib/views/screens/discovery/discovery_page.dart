@@ -1,20 +1,20 @@
 import 'package:chefkit/views/screens/notifications_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../blocs/discovery/discovery_bloc.dart';
-import '../../blocs/discovery/discovery_state.dart';
-import '../../blocs/discovery/discovery_events.dart';
-import '../widgets/search_bar_widget.dart';
-import '../../blocs/home/section_header_widget.dart';
-import '../../blocs/home/chef_card_widget.dart';
-import '../../blocs/home/recipe_card_widget.dart';
-import '../../blocs/home/seasonal_item_widget.dart';
+import '../../../blocs/discovery/discovery_bloc.dart';
+import '../../../blocs/discovery/discovery_state.dart';
+import '../../../blocs/discovery/discovery_events.dart';
+import '../../widgets/search_bar_widget.dart';
+import '../../widgets/section_header_widget.dart';
+import '../../widgets/profile/chef_card_widget.dart';
+import '../../widgets/recipe/recipe_card_widget.dart';
+import '../../widgets/recipe/seasonal_item_widget.dart';
 import 'all_chefs_page.dart';
-import 'chef_profile_public_page.dart';
+import '../profile/chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
 import 'all_seasonal_page.dart';
-import 'item_page.dart';
-import '../../common/constants.dart';
+import '../recipe/item_page.dart';
+import '../../../common/constants.dart';
 
 class RecipeDiscoveryScreen extends StatelessWidget {
   const RecipeDiscoveryScreen({Key? key}) : super(key: key);

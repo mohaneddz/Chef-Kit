@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../common/constants.dart';
-import '../../blocs/chef_profile/chef_profile_bloc.dart';
-import '../../blocs/chef_profile/chef_profile_state.dart';
-import '../../blocs/chef_profile/chef_profile_events.dart';
+import '../../../blocs/chef_profile/chef_profile_bloc.dart';
+import '../../../blocs/chef_profile/chef_profile_state.dart';
+import '../../../blocs/chef_profile/chef_profile_events.dart';
 
 class ChefProfilePublicPage extends StatefulWidget {
   final String chefId;
