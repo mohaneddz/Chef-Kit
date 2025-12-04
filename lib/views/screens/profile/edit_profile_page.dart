@@ -1,4 +1,7 @@
+import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../common/constants.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -9,12 +12,20 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final TextEditingController _nameController = TextEditingController(text: 'Chef Ramsay');
-  final TextEditingController _emailController = TextEditingController(text: 'chef.ramsay@chefkit.com');
-  final TextEditingController _phoneController = TextEditingController(text: '+1 234 567 8900');
-  final TextEditingController _bioController = TextEditingController(
-    text: 'Passionate chef with 15+ years of experience in culinary arts.',
-  );
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final user = context.read<AuthCubit>().state.user;
+    _nameController.text = user?.fullName ?? "";
+    _emailController.text = user?.email ?? "";
+    _phoneController.text = user?.phoneNumber ?? "";
+    _bioController.text = user?.bio ?? "";
+  }
 
   @override
   void dispose() {
@@ -49,6 +60,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
         actions: [
           TextButton(
             onPressed: () {
+              context.read<AuthCubit>().updateProfile(
+                fullName: _nameController.text.trim(),
+                email: _emailController.text.trim(),
+                phoneNumber: _phoneController.text.trim(),
+                bio: _bioController.text.trim(),
+              );
               Navigator.pop(context);
             },
             child: Text(
@@ -86,9 +103,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       child: CircleAvatar(
                         radius: 55,
                         backgroundColor: Colors.grey[100],
-                        backgroundImage: const AssetImage('assets/images/chefs/chef_1.png'),
+                        backgroundImage: const AssetImage(
+                          'assets/images/chefs/chef_1.png',
+                        ),
                         onBackgroundImageError: (_, __) {},
-                        child: const Icon(Icons.person, size: 50, color: Colors.grey),
+                        child: const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     GestureDetector(
@@ -117,9 +140,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               _buildTextField("Full Name", _nameController),
               const SizedBox(height: 20),
-              _buildTextField("Email", _emailController, keyboardType: TextInputType.emailAddress),
+              _buildTextField(
+                "Email",
+                _emailController,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 20),
-              _buildTextField("Phone Number", _phoneController, keyboardType: TextInputType.phone),
+              _buildTextField(
+                "Phone Number",
+                _phoneController,
+                keyboardType: TextInputType.phone,
+              ),
               const SizedBox(height: 20),
               _buildTextField("Bio", _bioController, maxLines: 4),
             ],
@@ -166,7 +197,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.red600.withOpacity(0.5), width: 1),
+              borderSide: BorderSide(
+                color: AppColors.red600.withOpacity(0.5),
+                width: 1,
+              ),
             ),
             contentPadding: const EdgeInsets.all(16),
           ),

@@ -8,12 +8,15 @@ class TextFieldWidget extends StatefulWidget {
     required this.hintText,
     this.trailingIcon,
     this.isPassword = false, 
+    this.errorText,
   });
 
   final TextEditingController controller;
   final String hintText;
   final IconData? trailingIcon;
   final bool isPassword; 
+  final String? errorText;
+
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -26,7 +29,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
-      obscureText: widget.isPassword ? _obscure : false, // NEW
+      obscureText: widget.isPassword ? _obscure : false,
       cursorColor: Colors.white,
       style: const TextStyle(
         color: Colors.white,
@@ -43,6 +46,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
           fontSize: 16,
           fontFamily: "LeagueSpartan",
         ),
+        errorText: widget.errorText,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: const BorderSide(color: Colors.white, width: 1),
@@ -51,7 +55,25 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
           borderRadius: BorderRadius.circular(30),
           borderSide: const BorderSide(color: Colors.white, width: 1),
         ),
-
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(
+            color: AppColors.orange.withOpacity(0.9),
+            width: 2,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(
+            color: AppColors.orange,
+            width: 2.2,
+          ),
+        ),
+        errorStyle: const TextStyle(
+          color: Color(0xFFFFEEDD),
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
         suffixIcon: Padding(
           padding: const EdgeInsets.only(right: 20.0),
           child: Container(

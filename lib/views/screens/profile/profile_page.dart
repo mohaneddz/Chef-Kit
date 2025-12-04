@@ -1,5 +1,8 @@
+import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../notifications_page.dart';
 import 'edit_profile_page.dart';
 import '../recipe/my_recipes_page.dart';
@@ -18,6 +21,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthCubit>().state.user;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -84,8 +88,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    "Chef Ramsay",
+                  Text(
+                    user?.fullName ?? "Unknown",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -95,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "chef.ramsay@chefkit.com",
+                    user?.email ?? "",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[500],
@@ -195,7 +199,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.read<AuthCubit>().emit(AuthState());
+                        Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()));
+                      },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: AppColors.red600.withOpacity(0.05),

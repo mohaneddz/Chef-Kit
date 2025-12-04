@@ -1,10 +1,11 @@
+import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
-import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:chefkit/views/layout/triangle_painter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SingupPage extends StatefulWidget {
   const SingupPage({super.key});
@@ -17,10 +18,12 @@ class _SingupPageState extends State<SingupPage> {
   final TextEditingController fullnameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final errors = context.watch<AuthCubit>().state.fieldErrors;
     return Scaffold(
       backgroundColor: AppColors.red600,
       body: Stack(
@@ -41,7 +44,9 @@ class _SingupPageState extends State<SingupPage> {
             builder: (context, constraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -53,7 +58,8 @@ class _SingupPageState extends State<SingupPage> {
                         Column(
                           children: [
                             SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.10,
+                              height:
+                                  MediaQuery.of(context).size.height * 0.10,
                             ),
                             Image.asset(
                               "assets/images/couscous.png",
@@ -73,12 +79,14 @@ class _SingupPageState extends State<SingupPage> {
                               controller: fullnameController,
                               hintText: "Full Name",
                               trailingIcon: Icons.person_outline,
+                              errorText: errors["name"],
                             ),
                             const SizedBox(height: 20),
                             TextFieldWidget(
                               controller: emailController,
                               hintText: "Email Address",
                               trailingIcon: Icons.email_outlined,
+                              errorText: errors["email"],
                             ),
                             const SizedBox(height: 20),
                             TextFieldWidget(
@@ -86,6 +94,7 @@ class _SingupPageState extends State<SingupPage> {
                               hintText: "Password",
                               trailingIcon: Icons.visibility_off_outlined,
                               isPassword: true,
+                              errorText: errors["password"],
                             ),
                             const SizedBox(height: 20),
                             TextFieldWidget(
@@ -93,13 +102,24 @@ class _SingupPageState extends State<SingupPage> {
                               hintText: "Confirm Password",
                               trailingIcon: Icons.visibility_off_outlined,
                               isPassword: true,
+                              errorText: errors["confirm"],
                             ),
                           ],
                         ),
                         Column(
                           children: [
                             const SizedBox(height: 30),
-                            ButtonWidget(text: "Sign Up", onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const HomePage(),)),),
+                            ButtonWidget(
+                              text: "Sign Up",
+                              onTap: () {
+                                context.read<AuthCubit>().signup(
+                                  fullnameController.text.trim(),
+                                  emailController.text.trim(),
+                                  passwordController.text.trim(),
+                                  confirmPasswordController.text.trim(),
+                                );
+                              },
+                            ),
                             const SizedBox(height: 25),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +133,12 @@ class _SingupPageState extends State<SingupPage> {
                                 ),
                                 const SizedBox(width: 3),
                                 TextButton(
-                                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const LoginPage(),)),
+                                  onPressed: () => Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginPage(),
+                                    ),
+                                  ),
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,

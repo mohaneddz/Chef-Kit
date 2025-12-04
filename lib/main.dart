@@ -1,3 +1,4 @@
+import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -62,6 +63,7 @@ class MainApp extends StatelessWidget {
                 ChefsBloc(repository: chefRepository)..add(LoadChefs()),
           ),
           BlocProvider(create: (_) => InventoryBloc()),
+          BlocProvider(create: (_) => AuthCubit()),
           BlocProvider(
             create: (_) =>
                 FavouritesBloc(recipeRepository: recipeRepository)
