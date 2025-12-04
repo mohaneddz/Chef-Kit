@@ -1,11 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/repositories/recipe_repository.dart';
+import '../../data/repositories/recipe_repository.dart';
 import '../../domain/models/recipe.dart';
 import 'favourites_events.dart';
 import 'favourites_state.dart';
 
 class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
-  final RecipeRepository recipeRepository;
+  final LocalRecipeRepository recipeRepository;
+  final String userId = 'u1'; // Hardcoded for now
 
   FavouritesBloc({required this.recipeRepository}) : super(FavouritesState()) {
     on<LoadFavourites>(_onLoad);
@@ -19,39 +20,67 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
   ) async {
     emit(state.copyWith(loading: true, error: null));
     try {
-      final allRecipes = await recipeRepository.fetchAllRecipes();
+      await recipeRepository.seedData();
+      final favouriteRecipes = await recipeRepository.getFavouriteRecipes(
+        userId,
+      );
 
-      final traditional = allRecipes.take(4).toList();
-      final quick = allRecipes.skip(4).toList();
+      // Extract all unique tags
+      final Set<String> allTags = {};
+      for (var recipe in favouriteRecipes) {
+        allTags.addAll(recipe.tags);
+      }
 
-      final categories = [
-        {
-          'title': "Traditional",
-          'subtitle': _formatSubtitle(traditional.length),
-          'imagePaths': _getPreviewImagePaths(traditional),
-          'recipes': traditional,
-        },
-        {
-          'title': "Quick & Easy",
-          'subtitle': _formatSubtitle(quick.length),
-          'imagePaths': _getPreviewImagePaths(quick),
-          'recipes': quick,
-        },
-        {
+      final List<Map<String, dynamic>> categories = [];
+
+      // Create a category for each tag
+      for (var tag in allTags) {
+        if (tag.isEmpty) continue;
+
+        final tagRecipes = favouriteRecipes
+            .where((r) => r.tags.contains(tag))
+            .toList();
+
+        if (tagRecipes.isNotEmpty) {
+          categories.add({
+            'title': tag[0].toUpperCase() + tag.substring(1),
+            'subtitle': _formatSubtitle(tagRecipes.length),
+            'imagePaths': _getPreviewImagePaths(tagRecipes),
+            'recipes': tagRecipes,
+          });
+        }
+      }
+
+      // Add "All Saved" category
+      categories.add({
+        'title': "All Saved",
+        'subtitle': _formatSubtitle(favouriteRecipes.length),
+        'imagePaths': _getPreviewImagePaths(favouriteRecipes),
+        'recipes': favouriteRecipes,
+      });
+
+      // Ensure we have at least "All Saved" if no tags found
+      if (categories.isEmpty) {
+        categories.add({
           'title': "All Saved",
-          'subtitle': _formatSubtitle(allRecipes.length),
-          'imagePaths': _getPreviewImagePaths(allRecipes),
-          'recipes': allRecipes,
-        },
-      ];
+          'subtitle': _formatSubtitle(favouriteRecipes.length),
+          'imagePaths': _getPreviewImagePaths(favouriteRecipes),
+          'recipes': favouriteRecipes,
+        });
+      }
+
+      // Handle case where selectedCategoryIndex might be out of bounds after reload
+      int newIndex = state.selectedCategoryIndex;
+      if (newIndex >= categories.length) {
+        newIndex = 0;
+      }
 
       emit(
         state.copyWith(
           loading: false,
           categories: categories,
-          displayRecipes:
-              categories[state.selectedCategoryIndex]['recipes']
-                  as List<Recipe>,
+          selectedCategoryIndex: newIndex,
+          displayRecipes: categories[newIndex]['recipes'] as List<Recipe>,
         ),
       );
     } catch (e) {
@@ -75,35 +104,27 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     Emitter<FavouritesState> emit,
   ) async {
     try {
-      final updated = await recipeRepository.toggleFavorite(event.recipeId);
-
-      List<Recipe> updateList(List<Recipe> list) {
-        return list.map((r) => r.id == updated.id ? updated : r).toList();
-      }
-
-      final newCategories = state.categories.map((cat) {
-        final recipes = cat['recipes'] as List<Recipe>;
-        return {...cat, 'recipes': updateList(recipes)};
-      }).toList();
-
-      emit(
-        state.copyWith(
-          categories: newCategories,
-          displayRecipes:
-              newCategories[state.selectedCategoryIndex]['recipes']
-                  as List<Recipe>,
-        ),
+      final updated = await recipeRepository.toggleFavorite(
+        userId,
+        event.recipeId,
       );
+
+      // If we are in Favourites page, toggling (unfavoriting) should remove it from the list.
+      // But if we want to keep it until refresh, we just update the state.
+      // However, usually in Favourites page, if you unfavorite, it disappears.
+
+      // Let's reload the favourites to be consistent.
+      add(LoadFavourites());
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
   }
 
   String _formatSubtitle(int count) {
-    return "$count ${count == 1 ? 'recipe' : 'recipes'}";
+    return "$count Recipes";
   }
 
-  List<String> _getPreviewImagePaths(List<Recipe> recipeList) {
-    return recipeList.map((recipe) => recipe.imageUrl).take(3).toList();
+  List<String> _getPreviewImagePaths(List<Recipe> recipes) {
+    return recipes.take(3).map((r) => r.imageUrl).toList();
   }
 }
