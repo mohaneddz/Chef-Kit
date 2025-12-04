@@ -1,6 +1,6 @@
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/home_page.dart';
-import 'package:chefkit/views/screens/singup_page.dart';
+import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:chefkit/views/layout/triangle_painter.dart';

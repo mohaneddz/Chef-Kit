@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../common/constants.dart';
+import '../../../common/constants.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);

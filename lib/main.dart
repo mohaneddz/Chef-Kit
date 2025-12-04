@@ -18,7 +18,7 @@ import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
 
-import 'package:chefkit/views/screens/singup_page.dart';
+import 'package:chefkit/views/screens/authentication/singup_page.dart';
 
 void main() {
   runApp(const MainApp());

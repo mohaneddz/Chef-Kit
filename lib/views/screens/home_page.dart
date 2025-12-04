@@ -1,8 +1,8 @@
-import 'package:chefkit/views/screens/favourites_page.dart';
-import 'package:chefkit/views/screens/recipe_loading_page.dart';
-import 'package:chefkit/views/screens/inventory_page.dart';
-import 'package:chefkit/views/screens/profile_page.dart';
-import 'discovery_page.dart';
+import 'package:chefkit/views/screens/favourite/favourites_page.dart';
+import 'package:chefkit/views/screens/recipe/recipe_loading_page.dart';
+import 'package:chefkit/views/screens/inventory/inventory_page.dart';
+import 'package:chefkit/views/screens/profile/profile_page.dart';
+import 'discovery/discovery_page.dart';
 import 'package:chefkit/views/layout/custom_bottom_navbar.dart';
 import 'package:flutter/material.dart';
 

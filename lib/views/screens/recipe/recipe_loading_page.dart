@@ -1,5 +1,5 @@
 import 'package:chefkit/common/constants.dart';
-import 'package:chefkit/views/screens/recipe_results_page.dart';
+import 'package:chefkit/views/screens/recipe/recipe_results_page.dart';
 import 'package:flutter/material.dart';
 
 class RecipeLoadingPage extends StatefulWidget {

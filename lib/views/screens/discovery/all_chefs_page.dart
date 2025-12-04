@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../common/constants.dart';
-import '../../blocs/home/chef_card_widget.dart';
-import '../../blocs/chefs/chefs_bloc.dart';
-import '../../blocs/chefs/chefs_state.dart';
-import '../../blocs/chefs/chefs_events.dart';
-import '../../blocs/chef_profile/chef_profile_bloc.dart';
-import 'chef_profile_public_page.dart';
+import '../../../common/constants.dart';
+import '../../widgets/profile/chef_card_widget.dart';
+import '../../../blocs/chefs/chefs_bloc.dart';
+import '../../../blocs/chefs/chefs_state.dart';
+import '../../../blocs/chefs/chefs_events.dart';
+import '../../../blocs/chef_profile/chef_profile_bloc.dart';
+import '../profile/chef_profile_public_page.dart';
 
 class AllChefsPage extends StatelessWidget {
   const AllChefsPage({Key? key}) : super(key: key);

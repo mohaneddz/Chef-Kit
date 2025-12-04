@@ -1,11 +1,9 @@
 import 'package:chefkit/common/constants.dart';
 import 'package:flutter/material.dart';
-import 'notifications_page.dart';
+import '../notifications_page.dart';
 import 'edit_profile_page.dart';
-import 'about_page.dart';
-import 'my_recipes_page.dart';
-import '../../blocs/profile/popups/theme_popup.dart';
-import '../../blocs/profile/popups/language_popup.dart';
+import '../recipe/my_recipes_page.dart';
+import '../../../blocs/profile/popups/language_popup.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
