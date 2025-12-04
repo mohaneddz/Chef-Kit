@@ -1,10 +1,11 @@
+import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
-import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:chefkit/views/layout/triangle_painter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final errors = context.watch<AuthCubit>().state.fieldErrors;
     return Scaffold(
       backgroundColor: AppColors.red600,
       body: Stack(
@@ -54,7 +56,10 @@ class _LoginPageState extends State<LoginPage> {
                           SizedBox(
                             height: MediaQuery.of(context).size.height * 0.13,
                           ),
-                          Image.asset("assets/images/couscous.png", width: 180),
+                          Image.asset(
+                            "assets/images/couscous.png",
+                            width: 180,
+                          ),
                           SizedBox(height: 20),
                           Text(
                             "Login",
@@ -70,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                             controller: emailController,
                             hintText: "Email Address",
                             trailingIcon: Icons.email_outlined,
+                            errorText: errors["email"],
                           ),
                           SizedBox(height: 20),
                           TextFieldWidget(
@@ -77,6 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                             hintText: "Password",
                             trailingIcon: Icons.visibility_off_outlined,
                             isPassword: true,
+                            errorText: errors["password"],
                           ),
                         ],
                       ),
@@ -84,12 +91,12 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           ButtonWidget(
                             text: "Log In",
-                            onTap: () => Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomePage(),
-                              ),
-                            ),
+                            onTap: () {
+                              context.read<AuthCubit>().login(
+                                emailController.text.trim(),
+                                passwordController.text.trim(),
+                              );
+                            },
                           ),
                           SizedBox(height: 25),
                           Row(
@@ -105,7 +112,12 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               SizedBox(width: 3),
                               TextButton(
-                                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const SingupPage(),)),
+                                onPressed: () => Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SingupPage(),
+                                  ),
+                                ),
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: Size.zero,
