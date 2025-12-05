@@ -22,8 +22,12 @@ class DBHelper {
         await db.execute('''
           CREATE TABLE ingredients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            type TEXT NOT NULL,
+            name_en TEXT NOT NULL,
+            name_fr TEXT NOT NULL,
+            name_ar TEXT NOT NULL,
+            type_en TEXT NOT NULL,
+            type_fr TEXT NOT NULL,
+            type_ar TEXT NOT NULL,
             image_path TEXT NOT NULL
           )
         ''');

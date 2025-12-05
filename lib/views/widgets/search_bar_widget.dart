@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
   final String hintText;
+  final ValueChanged<String>? onChanged;
 
   const SearchBarWidget({
     super.key,
     this.hintText = 'Search ingredient ... ',
+    this.onChanged,
   });
 
   @override
@@ -28,6 +30,7 @@ class SearchBarWidget extends StatelessWidget {
         children: [
           Expanded(
             child: TextFormField(
+              onChanged: onChanged,
               cursorColor: Color(0xFF1C0F0D).withOpacity(0.7),
               style: TextStyle(
                 color: Color(0xFF1C0F0D).withOpacity(0.7),

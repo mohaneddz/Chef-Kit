@@ -7,6 +7,14 @@ class InventoryEvent extends Equatable {
 
 class LoadInventoryEvent extends InventoryEvent {}
 
+class SearchInventoryEvent extends InventoryEvent {
+  final String searchTerm;
+  SearchInventoryEvent(this.searchTerm);
+
+  @override
+  List<Object?> get props => [searchTerm];
+}
+
 class AddIngredientEvent extends InventoryEvent {
   final Map<String, String> ingredient;
   AddIngredientEvent(this.ingredient);
