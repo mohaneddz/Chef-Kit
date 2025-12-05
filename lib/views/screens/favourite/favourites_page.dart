@@ -20,6 +20,12 @@ class _FavouritesPageState extends State<FavouritesPage> {
   PageController? _pageController;
 
   @override
+  void initState() {
+    super.initState();
+    context.read<FavouritesBloc>().add(LoadFavourites());
+  }
+
+  @override
   void dispose() {
     _pageController?.dispose();
     super.dispose();
@@ -47,7 +53,37 @@ class _FavouritesPageState extends State<FavouritesPage> {
           if (state.error != null) {
             return Center(child: Text('Error: ${state.error}'));
           }
-          
+
+          if (state.displayRecipes.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.favorite_border,
+                    size: 100,
+                    color: Colors.grey[300],
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "No Favourites Yet",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Explore the app and save your favourite recipes!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
+          }
+
           if (_pageController == null && state.categories.isNotEmpty) {
             // using a large multiplier to simulate infinite scrolling
             // This allows the user to scroll left/right "infinitely"
