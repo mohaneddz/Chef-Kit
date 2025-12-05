@@ -9,9 +9,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from services import (
     get_all_users,
-    get_user,
-    create_user,
-    update_user,
+    get_user as service_get_user,
+    create_user as service_create_user,
+    update_user as service_update_user,
     get_all_recipes,
     get_recipe,
     create_recipe,
@@ -28,12 +28,16 @@ from services import (
     auth_refresh,
     auth_logout,
     auth_verify_email_otp,
+    update_user_service,
 )
 from auth import token_required, optional_token
 from supabase_client import set_postgrest_token
 from supabase_client import supabase
 import traceback
 import time
+import hashlib
+import requests
+from cloudinary_utils import get_cloudinary_config
 
 # Simple in-memory throttle store for resend limits (per email)
 _last_resend_ts = {}
@@ -47,9 +51,10 @@ def signup():
         payload = request.get_json() or {}
         email = payload.get("email")
         password = payload.get("password")
+        full_name = payload.get("full_name")
         if not email or not password:
             return jsonify({"error": "email and password are required"}), 400
-        result = auth_signup(email, password)
+        result = auth_signup(email, password, full_name)
         return jsonify(result), 200
     except ValueError as e:
         # Email already exists
@@ -165,7 +170,7 @@ def get_users():
 def get_user(user_id):
     """Fetch a single user by ID."""
     try:
-        user = get_user(user_id)
+        user = service_get_user(user_id)
         return jsonify(user), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404
@@ -183,7 +188,7 @@ def create_user(token_claims, token):
         # Set user_id from token if not provided
         data["user_id"] = token_claims["sub"]
         set_postgrest_token(token)
-        created = create_user(data)
+        created = service_create_user(data)
         return jsonify(created), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -199,10 +204,81 @@ def update_user(user_id, token_claims, token):
             return jsonify({"error": "Cannot update another user's profile"}), 403
         data = request.get_json()
         set_postgrest_token(token)
-        updated = update_user(user_id, data)
+        updated = service_update_user(user_id, data)
         return jsonify(updated), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/users/<user_id>/avatar", methods=["POST"])
+@token_required
+def upload_avatar(user_id, token_claims, token):
+    """Upload avatar image to Cloudinary and update user_avatar.
+
+    Expects JSON: { "image_base64": "data:image/...;base64,XXX" or pure base64 }
+    """
+    try:
+        print(f"[avatar] Upload requested for user_id={user_id}")
+        print(f"[avatar] Token claims: {token_claims}")
+        # Enforce user can only update their own avatar
+        if token_claims["sub"] != user_id:
+            print(f"[avatar] Token subject {token_claims.get('sub')} does not match path {user_id}")
+            return jsonify({"error": "Cannot update another user's avatar"}), 403
+
+        payload = request.get_json() or {}
+        image_b64 = payload.get("image_base64") or ""
+        if not image_b64:
+            print("[avatar] Missing image_base64 in payload")
+            return jsonify({"error": "image_base64 is required"}), 400
+
+        # Strip data URL prefix if present
+        if "," in image_b64:
+            image_b64 = image_b64.split(",", 1)[1]
+        print(f"[avatar] Base64 payload length: {len(image_b64)}")
+
+        cloud_name, api_key, api_secret = get_cloudinary_config()
+        print(f"[avatar] Using Cloudinary cloud={cloud_name}")
+
+        timestamp = int(time.time())
+        folder = "chef-kit/avatars"
+        params_to_sign = {
+            "folder": folder,
+            "timestamp": str(timestamp),
+        }
+
+        to_sign = "&".join(f"{k}={v}" for k, v in sorted(params_to_sign.items()))
+        signature = hashlib.sha1((to_sign + api_secret).encode("utf-8")).hexdigest()
+        print(f"[avatar] Signature string: {to_sign}")
+
+        data = {
+            "file": f"data:image/jpeg;base64,{image_b64}",
+            "folder": folder,
+            "timestamp": timestamp,
+            "api_key": api_key,
+            "signature": signature,
+        }
+
+        upload_url = f"https://api.cloudinary.com/v1_1/{cloud_name}/image/upload"
+        print(f"[avatar] Uploading to Cloudinary endpoint: {upload_url}")
+        resp = requests.post(upload_url, data=data)
+        if resp.status_code != 200:
+            print(f"[avatar] Cloudinary upload failed: {resp.status_code} {resp.text}")
+            return jsonify({"error": "cloudinary_upload_failed", "details": resp.text}), 502
+
+        upload_json = resp.json()
+        secure_url = upload_json.get("secure_url")
+        if not secure_url:
+            print("[avatar] Cloudinary response missing secure_url")
+            return jsonify({"error": "cloudinary_no_url"}), 502
+
+        print(f"[avatar] Cloudinary upload succeeded. URL={secure_url}")
+        set_postgrest_token(token)
+        updated = update_user_service(user_id, {"user_avatar": secure_url})
+        print(f"[avatar] Supabase update result: {updated}")
+        return jsonify({"avatar_url": secure_url, "user": updated}), 200
+    except Exception as e:
+        print(f"[avatar] Unexpected error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # Recipes 

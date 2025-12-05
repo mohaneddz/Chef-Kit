@@ -1,6 +1,5 @@
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
-import 'dart:io';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,11 +27,10 @@ import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
 
-void main() {
-  if (Platform.isWindows || Platform.isLinux) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final repo = IngredientsRepo.getInstance();
+  await repo.seedIngredients(); 
   runApp(const MainApp());
 }
 
@@ -43,18 +41,13 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final chefRepository = ChefRepository();
     final recipeRepository = RecipeRepository();
-    final profileRepository = ProfileRepository();
-    final localRecipeRepository = LocalRecipeRepository();
 
-    // Resolve backend baseUrl depending on platform
     final String baseUrl;
     if (kIsWeb) {
       baseUrl = 'http://localhost:5000';
     } else if (Platform.isAndroid) {
-      // Android emulator cannot access localhost; use special alias
       baseUrl = 'http://10.0.2.2:5000';
     } else {
-      // iOS simulator / desktop
       baseUrl = 'http://localhost:5000';
     }
 
@@ -62,8 +55,6 @@ class MainApp extends StatelessWidget {
       providers: [
         RepositoryProvider.value(value: chefRepository),
         RepositoryProvider.value(value: recipeRepository),
-        RepositoryProvider.value(value: profileRepository),
-        RepositoryProvider.value(value: localRecipeRepository),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -71,12 +62,7 @@ class MainApp extends StatelessWidget {
             create: (_) => DiscoveryBloc(
               chefRepository: chefRepository,
               recipeRepository: recipeRepository,
-            )..add(LoadDiscovery()),
-          ),
-
-          BlocProvider(
-            create: (_) =>
-                ProfileBloc(repository: profileRepository)..add(LoadProfile()),
+            )..add(LoadDiscovery()), 
           ),
           BlocProvider(
             create: (_) => ChefProfileBloc(

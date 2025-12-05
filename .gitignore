@@ -64,3 +64,5 @@ BLOC_MIGRATION_REPORT.md
 *.sql
 local_schema.dart
 /android/app/build.gradle.kts
+IMPLEMENTATION_STATUS.txt
+SETUP_NOW.txt

@@ -60,7 +60,7 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
     {
       'title': 'Escalope',
       'subtitle': 'Delicious & Crispy',
-      'imageUrl': 'assets/images/escalope.png',
+      'imageUrl': 'assets/images/ingredients/escalope.png',
       'isFavorite': false,
       'category': 'Quick',
       'trending': true,
@@ -74,7 +74,7 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
     {
       'title': 'Tajine',
       'subtitle': 'Slow cooked perfection',
-      'imageUrl': 'assets/images/tomato.png',
+      'imageUrl': 'assets/images/ingredients/tomato.png',
       'isFavorite': false,
       'category': 'Traditional',
       'trending': false,

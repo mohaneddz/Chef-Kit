@@ -2,7 +2,6 @@ import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:chefkit/views/screens/authentication/otp_verify_page.dart';
-import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:chefkit/views/layout/triangle_painter.dart';
