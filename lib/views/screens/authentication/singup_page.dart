@@ -1,6 +1,7 @@
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
+import 'package:chefkit/views/screens/authentication/otp_verify_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
@@ -23,12 +24,39 @@ class _SingupPageState extends State<SingupPage> {
       TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Clear any stale field errors when entering signup page
+    Future.microtask(() {
+      if (mounted) {
+        context.read<AuthCubit>().emit(
+          context.read<AuthCubit>().state.copyWith(fieldErrors: {}, error: null),
+        );
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final errors = context.watch<AuthCubit>().state.fieldErrors;
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (!state.loading && state.user != null && state.fieldErrors.isEmpty) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const HomePage(),));
+        // Debug outputs for signup flow
+        debugPrint('[SignupPage] AuthState loading=${state.loading} error=${state.error} signedUp=${state.signedUp}');
+        
+        // Only navigate to OTP if signedUp is true AND no field errors exist
+        if (!state.loading && state.signedUp && state.error == null && state.fieldErrors.isEmpty) {
+          // With OTP flow, navigate to verification page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OtpVerifyPage(email: emailController.text.trim(), fromSignup: true)),
+          );
+        }
+        
+        if (state.error != null && !state.loading) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Signup failed: ${state.error}')),
+          );
         }
       },
       child: Scaffold(
@@ -120,6 +148,7 @@ class _SingupPageState extends State<SingupPage> {
                                 text: "Sign Up",
                                 isLoading: context.watch<AuthCubit>().state.loading,
                                 onTap: () {
+                                  debugPrint('[SignupPage] SignUp button tapped');
                                   context.read<AuthCubit>().signup(
                                     fullnameController.text.trim(),
                                     emailController.text.trim(),

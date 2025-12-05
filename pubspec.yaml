@@ -14,6 +14,10 @@ dependencies:
   bloc: ^9.0.1
   lucide_icons: ^0.257.0
   equatable: ^2.0.7
+  supabase: ^2.10.0
+  dotenv: ^4.2.0
+  flutter_secure_storage: ^9.2.2
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:

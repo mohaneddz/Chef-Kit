@@ -20,6 +20,10 @@ import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
 
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
+import 'package:chefkit/views/screens/home_page.dart';
+import 'package:chefkit/domain/offline_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 
 void main() {
   runApp(const MainApp());
@@ -33,6 +37,18 @@ class MainApp extends StatelessWidget {
     final chefRepository = ChefRepository();
     final recipeRepository = RecipeRepository();
     final profileRepository = ProfileRepository();
+
+    // Resolve backend baseUrl depending on platform
+    final String baseUrl;
+    if (kIsWeb) {
+      baseUrl = 'http://localhost:5000';
+    } else if (Platform.isAndroid) {
+      // Android emulator cannot access localhost; use special alias
+      baseUrl = 'http://10.0.2.2:5000';
+    } else {
+      // iOS simulator / desktop
+      baseUrl = 'http://localhost:5000';
+    }
 
     return MultiRepositoryProvider(
       providers: [
@@ -63,7 +79,12 @@ class MainApp extends StatelessWidget {
                 ChefsBloc(repository: chefRepository)..add(LoadChefs()),
           ),
           BlocProvider(create: (_) => InventoryBloc()),
-          BlocProvider(create: (_) => AuthCubit()),
+          BlocProvider(
+            create: (_) => AuthCubit(
+              baseUrl: baseUrl,
+              offline: OfflineProvider(),
+            ),
+          ),
           BlocProvider(
             create: (_) =>
                 FavouritesBloc(recipeRepository: recipeRepository)
@@ -73,9 +94,44 @@ class MainApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(fontFamily: 'Poppins'),
-          home: const SingupPage(),
+          home: const AuthInitializer(),
         ),
       ),
+    );
+  }
+}
+
+class AuthInitializer extends StatefulWidget {
+  const AuthInitializer({super.key});
+
+  @override
+  State<AuthInitializer> createState() => _AuthInitializerState();
+}
+
+class _AuthInitializerState extends State<AuthInitializer> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AuthCubit>().restoreSessionOnStart();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        if (state.loading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        
+        if (state.userId != null && state.accessToken != null) {
+          // User is authenticated, show main app
+          return const HomePage();
+        }
+        
+        return const SingupPage();
+      },
     );
   }
 }
