@@ -203,24 +203,41 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                     },
                   ),
                   const SizedBox(height: 30),
-                  // SectionHeaderWidget(
-                  //   title: 'Seasonal Delights',
-                  //   onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllSeasonalPage())),
-                  // ),
-                  // const SizedBox(height: 16),
-                  // Column(
-                  //   children: [
-                  //     for (final recipe in state.seasonalRecipes) ...[
-                  //       SeasonalItemWidget(
-                  //         title: recipe.title,
-                  //         subtitle: recipe.subtitle,
-                  //         imageUrl: recipe.imageUrl,
-                  //         onTap: () {},
-                  //       ),
-                  //       const SizedBox(height: 16),
-                  //     ],
-                  //   ],
-                  // ),
+                  SectionHeaderWidget(
+                    title: 'Seasonal Delights',
+                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllSeasonalPage())),
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    children: [
+                      for (final recipe in state.seasonalRecipes) ...[
+                        SeasonalItemWidget(
+                          title: recipe.name,
+                          subtitle: recipe.description,
+                          imageUrl: recipe.imageUrl,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ItemPage(
+                                  title: recipe.name,
+                                  imagePath: recipe.imageUrl,
+                                  servings: '${recipe.servingsCount} servings',
+                                  calories: '${recipe.calories} Kcal',
+                                  time: '${recipe.prepTime + recipe.cookTime} min',
+                                  ingredients: recipe.ingredients,
+                                  tags: recipe.tags,
+                                  recipeText: recipe.instructions.join('\n'),
+                                  initialFavorite: recipe.isFavorite,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ],
+                  ),
                   const SizedBox(height: 30),
                 ],
               ),
