@@ -20,6 +20,12 @@ class _FavouritesPageState extends State<FavouritesPage> {
   PageController? _pageController;
 
   @override
+  void initState() {
+    super.initState();
+    context.read<FavouritesBloc>().add(LoadFavourites());
+  }
+
+  @override
   void dispose() {
     _pageController?.dispose();
     super.dispose();
@@ -47,7 +53,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
           if (state.error != null) {
             return Center(child: Text('Error: ${state.error}'));
           }
-          
+
           if (_pageController == null && state.categories.isNotEmpty) {
             // using a large multiplier to simulate infinite scrolling
             // This allows the user to scroll left/right "infinitely"

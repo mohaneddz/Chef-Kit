@@ -16,8 +16,19 @@ import 'all_seasonal_page.dart';
 import '../recipe/item_page.dart';
 import '../../../common/constants.dart';
 
-class RecipeDiscoveryScreen extends StatelessWidget {
+class RecipeDiscoveryScreen extends StatefulWidget {
   const RecipeDiscoveryScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RecipeDiscoveryScreen> createState() => _RecipeDiscoveryScreenState();
+}
+
+class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<DiscoveryBloc>().add(LoadDiscovery());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +44,25 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Discover Recipes', style: TextStyle(color: Color(0xFF1D1617), fontSize: 26, fontWeight: FontWeight.w800, fontFamily: 'Poppins')),
+              const Text(
+                'Discover Recipes',
+                style: TextStyle(
+                  color: Color(0xFF1D1617),
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Poppins',
+                ),
+              ),
               const SizedBox(height: 4),
-              Text('Find your next favorite meal', style: TextStyle(color: Colors.grey[500], fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'LeagueSpartan')),
+              Text(
+                'Find your next favorite meal',
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'LeagueSpartan',
+                ),
+              ),
             ],
           ),
         ),
@@ -44,14 +71,25 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 25.0, top: 10),
             child: GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => NotificationsPage(),)),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              ),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
-                child: const Icon(Icons.notifications_outlined, size: 24, color: Colors.black),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                ),
+                child: const Icon(
+                  Icons.notifications_outlined,
+                  size: 24,
+                  color: Colors.black,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: BlocBuilder<DiscoveryBloc, DiscoveryState>(
@@ -65,7 +103,10 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25),
+              padding: const EdgeInsets.symmetric(
+                vertical: 10.0,
+                horizontal: 25,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -74,7 +115,10 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
                     title: 'Chefs',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllChefsPage())),
+                    onSeeAllPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AllChefsPage()),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SingleChildScrollView(
@@ -93,7 +137,8 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ChefProfilePublicPage(chefId: chef.id),
+                                  builder: (_) =>
+                                      ChefProfilePublicPage(chefId: chef.id),
                                 ),
                               );
                             },
@@ -106,7 +151,12 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
                     title: 'Hot Recipes',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllHotRecipesPage())),
+                    onSeeAllPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AllHotRecipesPage(),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   GridView.builder(
@@ -123,24 +173,27 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final recipe = state.hotRecipes[index];
                       return RecipeCardWidget(
-                        title: recipe.title,
-                        subtitle: recipe.subtitle,
+                        title: recipe.name,
+                        subtitle: recipe.description,
                         imageUrl: recipe.imageUrl,
                         isFavorite: recipe.isFavorite,
-                        onFavoritePressed: () => context.read<DiscoveryBloc>().add(ToggleDiscoveryRecipeFavorite(recipe.id)),
+                        onFavoritePressed: () => context
+                            .read<DiscoveryBloc>()
+                            .add(ToggleDiscoveryRecipeFavorite(recipe.id)),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => ItemPage(
-                                title: recipe.title,
+                                title: recipe.name,
                                 imagePath: recipe.imageUrl,
-                                servings: '4 servings',
-                                calories: '450 Kcal',
-                                time: recipe.time,
-                                ingredients: const [],
+                                servings: '${recipe.servingsCount} servings',
+                                calories: '${recipe.calories} Kcal',
+                                time:
+                                    '${recipe.prepTime + recipe.cookTime} min',
+                                ingredients: recipe.ingredients,
                                 tags: recipe.tags,
-                                recipeText: 'Recipe details for ${recipe.title} ...',
+                                recipeText: recipe.instructions.join('\n'),
                                 initialFavorite: recipe.isFavorite,
                               ),
                             ),
@@ -150,24 +203,24 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 30),
-                  SectionHeaderWidget(
-                    title: 'Seasonal Delights',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllSeasonalPage())),
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
-                    children: [
-                      for (final recipe in state.seasonalRecipes) ...[
-                        SeasonalItemWidget(
-                          title: recipe.title,
-                          subtitle: recipe.subtitle,
-                          imageUrl: recipe.imageUrl,
-                          onTap: () {},
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ],
-                  ),
+                  // SectionHeaderWidget(
+                  //   title: 'Seasonal Delights',
+                  //   onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllSeasonalPage())),
+                  // ),
+                  // const SizedBox(height: 16),
+                  // Column(
+                  //   children: [
+                  //     for (final recipe in state.seasonalRecipes) ...[
+                  //       SeasonalItemWidget(
+                  //         title: recipe.title,
+                  //         subtitle: recipe.subtitle,
+                  //         imageUrl: recipe.imageUrl,
+                  //         onTap: () {},
+                  //       ),
+                  //       const SizedBox(height: 16),
+                  //     ],
+                  //   ],
+                  // ),
                   const SizedBox(height: 30),
                 ],
               ),
