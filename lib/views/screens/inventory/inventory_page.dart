@@ -15,16 +15,21 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  // Ingredient types (kept exactly as yours)
   final List<String> ingredientTypes = [
     "All",
     "Protein",
     "Vegetables",
     "Spices",
-    "Spices",
+    "Fruits",
   ];
 
   int selectedType = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<InventoryBloc>().add(LoadInventoryEvent());
+  }
 
   void _updateIngredientType(int value) {
     selectedType = value;
@@ -35,19 +40,23 @@ class _InventoryPageState extends State<InventoryPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style: TextStyle(
-              color: Color(0xFF0A0A0A),
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-            )),
+        Text(
+          title,
+          style: TextStyle(
+            color: Color(0xFF0A0A0A),
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         SizedBox(height: 4),
-        Text(subtitle,
-            style: TextStyle(
-              color: Color(0xFF6A7282),
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-            )),
+        Text(
+          subtitle,
+          style: TextStyle(
+            color: Color(0xFF6A7282),
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
       ],
     );
   }
@@ -94,19 +103,20 @@ class _InventoryPageState extends State<InventoryPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<InventoryBloc, InventoryState>(
       builder: (context, state) {
-        // FILTER BROWSE LIST
         List<Map<String, String>> filteredIngredients;
         if (selectedType == 0) {
           filteredIngredients = state.browse;
         } else {
           final selected = ingredientTypes[selectedType];
-          filteredIngredients =
-              state.browse.where((i) => i["type"] == selected).toList();
+          filteredIngredients = state.browse
+              .where((i) => i["type"] == selected)
+              .toList();
         }
+        final availableToShow = state.showMore
+            ? state.available
+            : state.available.take(4).toList();
 
-        // AVAILABLE LIST (first 4 or full)
-        final availableToShow =
-            state.showMore ? state.available : state.available.take(4).toList();
+        int totalItems = state.browse.length + state.available.length;
 
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -115,8 +125,10 @@ class _InventoryPageState extends State<InventoryPage> {
             leadingWidth: 72,
             leading: Align(
               alignment: Alignment.centerRight,
-              child: Image.asset("assets/images/list-ingredients.png",
-                  width: 52),
+              child: Image.asset(
+                "assets/images/list-ingredients.png",
+                width: 52,
+              ),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,23 +156,21 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
           body: SingleChildScrollView(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
+              padding: const EdgeInsets.symmetric(
+                vertical: 20.0,
+                horizontal: 25,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 15),
                   const SearchBarWidget(),
                   const SizedBox(height: 25),
-
-                  // ---------- AVAILABLE INGREDIENTS ----------
                   headerText(
                     title: "Available Ingredients",
                     subtitle: "Your current pantry items",
                   ),
                   const SizedBox(height: 10),
-
-                  // availability cards
                   Row(
                     children: [
                       availabilityCard(
@@ -178,10 +188,12 @@ class _InventoryPageState extends State<InventoryPage> {
                       const SizedBox(width: 20),
                       availabilityCard(
                         borderColor: const Color(0xFFFD5D69).withOpacity(0.3),
-                        gradientColor1: const Color(0xFFFD5D69).withOpacity(0.2),
+                        gradientColor1: const Color(
+                          0xFFFD5D69,
+                        ).withOpacity(0.2),
                         gradientColor2: AppColors.orange.withOpacity(0.2),
                         textColor: AppColors.red600,
-                        text: "+100 Total Items",
+                        text: "${totalItems} Total Items",
                         icon: Image.asset(
                           "assets/images/star_icon.png",
                           width: 12,
@@ -191,18 +203,16 @@ class _InventoryPageState extends State<InventoryPage> {
                     ],
                   ),
                   const SizedBox(height: 30),
-
-                  // AVAILABLE LIST GRID
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      crossAxisSpacing: 15,
-                      mainAxisSpacing: 15,
-                      mainAxisExtent: 180,
-                    ),
+                          maxCrossAxisExtent: 200,
+                          crossAxisSpacing: 15,
+                          mainAxisSpacing: 15,
+                          mainAxisExtent: 180,
+                        ),
                     itemCount: availableToShow.length,
                     itemBuilder: (context, index) {
                       final item = availableToShow[index];
@@ -211,15 +221,13 @@ class _InventoryPageState extends State<InventoryPage> {
                         ingredientName: item["name"]!,
                         ingredientType: item["type"]!,
                         onRemove: () {
-                          context
-                              .read<InventoryBloc>()
-                              .add(RemoveIngredientEvent(item));
+                          context.read<InventoryBloc>().add(
+                            RemoveIngredientEvent(item),
+                          );
                         },
                       );
                     },
                   ),
-
-                  // SHOW MORE / LESS
                   SizedBox(height: 20),
                   Center(
                     child: Column(
@@ -231,9 +239,9 @@ class _InventoryPageState extends State<InventoryPage> {
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                           onPressed: () {
-                            context
-                                .read<InventoryBloc>()
-                                .add(ToggleShowMoreEvent());
+                            context.read<InventoryBloc>().add(
+                              ToggleShowMoreEvent(),
+                            );
                           },
                           child: Text(
                             state.showMore ? "Show less" : "Show more",
@@ -247,9 +255,9 @@ class _InventoryPageState extends State<InventoryPage> {
                         ),
                         IconButton(
                           onPressed: () {
-                            context
-                                .read<InventoryBloc>()
-                                .add(ToggleShowMoreEvent());
+                            context.read<InventoryBloc>().add(
+                              ToggleShowMoreEvent(),
+                            );
                           },
                           icon: Icon(
                             state.showMore
@@ -269,15 +277,12 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
 
                   SizedBox(height: 25),
-
-                  // ---------- BROWSE ----------
                   headerText(
                     title: "Browse all the ingredients ",
                     subtitle: "Find what you need ?",
                   ),
                   const SizedBox(height: 30),
 
-                  // FILTERS
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -316,17 +321,16 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
                   SizedBox(height: 30),
 
-                  // BROWSE GRID
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      crossAxisSpacing: 15,
-                      mainAxisSpacing: 15,
-                      mainAxisExtent: 180,
-                    ),
+                          maxCrossAxisExtent: 200,
+                          crossAxisSpacing: 15,
+                          mainAxisSpacing: 15,
+                          mainAxisExtent: 180,
+                        ),
                     itemCount: filteredIngredients.length,
                     itemBuilder: (context, index) {
                       final item = filteredIngredients[index];
@@ -336,9 +340,9 @@ class _InventoryPageState extends State<InventoryPage> {
                         ingredientType: item["type"]!,
                         addIngredient: true,
                         onAdd: () {
-                          context
-                              .read<InventoryBloc>()
-                              .add(AddIngredientEvent(item));
+                          context.read<InventoryBloc>().add(
+                            AddIngredientEvent(item),
+                          );
                         },
                       );
                     },

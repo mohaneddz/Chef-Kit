@@ -30,7 +30,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
     {
       'title': 'Strawberry Salad',
       'subtitle': 'with Balsamic Glaze',
-      'imageUrl': 'assets/images/tomato.png',
+      'imageUrl': 'assets/images/ingredients/tomato.png',
       'season': 'Summer',
       'servings': '2 servings',
       'calories': '180 Kcal',
@@ -78,7 +78,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
     {
       'title': 'Summer Escalope',
       'subtitle': 'Light & Crispy',
-      'imageUrl': 'assets/images/escalope.png',
+      'imageUrl': 'assets/images/ingredients/escalope.png',
       'season': 'Summer',
       'servings': '4 servings',
       'calories': '480 Kcal',
@@ -90,7 +90,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
     {
       'title': 'Harvest Soup',
       'subtitle': 'Farm-fresh ingredients',
-      'imageUrl': 'assets/images/tomato.png',
+      'imageUrl': 'assets/images/ingredients/tomato.png',
       'season': 'Autumn',
       'servings': '6 servings',
       'calories': '280 Kcal',
