@@ -53,7 +53,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       emit(
         state.copyWith(
           browse: browseList,
-          available: [], // empty at first
+          available: state.available,
         ),
       );
     });
