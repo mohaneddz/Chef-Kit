@@ -7,6 +7,7 @@ Endpoints wired to DB_SCHEMA.md tables.
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
 from services import (
     get_all_users,
     get_user as service_get_user,
@@ -32,15 +33,97 @@ from services import (
 )
 from auth import token_required, optional_token
 from supabase_client import set_postgrest_token
-from supabase_client import supabase
+from supabase_client import (
+    supabase,
+    supabase_admin,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    SUPABASE_SERVICE_ROLE_KEY,
+)
 import traceback
 import time
 import hashlib
 import requests
+import re
 from cloudinary_utils import get_cloudinary_config
+from typing import Any, Dict
+
+_SUPABASE_PASSWORD_RESET_REDIRECT = os.getenv("SUPABASE_PASSWORD_RESET_REDIRECT")
 
 # Simple in-memory throttle store for resend limits (per email)
 _last_resend_ts = {}
+_pending_email_changes: Dict[str, Dict[str, Any]] = {}
+_pending_password_changes: Dict[str, Dict[str, Any]] = {}
+
+_EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_OTP_TTL_SECONDS = 600  # 10 minutes
+_MAX_OTP_ATTEMPTS = 5
+
+
+def _require_service_key() -> None:
+    if not SUPABASE_SERVICE_ROLE_KEY:
+        raise RuntimeError("Supabase service role key is required for this operation")
+
+
+def _admin_headers() -> dict[str, str]:
+    _require_service_key()
+    return {
+        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+        "Content-Type": "application/json",
+    }
+
+
+def _anon_headers() -> dict[str, str]:
+    api_key = SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY
+    if not api_key:
+        raise RuntimeError("Supabase anonymous key is not configured")
+    return {
+        "apikey": api_key,
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+
+def _user_headers(access_token: str) -> dict[str, str]:
+    api_key = SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY
+    if not api_key:
+        raise RuntimeError("Supabase anonymous key is not configured")
+    return {
+        "apikey": api_key,
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+
+
+def _auth_email_exists(email: str) -> bool:
+    """Check if email exists in public.users table (simpler than auth lookup)."""
+    try:
+        result = supabase.table("users").select("user_id").eq("user_email", email).limit(1).execute()
+        return bool(getattr(result, "data", None))
+    except Exception:
+        return False
+
+
+def _verify_current_password(email: str, password: str) -> bool:
+    try:
+        resp = requests.post(
+            f"{SUPABASE_URL}/auth/v1/token?grant_type=password",
+            headers={
+                "apikey": SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY,
+                "Content-Type": "application/json",
+            },
+            json={"email": email, "password": password},
+            timeout=10,
+        )
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Password verification failed: {exc}")
+
+    if resp.status_code == 200:
+        return True
+    if resp.status_code in (400, 401):
+        return False
+    raise RuntimeError(f"Password verification unexpected error: {resp.status_code} {resp.text}")
 
 app = Flask(__name__)
 CORS(app)
@@ -145,6 +228,363 @@ def resend():
             return jsonify({"message": "resent", "email": email}), 200
         except Exception as resend_err:
             return jsonify({"error": f"Failed to resend: {str(resend_err)}"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# Security endpoints
+@app.route("/auth/email/change/request", methods=["POST"])
+@token_required
+def request_email_change(token_claims, token):
+    """Send OTP to new email address for email change."""
+    try:
+        payload = request.get_json() or {}
+        new_email = (payload.get("new_email") or "").strip().lower()
+        if not new_email:
+            return jsonify({"error": "Please enter a new email address."}), 400
+        if not _EMAIL_REGEX.match(new_email):
+            return jsonify({"error": "Please enter a valid email address."}), 400
+
+        user_claims = token_claims.get("user") or {}
+        current_email = (user_claims.get("email") or "").strip().lower()
+        if not current_email:
+            return jsonify({"error": "Unable to retrieve current email. Please log in again."}), 400
+        if current_email == new_email:
+            return jsonify({"error": "New email is the same as current email."}), 400
+        if not token:
+            return jsonify({"error": "Authentication required. Please log in again."}), 401
+
+        # Check if new email already exists
+        if _auth_email_exists(new_email):
+            return jsonify({"error": "This email is already in use by another account."}), 409
+
+        # Use admin client with user's token to trigger email change
+        try:
+            # Set user's access token for the request
+            set_postgrest_token(token)
+            
+            # Make REST API call with user's token
+            headers = _user_headers(token)
+            update_resp = requests.put(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers=headers,
+                json={"email": new_email}
+            )
+            
+            if update_resp.status_code not in (200, 204):
+                error_data = update_resp.json() if update_resp.text else {}
+                error_msg = error_data.get("msg") or error_data.get("message") or str(error_data)
+                
+                # Handle rate limiting
+                if update_resp.status_code == 429:
+                    return jsonify({"error": "Too many requests. Please wait a moment before trying again."}), 429
+                
+                raise RuntimeError(error_msg)
+        except Exception as exc:
+            error_str = str(exc)
+            if "rate_limit" in error_str.lower() or "429" in error_str:
+                return jsonify({"error": "Too many email change requests. Please wait before trying again."}), 429
+            return jsonify({"error": f"Failed to send verification code. Please try again."}), 400
+
+        user_id = token_claims.get("sub")
+        if not user_id:
+            return jsonify({"error": "user_not_found"}), 400
+
+        _pending_email_changes[user_id] = {
+            "new_email": new_email,
+            "current_email": current_email,
+            "requested_at": time.time(),
+            "expires_at": time.time() + _OTP_TTL_SECONDS,
+            "attempts": 0,
+        }
+
+        return jsonify({"message": "email_change_otp_sent"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/auth/email/change/verify", methods=["POST"])
+@token_required
+def verify_email_change(token_claims, token):
+    """Verify OTP and confirm new email address."""
+    try:
+        payload = request.get_json() or {}
+        otp = (payload.get("otp") or "").strip()
+        new_email = (payload.get("new_email") or "").strip().lower()
+
+        if not otp or not new_email:
+            return jsonify({"error": "Please enter both verification code and email address."}), 400
+        if not _EMAIL_REGEX.match(new_email):
+            return jsonify({"error": "Please enter a valid email address."}), 400
+
+        user_id = token_claims.get("sub")
+        pending = _pending_email_changes.get(user_id)
+        if not pending:
+            return jsonify({"error": "No pending email change request. Please request a new code."}), 400
+
+        if time.time() > pending.get("expires_at", 0):
+            _pending_email_changes.pop(user_id, None)
+            return jsonify({"error": "Verification code expired. Please request a new one."}), 410
+
+        if pending.get("new_email") != new_email:
+            return jsonify({"error": "Email address doesn't match. Please check and try again."}), 400
+
+        attempts = int(pending.get("attempts", 0))
+        if attempts >= _MAX_OTP_ATTEMPTS:
+            _pending_email_changes.pop(user_id, None)
+            return jsonify({"error": "Too many failed attempts. Please request a new code."}), 429
+
+        # Verify OTP code for email change
+        # Supabase sends a 6-digit OTP to the new email address
+        try:
+            verify_resp = requests.post(
+                f"{SUPABASE_URL}/auth/v1/verify",
+                headers=_anon_headers(),
+                json={
+                    "type": "email_change",
+                    "email": new_email,
+                    "token": otp
+                }
+            )
+            
+            if verify_resp.status_code != 200:
+                error_data = verify_resp.json() if verify_resp.text else {}
+                error_msg = error_data.get("msg") or error_data.get("message") or str(error_data)
+                raise RuntimeError(f"Verification failed: {error_msg}")
+            
+            resp_data = verify_resp.json()
+        except Exception as exc:
+            pending["attempts"] = attempts + 1
+            if pending["attempts"] >= _MAX_OTP_ATTEMPTS:
+                _pending_email_changes.pop(user_id, None)
+            return jsonify({"error": f"otp_verification_failed: {exc}"}), 400
+
+        # CRITICAL: Update email in Supabase Auth using Admin API
+        # This is the ONLY way to actually change the email in auth.users table
+        try:
+            admin_update_resp = requests.put(
+                f"{SUPABASE_URL}/auth/v1/admin/users/{user_id}",
+                headers=_admin_headers(),
+                json={"email": new_email, "email_confirm": True}
+            )
+            
+            if admin_update_resp.status_code not in (200, 204):
+                error_data = admin_update_resp.json() if admin_update_resp.text else {}
+                raise RuntimeError(f"Auth update failed: {error_data}")
+        except Exception as exc:
+            return jsonify({"error": f"auth_email_update_failed: {exc}"}), 500
+
+        # Update profile table with new email
+        client = supabase_admin or supabase
+        try:
+            update_resp = client.table("users").update({"user_email": new_email}).eq("user_id", user_id).execute()
+            if not getattr(update_resp, "data", None):
+                raise RuntimeError("profile_update_failed")
+        except Exception as exc:
+            return jsonify({"error": f"profile_update_failed: {exc}"}), 500
+
+        _pending_email_changes.pop(user_id, None)
+        
+        # Extract complete session and user data from REST response
+        user_data = resp_data.get("user", {})
+        session_data = {
+            "access_token": resp_data.get("access_token"),
+            "refresh_token": resp_data.get("refresh_token"),
+        }
+        
+        # CRITICAL: Force the email to be the new_email in the response
+        # This ensures Flutter app gets the updated email for state management
+        user_data["email"] = new_email
+        
+        # Ensure all required fields are present
+        if not user_data.get("id"):
+            user_data["id"] = user_id
+        if not user_data.get("aud"):
+            user_data["aud"] = "authenticated"
+        if "app_metadata" not in user_data:
+            user_data["app_metadata"] = {}
+        if "user_metadata" not in user_data:
+            user_data["user_metadata"] = {}
+        if "created_at" not in user_data:
+            user_data["created_at"] = None
+        
+        return jsonify({
+            "message": "email_updated", 
+            "session": session_data, 
+            "user": user_data,
+            "new_email": new_email  # Extra field for explicit clarity
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/auth/password/change/request", methods=["POST"])
+@token_required
+def request_password_change(token_claims, token):
+    """Send password reset OTP to user's email."""
+    try:
+        payload = request.get_json() or {}
+        current_password = (payload.get("current_password") or "").strip()
+        new_password = (payload.get("new_password") or "").strip()
+
+        if not current_password or not new_password:
+            return jsonify({"error": "Please enter both current and new password."}), 400
+        if len(new_password) < 8:
+            return jsonify({"error": "Password must be at least 8 characters long."}), 400
+        if current_password == new_password:
+            return jsonify({"error": "New password must be different from current password."}), 400
+
+        user_claims = token_claims.get("user") or {}
+        email = (user_claims.get("email") or "").strip().lower()
+        if not email:
+            return jsonify({"error": "current_email_unavailable"}), 400
+
+        # Verify current password
+        valid_password = _verify_current_password(email, current_password)
+        if not valid_password:
+            return jsonify({"error": "Current password is incorrect."}), 403
+
+        # Send password reset OTP using REST API
+        try:
+            payload_json = {"email": email}
+            if _SUPABASE_PASSWORD_RESET_REDIRECT:
+                payload_json["options"] = {"redirect_to": _SUPABASE_PASSWORD_RESET_REDIRECT}
+            
+            reset_resp = requests.post(
+                f"{SUPABASE_URL}/auth/v1/recover",
+                headers=_anon_headers(),
+                json=payload_json
+            )
+            
+            if reset_resp.status_code == 429:
+                return jsonify({"error": "Too many password reset requests. Please wait 60 seconds before trying again."}), 429
+            
+            if reset_resp.status_code not in (200, 204):
+                error_data = reset_resp.json() if reset_resp.text else {}
+                raise RuntimeError(f"Status {reset_resp.status_code}: {error_data}")
+        except Exception as exc:
+            return jsonify({"error": f"password_otp_failed: {exc}"}), 400
+
+        user_id = token_claims.get("sub")
+        if not user_id:
+            return jsonify({"error": "user_not_found"}), 400
+
+        password_hash = hashlib.sha256(new_password.encode("utf-8")).hexdigest()
+        _pending_password_changes[user_id] = {
+            "email": email,
+            "requested_at": time.time(),
+            "expires_at": time.time() + _OTP_TTL_SECONDS,
+            "attempts": 0,
+            "new_password_hash": password_hash,
+        }
+
+        return jsonify({"message": "password_otp_sent"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/auth/password/change/verify", methods=["POST"])
+@token_required
+def verify_password_change(token_claims, token):
+    """Verify OTP and update password."""
+    try:
+        payload = request.get_json() or {}
+        otp = (payload.get("otp") or "").strip()
+        new_password = (payload.get("new_password") or "").strip()
+
+        if not otp or not new_password:
+            return jsonify({"error": "Please enter both verification code and new password."}), 400
+        if len(new_password) < 8:
+            return jsonify({"error": "Password must be at least 8 characters long."}), 400
+
+        user_id = token_claims.get("sub")
+        entry = _pending_password_changes.get(user_id)
+        if not entry:
+            return jsonify({"error": "No pending password change. Please request a new code."}), 400
+
+        if time.time() > entry.get("expires_at", 0):
+            _pending_password_changes.pop(user_id, None)
+            return jsonify({"error": "Verification code expired. Please request a new one."}), 410
+
+        attempts = int(entry.get("attempts", 0))
+        if attempts >= _MAX_OTP_ATTEMPTS:
+            _pending_password_changes.pop(user_id, None)
+            return jsonify({"error": "Too many failed attempts. Please request a new code."}), 429
+
+        expected_hash = entry.get("new_password_hash")
+        provided_hash = hashlib.sha256(new_password.encode("utf-8")).hexdigest()
+        if expected_hash != provided_hash:
+            return jsonify({"error": "Password doesn't match. Please enter the same password you used when requesting the code."}), 400
+
+        email = entry.get("email")
+        
+        # Verify OTP using REST API
+        try:
+            verify_resp = requests.post(
+                f"{SUPABASE_URL}/auth/v1/verify",
+                headers=_anon_headers(),
+                json={
+                    "type": "recovery",
+                    "token": otp,
+                    "email": email
+                }
+            )
+            
+            if verify_resp.status_code != 200:
+                error_data = verify_resp.json() if verify_resp.text else {}
+                raise RuntimeError(f"Status {verify_resp.status_code}: {error_data}")
+            
+            verify_data = verify_resp.json()
+            verify_token = verify_data.get("access_token")
+            
+            if not verify_token:
+                raise RuntimeError("No access token in verify response")
+        except Exception as exc:
+            entry["attempts"] = attempts + 1
+            if entry["attempts"] >= _MAX_OTP_ATTEMPTS:
+                _pending_password_changes.pop(user_id, None)
+            return jsonify({"error": f"otp_verification_failed: {exc}"}), 400
+
+        # Update password using the verified token
+        try:
+            update_resp = requests.put(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers=_user_headers(verify_token),
+                json={"password": new_password}
+            )
+            
+            if update_resp.status_code not in (200, 204):
+                error_data = update_resp.json() if update_resp.text else {}
+                raise RuntimeError(f"Status {update_resp.status_code}: {error_data}")
+            
+            update_data = update_resp.json() if update_resp.text else {}
+        except Exception as exc:
+            return jsonify({"error": f"password_update_failed: {exc}"}), 400
+
+        _pending_password_changes.pop(user_id, None)
+        
+        # Extract complete session and user data
+        user_data = update_data.get("user", verify_data.get("user", {}))
+        session_data = {
+            "access_token": update_data.get("access_token") or verify_token,
+            "refresh_token": update_data.get("refresh_token") or verify_data.get("refresh_token"),
+        }
+        
+        # Ensure all required fields
+        if not user_data.get("id"):
+            user_data["id"] = user_id
+        if not user_data.get("email"):
+            user_data["email"] = email
+        if not user_data.get("aud"):
+            user_data["aud"] = "authenticated"
+        if "app_metadata" not in user_data:
+            user_data["app_metadata"] = {}
+        if "user_metadata" not in user_data:
+            user_data["user_metadata"] = {}
+        if "created_at" not in user_data:
+            user_data["created_at"] = None
+        
+        return jsonify({"message": "password_updated", "session": session_data, "user": user_data}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

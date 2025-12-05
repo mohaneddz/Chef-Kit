@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../notifications_page.dart';
 import 'personal_info_page.dart';
+import 'security_page.dart';
 import '../recipe/my_recipes_page.dart';
 import '../../../blocs/profile/popups/language_popup.dart';
 
@@ -282,7 +283,18 @@ class _ProfilePageContent extends StatelessWidget {
                         context,
                         icon: Icons.security_outlined,
                         title: "Security",
-                        onTap: () {},
+                        onTap: () {
+                          final profileBloc = context.read<ProfileBloc>();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: profileBloc,
+                                child: const SecurityPage(),
+                              ),
+                            ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 32),
