@@ -1,83 +1,46 @@
 """JWT middleware for Supabase Auth token verification.
 
-Verifies JWT tokens from Supabase Auth and extracts user info.
+Verifies Supabase access tokens by calling the Supabase Auth REST API.
 Protects endpoints by checking for valid, non-expired tokens.
 """
 
 import os
-import jwt
 import requests
 from functools import wraps
 from flask import request, jsonify
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY", "")
 
 
-def get_supabase_public_key() -> Optional[str]:
-    """
-    Fetch the Supabase JWT public key from the JWKS endpoint.
-    This is used to verify JWT signatures.
-    """
+def verify_token(token: str) -> Dict[str, Any]:
+    """Validate the access token via Supabase Auth REST API."""
     if not SUPABASE_URL:
         raise ValueError("SUPABASE_URL not set")
-    
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "apikey": SUPABASE_KEY,
+    }
+
+    url = f"{SUPABASE_URL}/auth/v1/user"
     try:
-        jwks_url = f"{SUPABASE_URL}/.well-known/jwks.json"
-        response = requests.get(jwks_url, timeout=5)
+        response = requests.get(url, headers=headers, timeout=5)
+        print(f"[auth] GET {url} -> {response.status_code}")
         if response.status_code == 200:
-            jwks = response.json()
-            # Extract the first public key (Supabase typically provides one)
-            if jwks.get("keys"):
-                return jwt.algorithms.RSAAlgorithm.from_jwk(jwks["keys"][0])
-        return None
-    except Exception as e:
-        print(f"Error fetching Supabase public key: {e}")
-        return None
-
-
-# Cache the public key to avoid repeated fetches
-_public_key_cache = None
-
-
-def get_cached_public_key() -> Optional[str]:
-    """Get or fetch the Supabase public key."""
-    global _public_key_cache
-    if _public_key_cache is None:
-        _public_key_cache = get_supabase_public_key()
-    return _public_key_cache
-
-
-def verify_token(token: str) -> Dict[str, Any]:
-    """
-    Verify a JWT token and return decoded claims.
-    
-    Args:
-        token: JWT token string (without 'Bearer ' prefix)
-    
-    Returns:
-        Decoded JWT claims (includes 'sub' as user_id, 'exp', 'iat', etc.)
-    
-    Raises:
-        ValueError: If token is invalid or expired
-    """
-    public_key = get_cached_public_key()
-    if not public_key:
-        raise ValueError("Unable to fetch Supabase public key")
-    
-    try:
-        decoded = jwt.decode(
-            token,
-            public_key,
-            algorithms=["RS256"],
-            audience="authenticated",  # Supabase convention
-        )
-        return decoded
-    except jwt.ExpiredSignatureError:
-        raise ValueError("Token has expired")
-    except jwt.InvalidTokenError as e:
-        raise ValueError(f"Invalid token: {str(e)}")
+            data = response.json()
+            sub = data.get("id")
+            if not sub:
+                raise ValueError("Supabase response missing user id")
+            print(f"[auth] Supabase user verified: id={sub}")
+            return {"sub": sub, "user": data}
+        elif response.status_code == 401:
+            raise ValueError("Invalid or expired token")
+        else:
+            raise ValueError(f"Supabase auth error ({response.status_code}): {response.text}")
+    except requests.RequestException as exc:
+        raise ValueError(f"Supabase auth request failed: {exc}")
 
 
 def token_required(f):
@@ -97,21 +60,29 @@ def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get("Authorization")
-        if not auth_header:
+        if auth_header:
+            preview = auth_header[:40] + ("..." if len(auth_header) > 40 else "")
+            print(f"[token_required] Authorization header: {preview}")
+        else:
+            print("[token_required] Missing Authorization header")
             return jsonify({"error": "Missing Authorization header"}), 401
-        
+
         parts = auth_header.split()
         if len(parts) != 2 or parts[0].lower() != "bearer":
+            print(f"[token_required] Bad Authorization header format: {auth_header}")
             return jsonify({"error": "Invalid Authorization header format. Use 'Bearer <token>'"}), 401
-        
+
         token = parts[1]
         try:
             token_claims = verify_token(token)
             # Pass claims and raw token to the route handler
+            print(f"[token_required] Token accepted for sub={token_claims.get('sub')}")
             return f(token_claims=token_claims, token=token, *args, **kwargs)
         except ValueError as e:
+            print(f"[token_required] Verification error: {e}")
             return jsonify({"error": str(e)}), 401
         except Exception as e:
+            print(f"[token_required] Unexpected auth failure: {e}")
             return jsonify({"error": f"Authentication failed: {str(e)}"}), 500
     
     return decorated_function

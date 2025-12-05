@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:chefkit/domain/models/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:chefkit/domain/offline_provider.dart';
 import 'package:chefkit/common/token_storage.dart';
@@ -103,7 +102,7 @@ class AuthCubit extends Cubit<AuthState> {
       final resp = await http.post(
         Uri.parse('$baseUrl/auth/signup'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({'email': email, 'password': password, 'full_name': name}),
       );
       if (resp.statusCode == 200) {
         // With OTP/email token, after signup we require verification
@@ -252,23 +251,29 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> logout() async {
     emit(state.copyWith(loading: true, error: null));
+    
+    // Clear tokens immediately (optimistic)
     try {
-      final resp = await http.post(
+      if (state.userId != null) {
+        await _offline.deleteRefreshToken(state.userId!);
+      }
+      await _tokenStorage.clearAll();
+    } catch (e) {
+      // Continue even if local cleanup fails
+    }
+    
+    // Notify backend (fire and forget)
+    try {
+      await http.post(
         Uri.parse('$baseUrl/auth/logout'),
         headers: _authHeaders(),
       );
-      if (resp.statusCode == 200) {
-        if (state.userId != null) {
-          await _offline.deleteRefreshToken(state.userId!);
-        }
-        await _tokenStorage.clearAll();
-        emit(AuthState(loading: false));
-      } else {
-        emit(state.copyWith(loading: false, error: resp.body));
-      }
     } catch (e) {
-      emit(state.copyWith(loading: false, error: e.toString()));
+      // Ignore backend errors - user is logged out locally
     }
+    
+    // Emit logged out state
+    emit(AuthState(loading: false));
   }
 
   Future<void> refreshToken() async {

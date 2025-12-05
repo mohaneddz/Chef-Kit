@@ -13,7 +13,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   Future<void> _onLoad(LoadProfile event, Emitter<ProfileState> emit) async {
     emit(state.copyWith(loading: true, error: null));
     try {
-      final profile = await repository.fetchProfile();
+      final profile = await repository.fetchProfile(event.userId);
       emit(state.copyWith(loading: false, profile: profile));
     } catch (e) {
       emit(state.copyWith(loading: false, error: e.toString()));

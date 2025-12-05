@@ -36,7 +36,6 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final chefRepository = ChefRepository();
     final recipeRepository = RecipeRepository();
-    final profileRepository = ProfileRepository();
 
     // Resolve backend baseUrl depending on platform
     final String baseUrl;
@@ -54,7 +53,6 @@ class MainApp extends StatelessWidget {
       providers: [
         RepositoryProvider.value(value: chefRepository),
         RepositoryProvider.value(value: recipeRepository),
-        RepositoryProvider.value(value: profileRepository),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -63,10 +61,6 @@ class MainApp extends StatelessWidget {
               chefRepository: chefRepository,
               recipeRepository: recipeRepository,
             )..add(LoadDiscovery()),
-          ),
-          BlocProvider(
-            create: (_) =>
-                ProfileBloc(repository: profileRepository)..add(LoadProfile()),
           ),
           BlocProvider(
             create: (_) => ChefProfileBloc(

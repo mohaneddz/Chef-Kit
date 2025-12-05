@@ -6,11 +6,22 @@ Keeping database logic here makes `app.py` simple and easy to test.
 from typing import Any, Dict, List, Optional
 from supabase_client import supabase
 from supabase_client import set_postgrest_token
+
+
+def _extract_response_data(resp):
+    """Normalize Supabase client responses across versions."""
+    error = getattr(resp, "error", None)
+    if error:
+        message = getattr(error, "message", None) or str(error)
+        raise RuntimeError(message)
+
+    data = getattr(resp, "data", None)
+    return data
 # -----------------------------
 # Auth
 # -----------------------------
-def auth_signup(email: str, password: str) -> Dict[str, Any]:
-    """Sign up a user via Supabase Auth."""
+def auth_signup(email: str, password: str, full_name: Optional[str] = None) -> Dict[str, Any]:
+    """Sign up a user via Supabase Auth and create user profile."""
     # Check if email already exists in public.users (or attempt login to detect existing auth user)
     try:
         # Try to find existing user in public.users table
@@ -28,9 +39,29 @@ def auth_signup(email: str, password: str) -> Dict[str, Any]:
         # Check if Supabase returned existing user (some configs do this)
         if resp and hasattr(resp, 'user') and resp.user:
             user_data = resp.user
+            user_id = getattr(user_data, 'id', None)
+            
             # If user exists and is already confirmed, reject
             if hasattr(user_data, 'email_confirmed_at') and user_data.email_confirmed_at:
                 raise ValueError("email_exists: User already registered and verified")
+            
+            # Create user profile immediately with provided name
+            if user_id:
+                default_avatar = "https://via.placeholder.com/250/FF6B6B/FFFFFF?text=Chef"
+                try:
+                    supabase.table("users").insert({
+                        "user_id": user_id,
+                        "user_full_name": full_name,
+                        "user_email": email,
+                        "user_avatar": default_avatar,
+                        "user_following_count": 0,
+                        "user_followers_count": 0,
+                        "user_recipes_count": 0,
+                        "user_is_chef": False,
+                    }).execute()
+                    print(f"Created user profile for {email} with name: {full_name}")
+                except Exception as e:
+                    print(f"Failed to create user profile during signup: {e}")
     except ValueError:
         raise
     except Exception as e:
@@ -85,21 +116,36 @@ def auth_login(email: str, password: str) -> Dict[str, Any]:
         # Attach access token to PostgREST so RLS recognizes auth.uid()
         set_postgrest_token(access_token)
         # Ensure a corresponding row exists in public.users
+        default_avatar = "https://via.placeholder.com/250/FF6B6B/FFFFFF?text=Chef"
+        # Try to get user metadata for full name
+        user_metadata = getattr(user_obj, 'user_metadata', {})
+        full_name = user_metadata.get('full_name') if user_metadata else None
+        
         try:
             existing = supabase.table("users").select("user_id").eq("user_id", user_id).single().execute()
-            # If no data, insert a minimal profile
+            # If no data, insert a profile with name from metadata if available
             if not getattr(existing, "data", None):
                 _ = supabase.table("users").insert({
                     "user_id": user_id,
-                    "user_full_name": None,
+                    "user_full_name": full_name,
                     "user_email": user_email,
+                    "user_avatar": default_avatar,
+                    "user_following_count": 0,
+                    "user_followers_count": 0,
+                    "user_recipes_count": 0,
+                    "user_is_chef": False,
                 }).execute()
         except Exception:
             # Attempt insert blindly if select failed
             _ = supabase.table("users").insert({
                 "user_id": user_id,
-                "user_full_name": None,
+                "user_full_name": full_name,
                 "user_email": user_email,
+                "user_avatar": default_avatar,
+                "user_following_count": 0,
+                "user_followers_count": 0,
+                "user_recipes_count": 0,
+                "user_is_chef": False,
             }).execute()
     except Exception:
         user_payload = {"email": email}
@@ -176,31 +222,69 @@ def auth_verify_email_otp(email: str, token: str) -> Dict[str, Any]:
 # -----------------------------
 def get_all_users() -> List[Dict[str, Any]]:
     resp = supabase.table("users").select("*").execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    if data is None:
+        raise RuntimeError("Failed to fetch users")
+    return data if isinstance(data, list) else [data]
 
 
 def get_user(user_id: str) -> Optional[Dict[str, Any]]:
-    resp = supabase.table("users").select("*").eq("user_id", user_id).single().execute()
-    if resp.error:
-        # If not found, supabase client may return an error; bubble up
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    """Get user by ID. If not found in public.users, create a minimal profile."""
+    try:
+        resp = supabase.table("users").select("*").eq("user_id", user_id).single().execute()
+        if resp.data:
+            print(f"=== get_user returning data ===")
+            print(f"User ID: {user_id}")
+            print(f"Response data: {resp.data}")
+            print(f"user_full_name: {resp.data.get('user_full_name')}")
+            print(f"user_avatar: {resp.data.get('user_avatar')}")
+            print(f"==============================")
+            return resp.data
+    except Exception as e:
+        # User not found, try to create a minimal profile
+        print(f"User {user_id} not found in database: {e}")
+    
+    # Create minimal user profile with default values
+    try:
+        # Get email from auth.users if possible (requires service role key)
+        default_avatar = "https://via.placeholder.com/250/FF6B6B/FFFFFF?text=Chef"
+        minimal_profile = {
+            "user_id": user_id,
+            "user_full_name": "User",
+            "user_email": None,  # Will be updated on next login
+            "user_avatar": default_avatar,
+            "user_following_count": 0,
+            "user_followers_count": 0,
+            "user_recipes_count": 0,
+            "user_is_chef": False,
+        }
+        print(f"Attempting to create user profile: {minimal_profile}")
+        resp = supabase.table("users").insert(minimal_profile).execute()
+        print(f"Insert response: {resp}")
+        if resp.data and len(resp.data) > 0:
+            return resp.data[0]
+        return minimal_profile
+    except Exception as e:
+        print(f"Failed to create user profile: {e}")
+        raise RuntimeError(f"User not found and failed to create profile: {e}")
 
 
 def create_user(data: Dict[str, Any]) -> Dict[str, Any]:
     resp = supabase.table("users").insert(data).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    result = _extract_response_data(resp)
+    return result
 
 
 def update_user(user_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
     resp = supabase.table("users").update(data).eq("user_id", user_id).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    result = _extract_response_data(resp)
+    if isinstance(result, list) and result:
+        return result[0]
+    return result or {}
+
+
+# Alias for clearer import naming in app.py
+update_user_service = update_user
 
 
 # -----------------------------
@@ -208,36 +292,33 @@ def update_user(user_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
 # -----------------------------
 def get_all_recipes() -> List[Dict[str, Any]]:
     resp = supabase.table("recipe").select("*").execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    return data or []
 
 
 def get_recipe(recipe_id: str) -> Dict[str, Any]:
     resp = supabase.table("recipe").select("*").eq("recipe_id", recipe_id).single().execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    return data or {}
 
 
 def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
     resp = supabase.table("recipe").insert(data).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    return data
 
 
 def update_recipe(recipe_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
     resp = supabase.table("recipe").update(data).eq("recipe_id", recipe_id).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    if isinstance(data, list) and data:
+        return data[0]
+    return data or {}
 
 
 def delete_recipe(recipe_id: str) -> None:
     resp = supabase.table("recipe").delete().eq("recipe_id", recipe_id).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
+    _extract_response_data(resp)
     return None
 
 
@@ -246,23 +327,25 @@ def delete_recipe(recipe_id: str) -> None:
 # -----------------------------
 def get_all_ingredients() -> List[Dict[str, Any]]:
     resp = supabase.table("ingredients").select("*").execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    return data or []
 
 
 def get_ingredient(ingredient_id: str) -> Dict[str, Any]:
     resp = supabase.table("ingredients").select("*").eq("ingredient_id", ingredient_id).single().execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    if isinstance(data, dict) and data:
+        return data
+    # Fall back to raw attribute in case of single() returning dict directly
+    if getattr(resp, "data", None):
+        return resp.data
+    raise RuntimeError(f"Ingredient {ingredient_id} not found")
 
 
 def create_ingredient(data: Dict[str, Any]) -> Dict[str, Any]:
     resp = supabase.table("ingredients").insert(data).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    return data
 
 
 # -----------------------------
@@ -270,20 +353,19 @@ def create_ingredient(data: Dict[str, Any]) -> Dict[str, Any]:
 # -----------------------------
 def get_notifications_for_user(user_id: str) -> List[Dict[str, Any]]:
     resp = supabase.table("notifications").select("*").eq("user_id", user_id).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    return data or []
 
 
 def create_notification(data: Dict[str, Any]) -> Dict[str, Any]:
     resp = supabase.table("notifications").insert(data).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    return data
 
 
 def mark_notification_read(notification_id: str) -> Dict[str, Any]:
     resp = supabase.table("notifications").update({"notification_is_read": True}).eq("notification_id", notification_id).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    return resp.data
+    data = _extract_response_data(resp)
+    if isinstance(data, list) and data:
+        return data[0]
+    return data or {}
