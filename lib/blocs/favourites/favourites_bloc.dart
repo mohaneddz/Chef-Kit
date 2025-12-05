@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/repositories/recipe_repository.dart';
+import '../../domain/repositories/recipe/recipe_repo.dart';
 import '../../domain/models/recipe.dart';
 import 'favourites_events.dart';
 import 'favourites_state.dart';
@@ -11,6 +11,28 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     on<LoadFavourites>(_onLoad);
     on<SelectCategory>(_onSelectCategory);
     on<ToggleFavoriteRecipe>(_onToggleFavorite);
+    on<SearchFavourites>(_onSearch);
+  }
+
+  void _onSearch(SearchFavourites event, Emitter<FavouritesState> emit) {
+    final currentCategoryRecipes = state.categories.isNotEmpty
+        ? state.categories[state.selectedCategoryIndex]['recipes']
+              as List<Recipe>
+        : <Recipe>[];
+
+    final filteredRecipes = event.query.isEmpty
+        ? currentCategoryRecipes
+        : currentCategoryRecipes
+              .where(
+                (recipe) => recipe.name.toLowerCase().contains(
+                  event.query.toLowerCase(),
+                ),
+              )
+              .toList();
+
+    emit(
+      state.copyWith(searchQuery: event.query, displayRecipes: filteredRecipes),
+    );
   }
 
   Future<void> _onLoad(
@@ -19,39 +41,53 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
   ) async {
     emit(state.copyWith(loading: true, error: null));
     try {
-      final allRecipes = await recipeRepository.fetchAllRecipes();
+      final favoriteRecipes = await recipeRepository.fetchFavoriteRecipes();
 
-      final traditional = allRecipes.take(4).toList();
-      final quick = allRecipes.skip(4).toList();
+      final Map<String, List<Recipe>> grouped = {};
+      for (var recipe in favoriteRecipes) {
+        if (recipe.tags.isEmpty) {
+          grouped.putIfAbsent('Other', () => []).add(recipe);
+        } else {
+          for (var tag in recipe.tags) {
+            final key = tag.isNotEmpty
+                ? tag[0].toUpperCase() + tag.substring(1)
+                : 'Other';
+            grouped.putIfAbsent(key, () => []).add(recipe);
+          }
+        }
+      }
 
-      final categories = [
-        {
-          'title': "Traditional",
-          'subtitle': _formatSubtitle(traditional.length),
-          'imagePaths': _getPreviewImagePaths(traditional),
-          'recipes': traditional,
-        },
-        {
-          'title': "Quick & Easy",
-          'subtitle': _formatSubtitle(quick.length),
-          'imagePaths': _getPreviewImagePaths(quick),
-          'recipes': quick,
-        },
-        {
-          'title': "All Saved",
-          'subtitle': _formatSubtitle(allRecipes.length),
-          'imagePaths': _getPreviewImagePaths(allRecipes),
-          'recipes': allRecipes,
-        },
-      ];
+      final categories = <Map<String, dynamic>>[];
+
+      grouped.forEach((key, value) {
+        categories.add({
+          'title': key,
+          'subtitle': _formatSubtitle(value.length),
+          'imagePaths': _getPreviewImagePaths(value),
+          'recipes': value,
+        });
+      });
+
+      categories.add({
+        'title': "All Saved",
+        'subtitle': _formatSubtitle(favoriteRecipes.length),
+        'imagePaths': _getPreviewImagePaths(favoriteRecipes),
+        'recipes': favoriteRecipes,
+      });
+
+      final newIndex = state.selectedCategoryIndex < categories.length
+          ? state.selectedCategoryIndex
+          : 0;
 
       emit(
         state.copyWith(
           loading: false,
           categories: categories,
-          displayRecipes:
-              categories[state.selectedCategoryIndex]['recipes']
-                  as List<Recipe>,
+          displayRecipes: categories.isNotEmpty
+              ? categories[newIndex]['recipes'] as List<Recipe>
+              : [],
+          selectedCategoryIndex: newIndex,
+          searchQuery: '',
         ),
       );
     } catch (e) {
@@ -61,11 +97,24 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
 
   void _onSelectCategory(SelectCategory event, Emitter<FavouritesState> emit) {
     if (event.index < 0 || event.index >= state.categories.length) return;
+
+    final categoryRecipes =
+        state.categories[event.index]['recipes'] as List<Recipe>;
+
+    final filteredRecipes = state.searchQuery.isEmpty
+        ? categoryRecipes
+        : categoryRecipes
+              .where(
+                (recipe) => recipe.name.toLowerCase().contains(
+                  state.searchQuery.toLowerCase(),
+                ),
+              )
+              .toList();
+
     emit(
       state.copyWith(
         selectedCategoryIndex: event.index,
-        displayRecipes:
-            state.categories[event.index]['recipes'] as List<Recipe>,
+        displayRecipes: filteredRecipes,
       ),
     );
   }
@@ -77,6 +126,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
 
+      // Update the recipe in the current lists without removing it
       List<Recipe> updateList(List<Recipe> list) {
         return list.map((r) => r.id == updated.id ? updated : r).toList();
       }
@@ -86,12 +136,22 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         return {...cat, 'recipes': updateList(recipes)};
       }).toList();
 
+      final currentCategoryRecipes =
+          newCategories[state.selectedCategoryIndex]['recipes'] as List<Recipe>;
+      final filteredRecipes = state.searchQuery.isEmpty
+          ? currentCategoryRecipes
+          : currentCategoryRecipes
+                .where(
+                  (recipe) => recipe.name.toLowerCase().contains(
+                    state.searchQuery.toLowerCase(),
+                  ),
+                )
+                .toList();
+
       emit(
         state.copyWith(
           categories: newCategories,
-          displayRecipes:
-              newCategories[state.selectedCategoryIndex]['recipes']
-                  as List<Recipe>,
+          displayRecipes: filteredRecipes,
         ),
       );
     } catch (e) {

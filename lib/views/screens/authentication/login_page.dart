@@ -1,6 +1,7 @@
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
+import 'package:chefkit/views/screens/authentication/otp_verify_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
@@ -20,12 +21,36 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Clear any stale field errors when entering login page
+    Future.microtask(() {
+      if (mounted) {
+        context.read<AuthCubit>().emit(
+          context.read<AuthCubit>().state.copyWith(fieldErrors: {}, error: null),
+        );
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final errors = context.watch<AuthCubit>().state.fieldErrors;
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (!state.loading && state.user != null && state.fieldErrors.isEmpty) {
           Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const HomePage(),));
+        }
+        // If login returned 403 (unverified), needsOtp is set in cubit
+        if (!state.loading && state.needsOtp) {
+          final email = context.read<AuthCubit>().pendingEmail ?? emailController.text.trim();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Your email is not verified. We sent a new code.')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OtpVerifyPage(email: email, fromSignup: false)),
+          );
         }
       },
       child: Scaffold(

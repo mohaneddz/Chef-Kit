@@ -17,8 +17,19 @@ import 'all_seasonal_page.dart';
 import '../recipe/item_page.dart';
 import '../../../common/constants.dart';
 
-class RecipeDiscoveryScreen extends StatelessWidget {
+class RecipeDiscoveryScreen extends StatefulWidget {
   const RecipeDiscoveryScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RecipeDiscoveryScreen> createState() => _RecipeDiscoveryScreenState();
+}
+
+class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<DiscoveryBloc>().add(LoadDiscovery());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +45,9 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                AppLocalizations.of(context)!.discoverRecipes,
-                style: const TextStyle(
+              const Text(
+                'Discover Recipes',
+                style: TextStyle(
                   color: Color(0xFF1D1617),
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
@@ -45,7 +56,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                AppLocalizations.of(context)!.findYourNextFavoriteMeal,
+                'Find your next favorite meal',
                 style: TextStyle(
                   color: Colors.grey[500],
                   fontSize: 14,
@@ -108,7 +119,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
-                    title: AppLocalizations.of(context)!.chefs,
+                    title: 'Chefs',
                     onSeeAllPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const AllChefsPage()),
@@ -144,7 +155,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
-                    title: AppLocalizations.of(context)!.hotRecipes,
+                    title: 'Hot Recipes',
                     onSeeAllPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -167,8 +178,8 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final recipe = state.hotRecipes[index];
                       return RecipeCardWidget(
-                        title: recipe.title,
-                        subtitle: recipe.subtitle,
+                        title: recipe.name,
+                        subtitle: recipe.description,
                         imageUrl: recipe.imageUrl,
                         isFavorite: recipe.isFavorite,
                         onFavoritePressed: () => context
@@ -179,20 +190,15 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) => ItemPage(
-                                title: recipe.title,
+                                title: recipe.name,
                                 imagePath: recipe.imageUrl,
-                                servings: AppLocalizations.of(
-                                  context,
-                                )!.servings('4'),
-                                calories: AppLocalizations.of(
-                                  context,
-                                )!.calories('450'),
-                                time: recipe.time,
-                                ingredients: const [],
+                                servings: '${recipe.servingsCount} servings',
+                                calories: '${recipe.calories} Kcal',
+                                time:
+                                    '${recipe.prepTime + recipe.cookTime} min',
+                                ingredients: recipe.ingredients,
                                 tags: recipe.tags,
-                                recipeText: AppLocalizations.of(
-                                  context,
-                                )!.recipeDetailsFor(recipe.title),
+                                recipeText: recipe.instructions.join('\n'),
                                 initialFavorite: recipe.isFavorite,
                               ),
                             ),
@@ -216,10 +222,27 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                     children: [
                       for (final recipe in state.seasonalRecipes) ...[
                         SeasonalItemWidget(
-                          title: recipe.title,
-                          subtitle: recipe.subtitle,
+                          title: recipe.name,
+                          subtitle: recipe.description,
                           imageUrl: recipe.imageUrl,
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ItemPage(
+                                  title: recipe.name,
+                                  imagePath: recipe.imageUrl,
+                                  servings: '${recipe.servingsCount} servings',
+                                  calories: '${recipe.calories} Kcal',
+                                  time: '${recipe.prepTime + recipe.cookTime} min',
+                                  ingredients: recipe.ingredients,
+                                  tags: recipe.tags,
+                                  recipeText: recipe.instructions.join('\n'),
+                                  initialFavorite: recipe.isFavorite,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                       ],

@@ -1,4 +1,5 @@
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
+import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,7 +7,7 @@ import 'package:chefkit/l10n/app_localizations.dart';
 
 // Repositories
 import 'package:chefkit/domain/repositories/chef_repository.dart';
-import 'package:chefkit/domain/repositories/recipe_repository.dart';
+import 'package:chefkit/domain/repositories/recipe/recipe_repo.dart';
 import 'package:chefkit/domain/repositories/profile_repository.dart';
 
 // Blocs & events
@@ -23,8 +24,15 @@ import 'package:chefkit/blocs/favourites/favourites_events.dart';
 import 'package:chefkit/blocs/locale/locale_cubit.dart';
 
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
+import 'package:chefkit/views/screens/home_page.dart';
+import 'package:chefkit/domain/offline_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final repo = IngredientsRepo.getInstance();
+  await repo.seedIngredients(); 
   runApp(const MainApp());
 }
 
@@ -35,13 +43,20 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final chefRepository = ChefRepository();
     final recipeRepository = RecipeRepository();
-    final profileRepository = ProfileRepository();
+
+    final String baseUrl;
+    if (kIsWeb) {
+      baseUrl = 'http://localhost:5000';
+    } else if (Platform.isAndroid) {
+      baseUrl = 'http://10.0.2.2:5000';
+    } else {
+      baseUrl = 'http://localhost:5000';
+    }
 
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: chefRepository),
         RepositoryProvider.value(value: recipeRepository),
-        RepositoryProvider.value(value: profileRepository),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -49,11 +64,7 @@ class MainApp extends StatelessWidget {
             create: (_) => DiscoveryBloc(
               chefRepository: chefRepository,
               recipeRepository: recipeRepository,
-            )..add(LoadDiscovery()),
-          ),
-          BlocProvider(
-            create: (_) =>
-                ProfileBloc(repository: profileRepository)..add(LoadProfile()),
+            )..add(LoadDiscovery()), 
           ),
           BlocProvider(
             create: (_) => ChefProfileBloc(
@@ -66,7 +77,12 @@ class MainApp extends StatelessWidget {
                 ChefsBloc(repository: chefRepository)..add(LoadChefs()),
           ),
           BlocProvider(create: (_) => InventoryBloc()),
-          BlocProvider(create: (_) => AuthCubit()),
+          BlocProvider(
+            create: (_) => AuthCubit(
+              baseUrl: baseUrl,
+              offline: OfflineProvider(),
+            ),
+          ),
           BlocProvider(
             create: (_) =>
                 FavouritesBloc(recipeRepository: recipeRepository)
@@ -74,28 +90,47 @@ class MainApp extends StatelessWidget {
           ),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
-        child: BlocBuilder<LocaleCubit, Locale>(
-          builder: (context, locale) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(fontFamily: 'Poppins'),
-              locale: locale,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [
-                Locale('en'), // English
-                Locale('fr'), // French
-                Locale('ar'), // Arabic
-              ],
-              home: const SingupPage(),
-            );
-          },
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(fontFamily: 'Poppins'),
+          home: const AuthInitializer(),
         ),
       ),
+    );
+  }
+}
+
+class AuthInitializer extends StatefulWidget {
+  const AuthInitializer({super.key});
+
+  @override
+  State<AuthInitializer> createState() => _AuthInitializerState();
+}
+
+class _AuthInitializerState extends State<AuthInitializer> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AuthCubit>().restoreSessionOnStart();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        if (state.loading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        
+        if (state.userId != null && state.accessToken != null) {
+          // User is authenticated, show main app
+          return const HomePage();
+        }
+        
+        return const SingupPage();
+      },
     );
   }
 }

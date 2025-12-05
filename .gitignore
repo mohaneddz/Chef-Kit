@@ -57,5 +57,12 @@ windows/flutter/generated_plugins.cmake
 netsh
 No
 
-# Local report from BLoC migration — do not commit
 BLOC_MIGRATION_REPORT.md
+
+.env
+*.md
+*.sql
+local_schema.dart
+/android/app/build.gradle.kts
+IMPLEMENTATION_STATUS.txt
+SETUP_NOW.txt
