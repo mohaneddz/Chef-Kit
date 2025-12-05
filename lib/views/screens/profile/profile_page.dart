@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/blocs/profile/profile_bloc.dart';
 import 'package:chefkit/blocs/profile/profile_events.dart';
@@ -10,12 +9,8 @@ import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
-import 'dart:convert';
 import '../notifications_page.dart';
-import 'edit_profile_page.dart';
+import 'personal_info_page.dart';
 import '../recipe/my_recipes_page.dart';
 import '../../../blocs/profile/popups/language_popup.dart';
 
@@ -180,32 +175,6 @@ class _ProfilePageContent extends StatelessWidget {
                                   : null,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              print('=== Edit Avatar Button Tapped ===');
-                              final userId = context.read<AuthCubit>().state.userId;
-                              print('User ID: $userId');
-                              if (userId != null) {
-                                _onEditAvatarPressed(context, userId);
-                              } else {
-                                print('ERROR: userId is null');
-                              }
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.all(4),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.red600,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 3),
-                              ),
-                              child: const Icon(
-                                Icons.edit,
-                                size: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -282,15 +251,24 @@ class _ProfilePageContent extends StatelessWidget {
 
                       _buildSectionTitle("General"),
                       const SizedBox(height: 16),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.person_outline_rounded,
-                        title: "Personal Info",
-                        onTap: () => Navigator.push(
+                      if (profile.isChef)
+                        _buildMenuItem(
                           context,
-                          MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                          icon: Icons.person_outline_rounded,
+                          title: "Personal Info",
+                          onTap: () {
+                            final profileBloc = context.read<ProfileBloc>();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BlocProvider.value(
+                                  value: profileBloc,
+                                  child: const PersonalInfoPage(),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
                       _buildMenuItem(
                         context,
                         icon: Icons.notifications_outlined,
@@ -483,81 +461,5 @@ class _ProfilePageContent extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-Future<void> _onEditAvatarPressed(BuildContext context, String userId) async {
-  try {
-    print('=== _onEditAvatarPressed called ===');
-    print('Opening image picker...');
-    
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery, 
-      maxWidth: 600, 
-      maxHeight: 600, 
-      imageQuality: 85
-    );
-    
-    print('Picked result: ${picked?.path ?? "null - user cancelled"}');
-    if (picked == null) {
-      print('User cancelled image selection');
-      return;
-    }
-
-    print('Reading image bytes...');
-    final bytes = await picked.readAsBytes();
-    print('Image size: ${bytes.length} bytes');
-    
-    print('Encoding to base64...');
-    final b64 = base64Encode(bytes);
-    print('Base64 length: ${b64.length} characters');
-
-    final authState = context.read<AuthCubit>().state;
-    final accessToken = authState.accessToken;
-    print('Access token present: ${accessToken != null}');
-    if (accessToken != null) {
-      final preview = accessToken.length > 16
-          ? '${accessToken.substring(0, 16)}...'
-          : accessToken;
-      print('Access token preview: $preview');
-    }
-
-    // Match baseUrl logic from ProfilePage
-    final String baseUrl;
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
-    print('Upload URL: $baseUrl/api/users/$userId/avatar');
-
-    print('Uploading to backend...');
-    final resp = await http.post(
-      Uri.parse('$baseUrl/api/users/$userId/avatar'),
-      headers: {
-        'Content-Type': 'application/json',
-        if (accessToken != null) 'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode({'image_base64': b64}),
-    );
-
-    print('Upload response: ${resp.statusCode}');
-    print('Response body: ${resp.body}');
-    print('Response headers: ${resp.headers}');
-
-    if (resp.statusCode == 200) {
-      print('✅ Upload successful! Reloading profile...');
-      // Reload profile to pick up new avatar URL
-      context.read<ProfileBloc>().add(LoadProfile(userId: userId));
-    } else {
-      print('❌ Upload failed: ${resp.statusCode} ${resp.body}');
-      debugPrint('Avatar upload failed: ${resp.statusCode} ${resp.body}');
-    }
-  } catch (e) {
-    print('❌ Error in _onEditAvatarPressed: $e');
-    debugPrint('Avatar upload error: $e');
   }
 }

@@ -8,6 +8,7 @@ class UserProfile {
   final int followersCount;
   final bool isChef;
   final String? bio;
+  final String? story;
   final List<String>? specialties;
 
   UserProfile({
@@ -20,6 +21,7 @@ class UserProfile {
     required this.followersCount,
     required this.isChef,
     this.bio,
+    this.story,
     this.specialties,
   });
 
@@ -48,6 +50,7 @@ class UserProfile {
       followersCount: (json['user_followers_count'] as num?)?.toInt() ?? 0,
       isChef: json['user_is_chef'] ?? false,
       bio: json['user_bio'],
+      story: json['user_story'],
       specialties: json['user_specialties'] != null 
           ? List<String>.from(json['user_specialties']) 
           : null,
@@ -69,6 +72,7 @@ class UserProfile {
     int? followersCount,
     bool? isChef,
     String? bio,
+    String? story,
     List<String>? specialties,
   }) {
     return UserProfile(
@@ -81,6 +85,7 @@ class UserProfile {
       followersCount: followersCount ?? this.followersCount,
       isChef: isChef ?? this.isChef,
       bio: bio ?? this.bio,
+      story: story ?? this.story,
       specialties: specialties ?? this.specialties,
     );
   }
