@@ -8,6 +8,7 @@ class RecipeCardWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onFavoritePressed;
   final bool isFavorite;
+  final String? heroTag;
 
   const RecipeCardWidget({
     Key? key,
@@ -17,6 +18,7 @@ class RecipeCardWidget extends StatelessWidget {
     this.onTap,
     this.onFavoritePressed,
     this.isFavorite = false,
+    this.heroTag,
   }) : super(key: key);
 
   @override
@@ -45,20 +47,14 @@ class RecipeCardWidget extends StatelessWidget {
               flex: 3,
               child: Stack(
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                      image: imageUrl != null
-                          ? DecorationImage(
-                              image: AssetImage(imageUrl!),
-                              fit: BoxFit.cover,
-                            )
-                          : const DecorationImage(
-                              image: AssetImage('assets/images/recipe.png'),
-                              fit: BoxFit.cover,
-                            ),
-                    ),
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    child: heroTag != null
+                        ? Hero(
+                            tag: heroTag!,
+                            child: _buildCardImage(),
+                          )
+                        : _buildCardImage(),
                   ),
                   
                   Positioned(
@@ -137,6 +133,54 @@ class RecipeCardWidget extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardImage() {
+    // Handle empty or null URLs
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return _buildImagePlaceholder();
+    }
+    
+    // Handle asset images
+    if (imageUrl!.startsWith('assets/')) {
+      return Image.asset(
+        imageUrl!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
+      );
+    }
+    
+    // Handle network images
+    if (imageUrl!.startsWith('http')) {
+      return Image.network(
+        imageUrl!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return _buildImagePlaceholder();
+        },
+        errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
+      );
+    }
+    
+    return _buildImagePlaceholder();
+  }
+  
+  Widget _buildImagePlaceholder() {
+    return Container(
+      color: Colors.grey[200],
+      child: Center(
+        child: Icon(
+          Icons.restaurant_menu,
+          size: 48,
+          color: Colors.grey[400],
         ),
       ),
     );

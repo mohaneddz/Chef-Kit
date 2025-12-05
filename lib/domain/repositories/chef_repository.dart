@@ -1,36 +1,72 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/chef.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 
 class ChefRepository {
-  final List<Chef> _chefs = [
-    Chef(id: 'c1', name: 'G. Ramsay', imageUrl: 'assets/images/chefs/chef_1.png', isOnFire: true),
-    Chef(id: 'c2', name: 'Jamie Oliver', imageUrl: 'assets/images/chefs/chef_2.png'),
-    Chef(id: 'c3', name: 'M. Bottura', imageUrl: 'assets/images/chefs/chef_3.png'),
-    Chef(id: 'c4', name: 'A. Ducasse', imageUrl: 'assets/images/chefs/chef_3.png'),
-    Chef(id: 'c5', name: 'J. Robuchon', imageUrl: 'assets/images/chefs/chef_1.png'),
-    Chef(id: 'c6', name: 'T. Keller', imageUrl: 'assets/images/chefs/chef_2.png'),
-  ];
+  late final String baseUrl;
+
+  ChefRepository() {
+    if (kIsWeb) {
+      baseUrl = 'http://localhost:5000';
+    } else if (Platform.isAndroid) {
+      baseUrl = 'http://10.0.2.2:5000';
+    } else {
+      baseUrl = 'http://localhost:5000';
+    }
+  }
 
   Future<List<Chef>> fetchAllChefs() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return List.of(_chefs);
+    final response = await http.get(Uri.parse('$baseUrl/api/users'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.where((json) => json['user_is_chef'] == true).map((json) => Chef.fromJson(json)).toList();
+    }
+    throw Exception('Failed to load chefs');
   }
 
   Future<Chef?> getChefById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return _chefs.firstWhere((c) => c.id == id, orElse: () => Chef(id: 'na', name: 'Unknown', imageUrl: 'assets/images/chef.png'));
+    final response = await http.get(Uri.parse('$baseUrl/api/chefs/$id'));
+    if (response.statusCode == 200) {
+      return Chef.fromJson(json.decode(response.body));
+    }
+    return null;
   }
 
-  Future<Chef> toggleFollow(String id) async {
-    final index = _chefs.indexWhere((c) => c.id == id);
-    if (index == -1) throw Exception('Chef not found');
-    final updated = _chefs[index].copyWith(isFollowed: !_chefs[index].isFollowed);
-    _chefs[index] = updated;
-    return updated;
+  Future<Chef> toggleFollow(String id, {String? accessToken}) async {
+    if (accessToken == null) {
+      throw Exception('Authentication required to follow chefs');
+    }
+    
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/chefs/$id/follow'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Fetch updated chef data
+      final chef = await getChefById(id);
+      if (chef == null) throw Exception('Chef not found');
+      return chef.copyWith(
+        isFollowed: data['is_following'] ?? !chef.isFollowed,
+        followersCount: data['followers_count'] ?? chef.followersCount,
+      );
+    }
+    throw Exception('Failed to toggle follow');
   }
 
   Future<List<Chef>> fetchChefsOnFire() async {
-    final all = await fetchAllChefs();
-    return all.where((c) => c.isOnFire).toList();
+    final response = await http.get(Uri.parse('$baseUrl/api/chefs/on-fire'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Chef.fromJson(json)).toList();
+    }
+    throw Exception('Failed to load chefs on fire');
   }
 }

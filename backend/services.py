@@ -309,11 +309,33 @@ def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def update_recipe(recipe_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    print(f"[services.update_recipe] Recipe ID: {recipe_id}")
+    print(f"[services.update_recipe] Data to update: {data}")
+    print(f"[services.update_recipe] recipe_image_url value: {data.get('recipe_image_url')}")
+    
+    # Execute update
     resp = supabase.table("recipe").update(data).eq("recipe_id", recipe_id).execute()
-    data = _extract_response_data(resp)
-    if isinstance(data, list) and data:
-        return data[0]
-    return data or {}
+    result = _extract_response_data(resp)
+    
+    print(f"[services.update_recipe] Update response from Supabase: {result}")
+    
+    # If update returns empty (due to RLS or old client), fetch the updated record
+    if not result or (isinstance(result, list) and len(result) == 0):
+        print(f"[services.update_recipe] Empty response, fetching updated record...")
+        fetch_resp = supabase.table("recipe").select("*").eq("recipe_id", recipe_id).single().execute()
+        result = _extract_response_data(fetch_resp)
+        print(f"[services.update_recipe] Fetched record: {result}")
+    
+    if isinstance(result, list) and result:
+        final_data = result[0]
+        print(f"[services.update_recipe] Final recipe_image_url: {final_data.get('recipe_image_url')}")
+        return final_data
+    elif isinstance(result, dict):
+        print(f"[services.update_recipe] Final recipe_image_url: {result.get('recipe_image_url')}")
+        return result
+    
+    print(f"[services.update_recipe] ⚠️ WARNING: Could not retrieve updated recipe")
+    return {}
 
 
 def delete_recipe(recipe_id: str) -> None:
@@ -369,3 +391,79 @@ def mark_notification_read(notification_id: str) -> Dict[str, Any]:
     if isinstance(data, list) and data:
         return data[0]
     return data or {}
+
+
+# -----------------------------
+# Chefs (users with special queries)
+# -----------------------------
+def get_chefs_on_fire() -> List[Dict[str, Any]]:
+    """Get all chefs that are marked as 'on fire'."""
+    resp = supabase.table("users").select("*").eq("user_is_on_fire", True).eq("user_is_chef", True).execute()
+    data = _extract_response_data(resp)
+    return data or []
+
+
+def get_chef_by_id(chef_id: str) -> Dict[str, Any]:
+    """Get a specific chef by ID."""
+    resp = supabase.table("users").select("*").eq("user_id", chef_id).single().execute()
+    data = _extract_response_data(resp)
+    return data or {}
+
+
+def get_recipes_by_chef(chef_id: str) -> List[Dict[str, Any]]:
+    """Get all recipes created by a specific chef."""
+    resp = supabase.table("recipe").select("*").eq("recipe_owner", chef_id).execute()
+    data = _extract_response_data(resp)
+    return data or []
+
+
+def get_trending_recipes() -> List[Dict[str, Any]]:
+    """Get all recipes marked as trending."""
+    resp = supabase.table("recipe").select("*").eq("recipe_is_trending", True).execute()
+    data = _extract_response_data(resp)
+    return data or []
+
+
+# -----------------------------
+# Follow/Unfollow functionality
+# -----------------------------
+def check_if_following(follower_id: str, following_id: str) -> bool:
+    """Check if follower_id is following following_id."""
+    # For now, we'll use a simple approach without a separate follows table
+    # In production, you'd want a proper follows table with (follower_id, following_id) pairs
+    # This is a placeholder that always returns False
+    # TODO: Implement proper follow tracking with a follows table
+    return False
+
+
+def toggle_follow(follower_id: str, chef_id: str) -> Dict[str, Any]:
+    """Toggle follow status for a chef."""
+    # For now, just increment/decrement the followers count
+    # In production, you'd maintain a follows table
+    chef = supabase.table("users").select("user_followers_count").eq("user_id", chef_id).single().execute()
+    current_count = chef.data.get("user_followers_count", 0) if chef.data else 0
+    
+    # Check if already following (placeholder - always toggle for now)
+    is_following = False  # TODO: Check actual follow status
+    
+    if is_following:
+        # Unfollow
+        new_count = max(0, current_count - 1)
+    else:
+        # Follow
+        new_count = current_count + 1
+    
+    # Update chef's followers count
+    resp = supabase.table("users").update({"user_followers_count": new_count}).eq("user_id", chef_id).execute()
+    data = _extract_response_data(resp)
+    
+    # Update follower's following count
+    follower = supabase.table("users").select("user_following_count").eq("user_id", follower_id).single().execute()
+    follower_count = follower.data.get("user_following_count", 0) if follower.data else 0
+    new_follower_count = max(0, follower_count - 1) if is_following else follower_count + 1
+    supabase.table("users").update({"user_following_count": new_follower_count}).eq("user_id", follower_id).execute()
+    
+    return {
+        "is_following": not is_following,
+        "followers_count": new_count
+    }

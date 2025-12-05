@@ -1,82 +1,114 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 
 class RecipeRepository {
-  final List<Recipe> _recipes = [
-    Recipe(
-      id: 'r1',
-      title: 'Mahjouba',
-      subtitle: 'Authentic Algerian Classic',
-      imageUrl: 'assets/images/Mahjouba.jpeg',
-      time: '45 min',
-      tags: ['hot'],
-      chefId: 'c1',
-    ),
-    Recipe(
-      id: 'r2',
-      title: 'Couscous',
-      subtitle: 'Steamed semolina with veggies',
-      imageUrl: 'assets/images/couscous.png',
-      time: '120 min',
-      tags: ['hot'],
-      chefId: 'c2',
-    ),
-    Recipe(
-      id: 'r3',
-      title: 'Barkoukes',
-      subtitle: 'Traditional Soup',
-      imageUrl: 'assets/images/Barkoukes.jpg',
-      time: '90 min',
-      tags: ['seasonal'],
-      chefId: 'c3',
-    ),
-    Recipe(
-      id: 'r4',
-      title: 'Escalope',
-      subtitle: 'Delicious & Crispy',
-      imageUrl: 'assets/images/ingredients/escalope.png',
-      time: '30 min',
-      tags: ['hot'],
-      chefId: 'c4',
-    ),
-    Recipe(
-      id: 'r5',
-      title: 'Strawberry Salad',
-      subtitle: 'with Balsamic Glaze',
-      imageUrl: 'assets/images/ingredients/tomato.png',
-      time: '15 min',
-      tags: ['seasonal'],
-      chefId: 'c5',
-    ),
-  ];
+  late final String baseUrl;
+
+  RecipeRepository() {
+    if (kIsWeb) {
+      baseUrl = 'http://localhost:5000';
+    } else if (Platform.isAndroid) {
+      baseUrl = 'http://10.0.2.2:5000';
+    } else {
+      baseUrl = 'http://localhost:5000';
+    }
+  }
 
   Future<List<Recipe>> fetchHotRecipes() async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    return _recipes.where((r) => r.tags.contains('hot')).toList();
+    final response = await http.get(Uri.parse('$baseUrl/api/recipes/trending'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Recipe.fromJson(json)).toList();
+    }
+    throw Exception('Failed to load trending recipes');
   }
 
   Future<List<Recipe>> fetchSeasonalRecipes() async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    return _recipes.where((r) => r.tags.contains('seasonal')).toList();
+    // TODO: Add seasonal recipe filter to backend
+    final response = await http.get(Uri.parse('$baseUrl/api/recipes'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Recipe.fromJson(json)).where((r) => r.tags.contains('seasonal')).toList();
+    }
+    throw Exception('Failed to load seasonal recipes');
   }
 
   Future<List<Recipe>> fetchRecipesByChef(String chefId) async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    return _recipes.where((r) => r.chefId == chefId).toList();
+    print('\n=== fetchRecipesByChef START ===');
+    print('Chef ID: $chefId');
+    print('URL: $baseUrl/api/chefs/$chefId/recipes');
+    
+    try {
+      print('Making HTTP request...');
+      final response = await http.get(Uri.parse('$baseUrl/api/chefs/$chefId/recipes'));
+      print('Response status code: ${response.statusCode}');
+      
+      if (response.statusCode == 200) {
+        print('Response body length: ${response.body.length}');
+        print('Response body: ${response.body}');
+        
+        print('Decoding JSON...');
+        final List<dynamic> data = json.decode(response.body);
+        print('Number of recipes in response: ${data.length}');
+        
+        final recipes = <Recipe>[];
+        
+        for (int i = 0; i < data.length; i++) {
+          print('\n--- Parsing recipe $i ---');
+          final recipeJson = data[i];
+          print('Recipe JSON keys: ${recipeJson.keys.toList()}');
+          print('Recipe ID: ${recipeJson['recipe_id']}');
+          print('Recipe Name: ${recipeJson['recipe_name']}');
+          
+          try {
+            print('Calling Recipe.fromJson...');
+            final recipe = Recipe.fromJson(recipeJson);
+            print('Successfully parsed recipe: ${recipe.title}');
+            recipes.add(recipe);
+          } catch (e, stackTrace) {
+            print('❌ ERROR parsing recipe $i: $e');
+            print('Recipe data: $recipeJson');
+            print('Stack trace: $stackTrace');
+            // Skip this recipe and continue with others
+          }
+        }
+        
+        print('\n✅ Total recipes parsed successfully: ${recipes.length}');
+        print('=== fetchRecipesByChef END ===\n');
+        return recipes;
+      }
+      throw Exception('Failed to load chef recipes: ${response.statusCode}');
+    } catch (e, stackTrace) {
+      print('\n❌ FATAL ERROR in fetchRecipesByChef: $e');
+      print('Stack trace: $stackTrace');
+      print('=== fetchRecipesByChef END (ERROR) ===\n');
+      rethrow;
+    }
   }
 
   Future<List<Recipe>> fetchAllRecipes() async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    return List.from(_recipes);
+    final response = await http.get(Uri.parse('$baseUrl/api/recipes'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Recipe.fromJson(json)).toList();
+    }
+    throw Exception('Failed to load recipes');
   }
 
   Future<Recipe> toggleFavorite(String recipeId) async {
-    final index = _recipes.indexWhere((r) => r.id == recipeId);
-    if (index == -1) throw Exception('Recipe not found');
-    final updated = _recipes[index].copyWith(
-      isFavorite: !_recipes[index].isFavorite,
-    );
-    _recipes[index] = updated;
-    return updated;
+    // TODO: Implement favorite toggle endpoint when backend supports it
+    // For now, just simulate the toggle
+    final response = await http.get(Uri.parse('$baseUrl/api/recipes'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final recipe = data.firstWhere((r) => r['recipe_id'] == recipeId);
+      final parsedRecipe = Recipe.fromJson(recipe);
+      return parsedRecipe.copyWith(isFavorite: !parsedRecipe.isFavorite);
+    }
+    throw Exception('Recipe not found');
   }
 }
