@@ -57,7 +57,7 @@ class IngredientCard extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Image.asset(imageUrl, fit: BoxFit.contain),
+              child: Image.asset(imageUrl, height: 85, fit: BoxFit.contain),
             ),
           ),
           Positioned(
