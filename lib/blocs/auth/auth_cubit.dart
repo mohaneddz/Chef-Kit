@@ -111,6 +111,14 @@ class AuthCubit extends Cubit<AuthState> {
         // Email already exists
         emit(state.copyWith(loading: false, fieldErrors: {"email": "Email already registered"}));
       } else {
+        String errorMessage = 'An unknown error occurred';
+        try {
+          final errorData = jsonDecode(resp.body) as Map<String, dynamic>;
+          errorMessage = errorData['error'] as String? ?? 'An error occurred (no details)';
+        } catch (_) {
+          // If JSON decoding fails, use the raw body as the error
+          errorMessage = resp.body.isNotEmpty ? resp.body : 'Request failed with status ${resp.statusCode}';
+        }
         emit(state.copyWith(loading: false, error: resp.body));
       }
     } catch (e) {
@@ -160,9 +168,10 @@ class AuthCubit extends Cubit<AuthState> {
           needsOtp: false,
           user: user != null
               ? UserModel(
-                  fullName: user['user_full_name'] ?? 'User',
+                  // Try multiple possible field names from backend
+                  fullName: user['full_name'] ?? user['user_full_name'] ?? user['name'] ?? 'User',
                   email: user['email'] ?? email,
-                  phoneNumber: user['phoneNumber'] ?? '',
+                  phoneNumber: user['phone_number'] ?? user['phoneNumber'] ?? '',
                   bio: user['bio'] ?? '',
                 )
               : state.user,

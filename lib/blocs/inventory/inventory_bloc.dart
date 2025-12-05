@@ -1,3 +1,4 @@
+import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'inventory_event.dart';
 import 'inventory_state.dart';
@@ -7,48 +8,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       : super(
           InventoryState(
             available: [], // list of the user's current available ingredients        
-            browse: [      // list of all ingredietns that we have          
-              {
-                "imageUrl": "assets/images/escalope.png",
-                "name": "Escalope",
-                "type": "Protein",
-              },
-              {
-                "imageUrl": "assets/images/tomato.png",
-                "name": "Tomato",
-                "type": "Vegetables",
-              },
-              {
-                "imageUrl": "assets/images/potato.png",
-                "name": "Potato",
-                "type": "Vegetables",
-              },
-              {
-                "imageUrl": "assets/images/paprika.png",
-                "name": "Paprika",
-                "type": "Spices",
-              },
-              {
-                "imageUrl": "assets/images/escalope.png",
-                "name": "Escalope 2",
-                "type": "Protein",
-              },
-              {
-                "imageUrl": "assets/images/escalope.png",
-                "name": "Escalope 3",
-                "type": "Protein",
-              },
-              {
-                "imageUrl": "assets/images/escalope.png",
-                "name": "Escalope 4",
-                "type": "Protein",
-              },
-              {
-                "imageUrl": "assets/images/escalope.png",
-                "name": "Escalope 5",
-                "type": "Protein",
-              },
-            ],
+            browse: [],
             showMore: false,
           ),
         ) {
@@ -79,5 +39,24 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     on<ToggleShowMoreEvent>((event, emit) {
       emit(state.copyWith(showMore: !state.showMore));
     });
+
+    on<LoadInventoryEvent>((event, emit) async {
+      final repo = IngredientsRepo.getInstance();
+      final results = await repo.getAllIngredients();
+
+      final browseList = results.map((e) => {
+        "name": e["name"].toString(),
+        "type": e["type"].toString(),
+        "imageUrl": e["image_path"].toString(),
+      }).toList();
+
+      emit(
+        state.copyWith(
+          browse: browseList,
+          available: [], // empty at first
+        ),
+      );
+    });
+
   }
 }

@@ -1,4 +1,5 @@
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
+import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,7 +26,10 @@ import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final repo = IngredientsRepo.getInstance();
+  await repo.seedIngredients(); 
   runApp(const MainApp());
 }
 
@@ -37,15 +41,12 @@ class MainApp extends StatelessWidget {
     final chefRepository = ChefRepository();
     final recipeRepository = RecipeRepository();
 
-    // Resolve backend baseUrl depending on platform
     final String baseUrl;
     if (kIsWeb) {
       baseUrl = 'http://localhost:5000';
     } else if (Platform.isAndroid) {
-      // Android emulator cannot access localhost; use special alias
       baseUrl = 'http://10.0.2.2:5000';
     } else {
-      // iOS simulator / desktop
       baseUrl = 'http://localhost:5000';
     }
 
@@ -60,7 +61,7 @@ class MainApp extends StatelessWidget {
             create: (_) => DiscoveryBloc(
               chefRepository: chefRepository,
               recipeRepository: recipeRepository,
-            )..add(LoadDiscovery()),
+            )..add(LoadDiscovery()), 
           ),
           BlocProvider(
             create: (_) => ChefProfileBloc(
