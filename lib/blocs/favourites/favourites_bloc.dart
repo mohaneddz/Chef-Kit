@@ -11,6 +11,28 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     on<LoadFavourites>(_onLoad);
     on<SelectCategory>(_onSelectCategory);
     on<ToggleFavoriteRecipe>(_onToggleFavorite);
+    on<SearchFavourites>(_onSearch);
+  }
+
+  void _onSearch(SearchFavourites event, Emitter<FavouritesState> emit) {
+    final currentCategoryRecipes = state.categories.isNotEmpty
+        ? state.categories[state.selectedCategoryIndex]['recipes']
+              as List<Recipe>
+        : <Recipe>[];
+
+    final filteredRecipes = event.query.isEmpty
+        ? currentCategoryRecipes
+        : currentCategoryRecipes
+              .where(
+                (recipe) => recipe.name.toLowerCase().contains(
+                  event.query.toLowerCase(),
+                ),
+              )
+              .toList();
+
+    emit(
+      state.copyWith(searchQuery: event.query, displayRecipes: filteredRecipes),
+    );
   }
 
   Future<void> _onLoad(
@@ -65,6 +87,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
               ? categories[newIndex]['recipes'] as List<Recipe>
               : [],
           selectedCategoryIndex: newIndex,
+          searchQuery: '',
         ),
       );
     } catch (e) {
@@ -74,11 +97,24 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
 
   void _onSelectCategory(SelectCategory event, Emitter<FavouritesState> emit) {
     if (event.index < 0 || event.index >= state.categories.length) return;
+
+    final categoryRecipes =
+        state.categories[event.index]['recipes'] as List<Recipe>;
+
+    final filteredRecipes = state.searchQuery.isEmpty
+        ? categoryRecipes
+        : categoryRecipes
+              .where(
+                (recipe) => recipe.name.toLowerCase().contains(
+                  state.searchQuery.toLowerCase(),
+                ),
+              )
+              .toList();
+
     emit(
       state.copyWith(
         selectedCategoryIndex: event.index,
-        displayRecipes:
-            state.categories[event.index]['recipes'] as List<Recipe>,
+        displayRecipes: filteredRecipes,
       ),
     );
   }
@@ -100,12 +136,22 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         return {...cat, 'recipes': updateList(recipes)};
       }).toList();
 
+      final currentCategoryRecipes =
+          newCategories[state.selectedCategoryIndex]['recipes'] as List<Recipe>;
+      final filteredRecipes = state.searchQuery.isEmpty
+          ? currentCategoryRecipes
+          : currentCategoryRecipes
+                .where(
+                  (recipe) => recipe.name.toLowerCase().contains(
+                    state.searchQuery.toLowerCase(),
+                  ),
+                )
+                .toList();
+
       emit(
         state.copyWith(
           categories: newCategories,
-          displayRecipes:
-              newCategories[state.selectedCategoryIndex]['recipes']
-                  as List<Recipe>,
+          displayRecipes: filteredRecipes,
         ),
       );
     } catch (e) {

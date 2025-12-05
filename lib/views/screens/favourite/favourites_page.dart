@@ -106,7 +106,14 @@ class _FavouritesPageState extends State<FavouritesPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 15),
-                  SearchBarWidget(hintText: "Search Your Recipes..."),
+                  SearchBarWidget(
+                    hintText: "Search Your Recipes...",
+                    onChanged: (query) {
+                      context.read<FavouritesBloc>().add(
+                        SearchFavourites(query),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 25),
                   const Text(
                     "Categories",

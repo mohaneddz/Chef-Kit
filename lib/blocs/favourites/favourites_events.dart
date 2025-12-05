@@ -11,3 +11,8 @@ class ToggleFavoriteRecipe extends FavouritesEvent {
   final String recipeId;
   ToggleFavoriteRecipe(this.recipeId);
 }
+
+class SearchFavourites extends FavouritesEvent {
+  final String query;
+  SearchFavourites(this.query);
+}
