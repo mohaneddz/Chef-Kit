@@ -1,6 +1,7 @@
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/layout/triangle_painter.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class SearchBarWidget extends StatelessWidget {
   final String hintText;
@@ -14,6 +15,8 @@ class SearchBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -48,58 +51,71 @@ class SearchBarWidget extends StatelessWidget {
             ),
           ),
           Stack(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerEnd,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
+                borderRadius: BorderRadiusDirectional.horizontal(
+                  end: Radius.circular(10),
                 ),
-                child: CustomPaint(
-                  size: Size(70, 49),
-                  painter: TrianglePainter(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFFFF7B00),
-                        Color(0xFFFFA547),
-                        Color(0xFFFFC48B),
-                      ],
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(isRtl ? math.pi : 0),
+                  child: CustomPaint(
+                    size: Size(70, 49),
+                    painter: TrianglePainter(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFFFF7B00),
+                          Color(0xFFFFA547),
+                          Color(0xFFFFC48B),
+                        ],
+                      ),
+                      stratProportion: 1,
+                      endProportion: 0,
+                      adjustment: 0.7,
+                      elevation: 0,
                     ),
-                    stratProportion: 1,
-                    endProportion: 0,
-                    adjustment: 0.7,
-                    elevation: 0,
                   ),
                 ),
               ),
               ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
+                borderRadius: BorderRadiusDirectional.horizontal(
+                  end: Radius.circular(10),
                 ),
-                child: CustomPaint(
-                  size: Size(90, 49),
-                  painter: TrianglePainter(
-                    isReversed: true,
-                    gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                      colors: [
-                        Color(0xFFEF2A39).withOpacity(0.75),
-                        Color(0xFFFFC58F),
-                      ],
-                      stops: [0.2, 1],
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(isRtl ? math.pi : 0),
+                  child: CustomPaint(
+                    size: Size(90, 49),
+                    painter: TrianglePainter(
+                      isReversed: true,
+                      gradient: LinearGradient(
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                        colors: [
+                          Color(0xFFEF2A39).withOpacity(0.75),
+                          Color(0xFFFFC58F),
+                        ],
+                        stops: [0.2, 1],
+                      ),
+                      stratProportion: 1,
+                      endProportion: 0,
+                      adjustment: 0.6,
+                      elevation: 0,
                     ),
-                    stratProportion: 1,
-                    endProportion: 0,
-                    adjustment: 0.6,
-                    elevation: 0,
                   ),
                 ),
               ),
-              IconButton(onPressed: () {}, icon: Icon(Icons.search_outlined, color: AppColors.white, size: 30,)),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.search_outlined,
+                  color: AppColors.white,
+                  size: 30,
+                ),
+              ),
             ],
           ),
         ],

@@ -45,9 +45,9 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Discover Recipes',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.discoverRecipes,
+                style: const TextStyle(
                   color: Color(0xFF1D1617),
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
@@ -56,7 +56,7 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Find your next favorite meal',
+                AppLocalizations.of(context)!.findYourNextFavoriteMeal,
                 style: TextStyle(
                   color: Colors.grey[500],
                   fontSize: 14,
@@ -99,7 +99,9 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.error != null) {
-            return Center(child: Text('Error: ${state.error}'));
+            return Center(
+              child: Text(AppLocalizations.of(context)!.error(state.error!)),
+            );
           }
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -119,7 +121,7 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                   ),
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
-                    title: 'Chefs',
+                    title: AppLocalizations.of(context)!.chefs,
                     onSeeAllPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const AllChefsPage()),
@@ -155,7 +157,7 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                   ),
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
-                    title: 'Hot Recipes',
+                    title: AppLocalizations.of(context)!.hotRecipes,
                     onSeeAllPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -192,10 +194,16 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                               builder: (_) => ItemPage(
                                 title: recipe.name,
                                 imagePath: recipe.imageUrl,
-                                servings: '${recipe.servingsCount} servings',
-                                calories: '${recipe.calories} Kcal',
-                                time:
-                                    '${recipe.prepTime + recipe.cookTime} min',
+                                servings: AppLocalizations.of(
+                                  context,
+                                )!.servings(recipe.servingsCount.toString()),
+                                calories: AppLocalizations.of(
+                                  context,
+                                )!.calories(recipe.calories.toString()),
+                                time: AppLocalizations.of(context)!.minutes(
+                                  (recipe.prepTime + recipe.cookTime)
+                                      .toString(),
+                                ),
                                 ingredients: recipe.ingredients,
                                 tags: recipe.tags,
                                 recipeText: recipe.instructions.join('\n'),
@@ -232,9 +240,16 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                                 builder: (_) => ItemPage(
                                   title: recipe.name,
                                   imagePath: recipe.imageUrl,
-                                  servings: '${recipe.servingsCount} servings',
-                                  calories: '${recipe.calories} Kcal',
-                                  time: '${recipe.prepTime + recipe.cookTime} min',
+                                  servings: AppLocalizations.of(
+                                    context,
+                                  )!.servings(recipe.servingsCount.toString()),
+                                  calories: AppLocalizations.of(
+                                    context,
+                                  )!.calories(recipe.calories.toString()),
+                                  time: AppLocalizations.of(context)!.minutes(
+                                    (recipe.prepTime + recipe.cookTime)
+                                        .toString(),
+                                  ),
                                   ingredients: recipe.ingredients,
                                   tags: recipe.tags,
                                   recipeText: recipe.instructions.join('\n'),

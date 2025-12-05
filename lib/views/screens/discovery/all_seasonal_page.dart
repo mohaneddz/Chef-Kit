@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../common/constants.dart';
 import '../../widgets/recipe/seasonal_item_widget.dart';
 import '../recipe/item_page.dart';
@@ -12,7 +13,7 @@ class AllSeasonalPage extends StatefulWidget {
 
 class _AllSeasonalPageState extends State<AllSeasonalPage> {
   String _selectedSeason = 'All';
-  
+
   // Sample seasonal data - you can replace this with real data later
   final List<Map<String, dynamic>> allSeasonalRecipes = [
     {
@@ -23,9 +24,17 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'servings': '5 servings',
       'calories': '380 Kcal',
       'time': '90 min',
-      'ingredients': ['Barkoukes pasta', 'Lamb', 'Chickpeas', 'Tomatoes', 'Spices', 'Herbs'],
+      'ingredients': [
+        'Barkoukes pasta',
+        'Lamb',
+        'Chickpeas',
+        'Tomatoes',
+        'Spices',
+        'Herbs',
+      ],
       'tags': ['Traditional', 'Soup', 'Hearty'],
-      'recipeText': 'Barkoukes is a traditional North African soup perfect for cold winter days. Cook the meat with chickpeas and spices. Add the barkoukes pasta and simmer until tender. Season with fresh herbs and serve hot.',
+      'recipeText':
+          'Barkoukes is a traditional North African soup perfect for cold winter days. Cook the meat with chickpeas and spices. Add the barkoukes pasta and simmer until tender. Season with fresh herbs and serve hot.',
     },
     {
       'title': 'Strawberry Salad',
@@ -35,9 +44,16 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'servings': '2 servings',
       'calories': '180 Kcal',
       'time': '15 min',
-      'ingredients': ['Strawberries', 'Mixed greens', 'Goat cheese', 'Walnuts', 'Balsamic glaze'],
+      'ingredients': [
+        'Strawberries',
+        'Mixed greens',
+        'Goat cheese',
+        'Walnuts',
+        'Balsamic glaze',
+      ],
       'tags': ['Salad', 'Fresh', 'Light'],
-      'recipeText': 'A refreshing summer salad featuring fresh strawberries. Toss mixed greens with sliced strawberries, crumbled goat cheese, and walnuts. Drizzle with balsamic glaze just before serving.',
+      'recipeText':
+          'A refreshing summer salad featuring fresh strawberries. Toss mixed greens with sliced strawberries, crumbled goat cheese, and walnuts. Drizzle with balsamic glaze just before serving.',
     },
     {
       'title': 'Winter Couscous',
@@ -47,9 +63,16 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'servings': '6 servings',
       'calories': '680 Kcal',
       'time': '120 min',
-      'ingredients': ['Couscous', 'Lamb', 'Root vegetables', 'Chickpeas', 'Winter spices'],
+      'ingredients': [
+        'Couscous',
+        'Lamb',
+        'Root vegetables',
+        'Chickpeas',
+        'Winter spices',
+      ],
       'tags': ['Traditional', 'Hearty', 'Warm'],
-      'recipeText': 'A warming winter version of traditional couscous featuring root vegetables. Slow-cook lamb with winter vegetables like turnips and carrots. Steam the couscous and serve with the hearty stew.',
+      'recipeText':
+          'A warming winter version of traditional couscous featuring root vegetables. Slow-cook lamb with winter vegetables like turnips and carrots. Steam the couscous and serve with the hearty stew.',
     },
     {
       'title': 'Autumn Tajine',
@@ -59,9 +82,16 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'servings': '4 servings',
       'calories': '540 Kcal',
       'time': '100 min',
-      'ingredients': ['Lamb', 'Pumpkin', 'Chestnuts', 'Dried figs', 'Autumn spices'],
+      'ingredients': [
+        'Lamb',
+        'Pumpkin',
+        'Chestnuts',
+        'Dried figs',
+        'Autumn spices',
+      ],
       'tags': ['Traditional', 'Seasonal', 'Slow-cooked'],
-      'recipeText': 'An autumn twist on traditional tagine featuring seasonal pumpkin and chestnuts. Cook lamb with autumn spices, pumpkin chunks, and chestnuts. Add dried figs for sweetness and simmer until tender.',
+      'recipeText':
+          'An autumn twist on traditional tagine featuring seasonal pumpkin and chestnuts. Cook lamb with autumn spices, pumpkin chunks, and chestnuts. Add dried figs for sweetness and simmer until tender.',
     },
     {
       'title': 'Spring Chorba',
@@ -71,9 +101,16 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'servings': '5 servings',
       'calories': '300 Kcal',
       'time': '55 min',
-      'ingredients': ['Lamb', 'Spring vegetables', 'Fresh herbs', 'Lentils', 'Lemon'],
+      'ingredients': [
+        'Lamb',
+        'Spring vegetables',
+        'Fresh herbs',
+        'Lentils',
+        'Lemon',
+      ],
       'tags': ['Soup', 'Light', 'Fresh'],
-      'recipeText': 'A light spring version of chorba featuring fresh seasonal vegetables and herbs. Cook with tender spring vegetables, fresh cilantro, parsley, and a squeeze of lemon for brightness.',
+      'recipeText':
+          'A light spring version of chorba featuring fresh seasonal vegetables and herbs. Cook with tender spring vegetables, fresh cilantro, parsley, and a squeeze of lemon for brightness.',
     },
     {
       'title': 'Summer Escalope',
@@ -83,9 +120,16 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'servings': '4 servings',
       'calories': '480 Kcal',
       'time': '25 min',
-      'ingredients': ['Chicken breast', 'Lemon zest', 'Herbs', 'Breadcrumbs', 'Olive oil'],
+      'ingredients': [
+        'Chicken breast',
+        'Lemon zest',
+        'Herbs',
+        'Breadcrumbs',
+        'Olive oil',
+      ],
       'tags': ['Quick', 'Light', 'Crispy'],
-      'recipeText': 'A light summer version of escalope with lemon and fresh herbs. Season chicken with lemon zest and fresh herbs, coat in breadcrumbs, and pan-fry until golden. Perfect with a fresh summer salad.',
+      'recipeText':
+          'A light summer version of escalope with lemon and fresh herbs. Season chicken with lemon zest and fresh herbs, coat in breadcrumbs, and pan-fry until golden. Perfect with a fresh summer salad.',
     },
     {
       'title': 'Harvest Soup',
@@ -97,7 +141,8 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'time': '45 min',
       'ingredients': ['Tomatoes', 'Squash', 'Beans', 'Corn', 'Harvest herbs'],
       'tags': ['Soup', 'Vegetarian', 'Seasonal'],
-      'recipeText': 'Celebrate the autumn harvest with this vegetable-rich soup. Combine roasted tomatoes, squash, beans, and corn with herbs. Simmer until flavors meld together beautifully.',
+      'recipeText':
+          'Celebrate the autumn harvest with this vegetable-rich soup. Combine roasted tomatoes, squash, beans, and corn with herbs. Simmer until flavors meld together beautifully.',
     },
     {
       'title': 'Spring Salad',
@@ -107,15 +152,24 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
       'servings': '3 servings',
       'calories': '160 Kcal',
       'time': '10 min',
-      'ingredients': ['Spring greens', 'Radishes', 'Peas', 'Mint', 'Lemon dressing'],
+      'ingredients': [
+        'Spring greens',
+        'Radishes',
+        'Peas',
+        'Mint',
+        'Lemon dressing',
+      ],
       'tags': ['Salad', 'Fresh', 'Light'],
-      'recipeText': 'A fresh spring salad bursting with color and flavor. Toss tender spring greens with crisp radishes, sweet peas, and fresh mint. Dress with a light lemon vinaigrette.',
+      'recipeText':
+          'A fresh spring salad bursting with color and flavor. Toss tender spring greens with crisp radishes, sweet peas, and fresh mint. Dress with a light lemon vinaigrette.',
     },
   ];
 
   List<Map<String, dynamic>> get _filteredRecipes {
     if (_selectedSeason == 'All') return allSeasonalRecipes;
-    return allSeasonalRecipes.where((r) => r['season'] == _selectedSeason).toList();
+    return allSeasonalRecipes
+        .where((r) => r['season'] == _selectedSeason)
+        .toList();
   }
 
   Color _getSeasonColor(String season) {
@@ -151,7 +205,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
   @override
   Widget build(BuildContext context) {
     final filteredRecipes = _filteredRecipes;
-    
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -161,9 +215,9 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Seasonal Delights',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.seasonalDelightsTitle,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -186,10 +240,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF00BC7D),
-                        Color(0xFF00C950),
-                      ],
+                      colors: [Color(0xFF00BC7D), Color(0xFF00C950)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -206,12 +257,12 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: const [
-                          Icon(Icons.eco, color: Colors.white, size: 28),
-                          SizedBox(width: 12),
+                        children: [
+                          const Icon(Icons.eco, color: Colors.white, size: 28),
+                          const SizedBox(width: 12),
                           Text(
-                            'Fresh This Season',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.freshThisSeason,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -221,9 +272,9 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Discover recipes perfect for the current season',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.seasonalDescription,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontFamily: 'Poppins',
@@ -232,40 +283,91 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          _buildSeasonStat('Spring', Icons.local_florist),
+                          _buildSeasonStat(
+                            'Spring',
+                            AppLocalizations.of(context)!.seasonSpring,
+                            Icons.local_florist,
+                          ),
                           const SizedBox(width: 12),
-                          _buildSeasonStat('Summer', Icons.wb_sunny),
+                          _buildSeasonStat(
+                            'Summer',
+                            AppLocalizations.of(context)!.seasonSummer,
+                            Icons.wb_sunny,
+                          ),
                           const SizedBox(width: 12),
-                          _buildSeasonStat('Autumn', Icons.eco),
+                          _buildSeasonStat(
+                            'Autumn',
+                            AppLocalizations.of(context)!.seasonAutumn,
+                            Icons.eco,
+                          ),
                           const SizedBox(width: 12),
-                          _buildSeasonStat('Winter', Icons.ac_unit),
+                          _buildSeasonStat(
+                            'Winter',
+                            AppLocalizations.of(context)!.seasonWinter,
+                            Icons.ac_unit,
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Season Filter
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildSeasonChip('All', Icons.calendar_today, AppColors.red600),
+                      _buildSeasonChip(
+                        'All',
+                        AppLocalizations.of(context)!.filterAll,
+                        Icons.calendar_today,
+                        AppColors.red600,
+                      ),
                       const SizedBox(width: 8),
-                      _buildSeasonChip('Spring', Icons.local_florist, const Color(0xFF00BC7D)),
+                      _buildSeasonChip(
+                        'Spring',
+                        AppLocalizations.of(context)!.seasonSpring,
+                        Icons.local_florist,
+                        const Color(0xFF00BC7D),
+                      ),
                       const SizedBox(width: 8),
-                      _buildSeasonChip('Summer', Icons.wb_sunny, const Color(0xFFFFAA6B)),
+                      _buildSeasonChip(
+                        'Summer',
+                        AppLocalizations.of(context)!.seasonSummer,
+                        Icons.wb_sunny,
+                        const Color(0xFFFFAA6B),
+                      ),
                       const SizedBox(width: 8),
-                      _buildSeasonChip('Autumn', Icons.eco, const Color(0xFFFF914D)),
+                      _buildSeasonChip(
+                        'Autumn',
+                        AppLocalizations.of(context)!.seasonAutumn,
+                        Icons.eco,
+                        const Color(0xFFFF914D),
+                      ),
                       const SizedBox(width: 8),
-                      _buildSeasonChip('Winter', Icons.ac_unit, const Color(0xFF6B9EFF)),
+                      _buildSeasonChip(
+                        'Winter',
+                        AppLocalizations.of(context)!.seasonWinter,
+                        Icons.ac_unit,
+                        const Color(0xFF6B9EFF),
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${filteredRecipes.length} ${_selectedSeason == 'All' ? 'seasonal' : _selectedSeason.toLowerCase()} recipes',
+                  AppLocalizations.of(context)!.seasonalRecipesCount(
+                    filteredRecipes.length,
+                    _selectedSeason == 'All'
+                        ? AppLocalizations.of(
+                            context,
+                          )!.seasonalDelights.toLowerCase()
+                        : _getLocalizedSeasonName(
+                            context,
+                            _selectedSeason,
+                          ).toLowerCase(),
+                  ),
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6A7282),
@@ -276,14 +378,15 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Recipes List
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: ListView.separated(
                 itemCount: filteredRecipes.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final recipe = filteredRecipes[index];
                   return TweenAnimationBuilder<double>(
@@ -293,10 +396,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                     builder: (context, value, child) {
                       return Transform.translate(
                         offset: Offset(50 * (1 - value), 0),
-                        child: Opacity(
-                          opacity: value,
-                          child: child,
-                        ),
+                        child: Opacity(opacity: value, child: child),
                       );
                     },
                     child: Stack(
@@ -315,7 +415,9 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                                   servings: recipe['servings'],
                                   calories: recipe['calories'],
                                   time: recipe['time'],
-                                  ingredients: List<String>.from(recipe['ingredients']),
+                                  ingredients: List<String>.from(
+                                    recipe['ingredients'],
+                                  ),
                                   tags: List<String>.from(recipe['tags']),
                                   recipeText: recipe['recipeText'],
                                   initialFavorite: false,
@@ -337,7 +439,9 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _getSeasonColor(recipe['season']).withOpacity(0.3),
+                                  color: _getSeasonColor(
+                                    recipe['season'],
+                                  ).withOpacity(0.3),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -378,8 +482,25 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
     );
   }
 
-  Widget _buildSeasonStat(String season, IconData icon) {
-    final count = allSeasonalRecipes.where((r) => r['season'] == season).length;
+  String _getLocalizedSeasonName(BuildContext context, String seasonKey) {
+    switch (seasonKey) {
+      case 'Spring':
+        return AppLocalizations.of(context)!.seasonSpring;
+      case 'Summer':
+        return AppLocalizations.of(context)!.seasonSummer;
+      case 'Autumn':
+        return AppLocalizations.of(context)!.seasonAutumn;
+      case 'Winter':
+        return AppLocalizations.of(context)!.seasonWinter;
+      default:
+        return seasonKey;
+    }
+  }
+
+  Widget _buildSeasonStat(String seasonKey, String label, IconData icon) {
+    final count = allSeasonalRecipes
+        .where((r) => r['season'] == seasonKey)
+        .length;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -406,12 +527,17 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
     );
   }
 
-  Widget _buildSeasonChip(String label, IconData icon, Color color) {
-    final isSelected = _selectedSeason == label;
+  Widget _buildSeasonChip(
+    String filterKey,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
+    final isSelected = _selectedSeason == filterKey;
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedSeason = label;
+          _selectedSeason = filterKey;
         });
       },
       child: AnimatedContainer(
@@ -437,11 +563,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? Colors.white : color,
-            ),
+            Icon(icon, size: 16, color: isSelected ? Colors.white : color),
             const SizedBox(width: 6),
             Text(
               label,

@@ -1,5 +1,6 @@
 import '../../common/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
   final int selectedIndex;
@@ -75,7 +76,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                 child: _buildNavItem(
                   icon: Icons.explore_outlined,
                   selectedIcon: Icons.explore,
-                  label: 'Discovery',
+                  label: AppLocalizations.of(context)!.navDiscovery,
                   index: 0,
                   color: AppColors.red600,
                 ),
@@ -84,7 +85,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                 child: _buildNavItem(
                   icon: Icons.shopping_bag_outlined,
                   selectedIcon: Icons.shopping_bag,
-                  label: 'Inventory',
+                  label: AppLocalizations.of(context)!.navInventory,
                   index: 1,
                   color: AppColors.red600,
                 ),
@@ -95,7 +96,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                 child: _buildNavItem(
                   icon: Icons.favorite_border,
                   selectedIcon: Icons.favorite,
-                  label: 'Favorite',
+                  label: AppLocalizations.of(context)!.navFavorite,
                   index: 3,
                   color: AppColors.red600,
                 ),
@@ -104,7 +105,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                 child: _buildNavItem(
                   icon: Icons.person_outline,
                   selectedIcon: Icons.person,
-                  label: 'Profile',
+                  label: AppLocalizations.of(context)!.navProfile,
                   index: 4,
                   color: AppColors.red600,
                 ),
@@ -137,12 +138,22 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
               size: 32,
             ),
             const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? color : Colors.grey[400],
-                fontSize: isSelected ? 12 : 11,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: isSelected ? color : Colors.grey[400],
+                      fontSize: isSelected ? 12 : 11,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

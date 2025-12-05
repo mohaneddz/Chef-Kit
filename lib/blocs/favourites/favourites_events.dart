@@ -1,6 +1,12 @@
 abstract class FavouritesEvent {}
 
-class LoadFavourites extends FavouritesEvent {}
+class LoadFavourites extends FavouritesEvent {
+  final String? allSavedText;
+  final String? recipeText;
+  final String? recipesText;
+
+  LoadFavourites({this.allSavedText, this.recipeText, this.recipesText});
+}
 
 class SelectCategory extends FavouritesEvent {
   final int index;

@@ -3,12 +3,14 @@ import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/blocs/profile/profile_bloc.dart';
 import 'package:chefkit/blocs/profile/profile_events.dart';
 import 'package:chefkit/blocs/profile/profile_state.dart';
+import 'package:chefkit/blocs/locale/locale_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/domain/repositories/profile_repository.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 import '../notifications_page.dart';
 import 'personal_info_page.dart';
 import 'security_page.dart';
@@ -80,9 +82,9 @@ class _ProfilePageContent extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Profile",
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.profileTitle,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -108,7 +110,7 @@ class _ProfilePageContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Error loading profile',
+                    AppLocalizations.of(context)!.errorLoadingProfile,
                     style: TextStyle(
                       color: Colors.red[700],
                       fontSize: 16,
@@ -130,10 +132,12 @@ class _ProfilePageContent extends StatelessWidget {
                     onPressed: () {
                       final userId = context.read<AuthCubit>().state.userId;
                       if (userId != null) {
-                        context.read<ProfileBloc>().add(LoadProfile(userId: userId));
+                        context.read<ProfileBloc>().add(
+                          LoadProfile(userId: userId),
+                        );
                       }
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -142,7 +146,9 @@ class _ProfilePageContent extends StatelessWidget {
 
           final profile = state.profile;
           if (profile == null) {
-            return const Center(child: Text('No profile data'));
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noProfileData),
+            );
           }
 
           return SingleChildScrollView(
@@ -168,11 +174,19 @@ class _ProfilePageContent extends StatelessWidget {
                             child: CircleAvatar(
                               radius: 55,
                               backgroundColor: Colors.grey[200],
-                              backgroundImage: profile.avatarUrl.isNotEmpty && profile.avatarUrl.startsWith('http')
+                              backgroundImage:
+                                  profile.avatarUrl.isNotEmpty &&
+                                      profile.avatarUrl.startsWith('http')
                                   ? NetworkImage(profile.avatarUrl)
                                   : null,
-                              child: (profile.avatarUrl.isEmpty || !profile.avatarUrl.startsWith('http'))
-                                  ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                              child:
+                                  (profile.avatarUrl.isEmpty ||
+                                      !profile.avatarUrl.startsWith('http'))
+                                  ? const Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    )
                                   : null,
                             ),
                           ),
@@ -200,26 +214,52 @@ class _ProfilePageContent extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 30),
-                
+
                 // Stats Row - Different for Chef vs Regular User
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: profile.isChef
                       ? Row(
                           children: [
-                            Expanded(child: _buildStatItem("Recipes", profile.recipesCount.toString())),
-                            Container(width: 1, height: 40, color: Colors.grey[200]),
-                            Expanded(child: _buildStatItem("Following", profile.followingCount.toString())),
-                            Container(width: 1, height: 40, color: Colors.grey[200]),
-                            Expanded(child: _buildStatItem("Followers", _formatCount(profile.followersCount))),
+                            Expanded(
+                              child: _buildStatItem(
+                                AppLocalizations.of(context)!.recipesCount,
+                                profile.recipesCount.toString(),
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[200],
+                            ),
+                            Expanded(
+                              child: _buildStatItem(
+                                AppLocalizations.of(context)!.followingCount,
+                                profile.followingCount.toString(),
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[200],
+                            ),
+                            Expanded(
+                              child: _buildStatItem(
+                                AppLocalizations.of(context)!.followersCount,
+                                _formatCount(profile.followersCount),
+                              ),
+                            ),
                           ],
                         )
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildStatItem("Following", profile.followingCount.toString()),
+                            _buildStatItem(
+                              AppLocalizations.of(context)!.followingCount,
+                              profile.followingCount.toString(),
+                            ),
                           ],
                         ),
                 ),
@@ -236,27 +276,31 @@ class _ProfilePageContent extends StatelessWidget {
                     children: [
                       // Chef's Corner - Only for chefs
                       if (profile.isChef) ...[
-                        _buildSectionTitle("Chef's Corner"),
+                        _buildSectionTitle(
+                          AppLocalizations.of(context)!.chefsCorner,
+                        ),
                         const SizedBox(height: 16),
                         _buildMenuItem(
                           context,
                           icon: Icons.restaurant_menu_rounded,
-                          title: "My Recipes",
+                          title: AppLocalizations.of(context)!.myRecipes,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const MyRecipesPage()),
+                            MaterialPageRoute(
+                              builder: (context) => const MyRecipesPage(),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 32),
                       ],
 
-                      _buildSectionTitle("General"),
+                      _buildSectionTitle(AppLocalizations.of(context)!.general),
                       const SizedBox(height: 16),
                       if (profile.isChef)
                         _buildMenuItem(
                           context,
                           icon: Icons.person_outline_rounded,
-                          title: "Personal Info",
+                          title: AppLocalizations.of(context)!.personalInfo,
                           onTap: () {
                             final profileBloc = context.read<ProfileBloc>();
                             Navigator.push(
@@ -273,16 +317,18 @@ class _ProfilePageContent extends StatelessWidget {
                       _buildMenuItem(
                         context,
                         icon: Icons.notifications_outlined,
-                        title: "Notifications",
+                        title: AppLocalizations.of(context)!.notificationsTitle,
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsPage(),
+                          ),
                         ),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.security_outlined,
-                        title: "Security",
+                        title: AppLocalizations.of(context)!.security,
                         onTap: () {
                           final profileBloc = context.read<ProfileBloc>();
                           Navigator.push(
@@ -298,28 +344,53 @@ class _ProfilePageContent extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 32),
-                      _buildSectionTitle("Preferences"),
+                      _buildSectionTitle(
+                        AppLocalizations.of(context)!.preferences,
+                      ),
                       const SizedBox(height: 16),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.language_rounded,
-                        title: "Language",
-                        trailing: "English (US)",
-                        onTap: () => showDialog(
-                          context: context,
-                          builder: (context) => const LanguagePopup(),
-                        ),
+                      BlocBuilder<LocaleCubit, Locale>(
+                        builder: (context, locale) {
+                          String languageName = AppLocalizations.of(
+                            context,
+                          )!.english;
+                          switch (locale.languageCode) {
+                            case 'fr':
+                              languageName = AppLocalizations.of(
+                                context,
+                              )!.french;
+                              break;
+                            case 'ar':
+                              languageName = AppLocalizations.of(
+                                context,
+                              )!.arabic;
+                              break;
+                            default:
+                              languageName = AppLocalizations.of(
+                                context,
+                              )!.english;
+                          }
+                          return _buildMenuItem(
+                            context,
+                            icon: Icons.language_rounded,
+                            title: AppLocalizations.of(context)!.language,
+                            trailing: languageName,
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (context) => const LanguagePopup(),
+                            ),
+                          );
+                        },
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.dark_mode_outlined,
-                        title: "Dark Mode",
+                        title: AppLocalizations.of(context)!.darkMode,
                         isSwitch: true,
                         onTap: () {}, // Toggle logic
                       ),
 
                       const SizedBox(height: 40),
-                      
+
                       // Logout Button
                       SizedBox(
                         width: double.infinity,
@@ -328,7 +399,9 @@ class _ProfilePageContent extends StatelessWidget {
                             context.read<AuthCubit>().logout();
                             Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(builder: (_) => const LoginPage()),
+                              MaterialPageRoute(
+                                builder: (_) => const LoginPage(),
+                              ),
                               (route) => false,
                             );
                           },
@@ -340,7 +413,7 @@ class _ProfilePageContent extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            "Log Out",
+                            AppLocalizations.of(context)!.logOut,
                             style: TextStyle(
                               color: AppColors.red600,
                               fontSize: 16,
@@ -428,11 +501,7 @@ class _ProfilePageContent extends StatelessWidget {
                 color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                size: 22,
-                color: Colors.black87,
-              ),
+              child: Icon(icon, size: 22, color: Colors.black87),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -448,7 +517,7 @@ class _ProfilePageContent extends StatelessWidget {
             ),
             if (isSwitch)
               Switch(
-                value: false, 
+                value: false,
                 onChanged: (val) {},
                 activeColor: AppColors.red600,
               )

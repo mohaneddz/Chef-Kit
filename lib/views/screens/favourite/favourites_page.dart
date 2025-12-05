@@ -8,6 +8,7 @@ import 'package:chefkit/blocs/favourites/favourites_state.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class FavouritesPage extends StatefulWidget {
   const FavouritesPage({super.key});
@@ -22,7 +23,20 @@ class _FavouritesPageState extends State<FavouritesPage> {
   @override
   void initState() {
     super.initState();
-    context.read<FavouritesBloc>().add(LoadFavourites());
+    // We defer the event adding to build or use a post-frame callback if we need context
+    // But initState has context. However, AppLocalizations might not be ready if it depends on inherited widget
+    // usually it is fine.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<FavouritesBloc>().add(
+          LoadFavourites(
+            allSavedText: AppLocalizations.of(context)!.allSaved,
+            recipeText: AppLocalizations.of(context)!.recipeSingular,
+            recipesText: AppLocalizations.of(context)!.recipePlural,
+          ),
+        );
+      }
+    });
   }
 
   @override
@@ -65,19 +79,19 @@ class _FavouritesPageState extends State<FavouritesPage> {
                     color: Colors.grey[300],
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    "No Favourites Yet",
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.noFavouritesYet,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.black,
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    "Explore the app and save your favourite recipes!",
+                  Text(
+                    AppLocalizations.of(context)!.noFavouritesMessage,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ],
               ),
@@ -107,7 +121,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                 children: [
                   const SizedBox(height: 15),
                   SearchBarWidget(
-                    hintText: "Search Your Recipes...",
+                    hintText: AppLocalizations.of(context)!.searchYourRecipes,
                     onChanged: (query) {
                       context.read<FavouritesBloc>().add(
                         SearchFavourites(query),
@@ -115,9 +129,9 @@ class _FavouritesPageState extends State<FavouritesPage> {
                     },
                   ),
                   const SizedBox(height: 25),
-                  const Text(
-                    "Categories",
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.categoriesTitle,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppColors.black,

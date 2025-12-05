@@ -42,6 +42,9 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     emit(state.copyWith(loading: true, error: null));
     try {
       final favoriteRecipes = await recipeRepository.fetchFavoriteRecipes();
+      final allSavedTitle = event.allSavedText ?? "All Saved";
+      final recipeSingular = event.recipeText ?? "recipe";
+      final recipePlural = event.recipesText ?? "recipes";
 
       final Map<String, List<Recipe>> grouped = {};
       for (var recipe in favoriteRecipes) {
@@ -62,15 +65,23 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
       grouped.forEach((key, value) {
         categories.add({
           'title': key,
-          'subtitle': _formatSubtitle(value.length),
+          'subtitle': _formatSubtitle(
+            value.length,
+            recipeSingular,
+            recipePlural,
+          ),
           'imagePaths': _getPreviewImagePaths(value),
           'recipes': value,
         });
       });
 
       categories.add({
-        'title': "All Saved",
-        'subtitle': _formatSubtitle(favoriteRecipes.length),
+        'title': allSavedTitle,
+        'subtitle': _formatSubtitle(
+          favoriteRecipes.length,
+          recipeSingular,
+          recipePlural,
+        ),
         'imagePaths': _getPreviewImagePaths(favoriteRecipes),
         'recipes': favoriteRecipes,
       });
@@ -159,8 +170,8 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     }
   }
 
-  String _formatSubtitle(int count) {
-    return "$count ${count == 1 ? 'recipe' : 'recipes'}";
+  String _formatSubtitle(int count, String singular, String plural) {
+    return "$count ${count == 1 ? singular : plural}";
   }
 
   List<String> _getPreviewImagePaths(List<Recipe> recipeList) {
