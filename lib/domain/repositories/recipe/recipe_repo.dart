@@ -14,6 +14,7 @@ class RecipeRepository {
       prepTime: 45,
       tags: ['hot'],
       ownerId: 'c1',
+      ingredients: ['Semolina', 'Tomato', 'Onion', 'Garlic', 'Spices'],
     ),
     Recipe(
       id: 'r2',
@@ -23,6 +24,7 @@ class RecipeRepository {
       prepTime: 120,
       tags: ['hot'],
       ownerId: 'c2',
+      ingredients: ['Couscous', 'Chicken', 'Carrots', 'Zucchini', 'Chickpeas'],
     ),
     Recipe(
       id: 'r3',
@@ -32,6 +34,7 @@ class RecipeRepository {
       prepTime: 90,
       tags: ['seasonal'],
       ownerId: 'c3',
+      ingredients: ['Pasta', 'Tomato', 'Meat', 'Spices', 'Vegetables'],
     ),
     Recipe(
       id: 'r4',
@@ -41,6 +44,7 @@ class RecipeRepository {
       prepTime: 30,
       tags: ['hot'],
       ownerId: 'c4',
+      ingredients: ['Chicken', 'Breadcrumbs', 'Egg', 'Oil', 'Lemon'],
     ),
     Recipe(
       id: 'r5',
@@ -50,6 +54,7 @@ class RecipeRepository {
       prepTime: 15,
       tags: ['seasonal'],
       ownerId: 'c5',
+      ingredients: ['Strawberry', 'Spinach', 'Balsamic', 'Nuts', 'Cheese'],
     ),
   ];
 
