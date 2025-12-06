@@ -38,24 +38,6 @@ class _InventoryPageState extends State<InventoryPage> {
     ];
   }
 
-  final List<String> _ingredientTypeKeys = [
-    "All",
-    "Protein",
-    "Vegetables",
-    "Fruits",
-    "Spices",
-    "Dairy",
-    "Fats",
-    "Grains",
-    "Sugars",
-    "Leavening Agents",
-    "Liquids",
-    "Extracts",
-    "Acids",
-    "Nuts & Seeds",
-    "Pantry Staples",
-  ];
-
   int selectedType = 0;
 
   @override
@@ -332,102 +314,111 @@ class _InventoryPageState extends State<InventoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InventoryBloc, InventoryState>(
-      builder: (context, state) {
-        List<Map<String, String>> searchFilteredIngredients = state.browse;
-        if (state.searchTerm.isNotEmpty) {
-          final query = state.searchTerm.toLowerCase();
-          searchFilteredIngredients = searchFilteredIngredients
-              .where((i) => i["name"]!.toLowerCase().contains(query))
-              .toList();
-        }
+    return BlocListener<LocaleCubit, Locale>(
+      listener: (context, locale) {
+        context.read<InventoryBloc>().add(
+          LoadInventoryEvent(locale.languageCode),
+        );
+      },
+      child: BlocBuilder<InventoryBloc, InventoryState>(
+        builder: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
+          final displayTypes = _getIngredientTypes(context);
 
-        List<Map<String, String>> filteredIngredients;
-        if (selectedType == 0) {
-          filteredIngredients = searchFilteredIngredients;
-        } else {
-          final selected = _ingredientTypeKeys[selectedType];
-          filteredIngredients = searchFilteredIngredients
-              .where((i) => i["type"] == selected)
-              .toList();
-        }
+          List<Map<String, String>> searchFilteredIngredients = state.browse;
+          if (state.searchTerm.isNotEmpty) {
+            final query = state.searchTerm.toLowerCase();
+            searchFilteredIngredients = searchFilteredIngredients
+                .where((i) => i["name"]!.toLowerCase().contains(query))
+                .toList();
+          }
 
-        final isSearching = state.searchTerm.isNotEmpty;
-        final l10n = AppLocalizations.of(context)!;
+          List<Map<String, String>> filteredIngredients;
+          if (selectedType == 0) {
+            filteredIngredients = searchFilteredIngredients;
+          } else {
+            final selected = displayTypes[selectedType];
+            filteredIngredients = searchFilteredIngredients
+                .where((i) => i["type"] == selected)
+                .toList();
+          }
 
-        return Scaffold(
-          backgroundColor: AppColors.white,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            leadingWidth: 72,
-            leading: Align(
-              alignment: Alignment.centerRight,
-              child: Image.asset(
-                "assets/images/list-ingredients.png",
-                width: 52,
+          final isSearching = state.searchTerm.isNotEmpty;
+
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              leadingWidth: 72,
+              leading: Align(
+                alignment: Alignment.centerRight,
+                child: Image.asset(
+                  "assets/images/list-ingredients.png",
+                  width: 52,
+                ),
               ),
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.inventoryTitle,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.inventoryTitle,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Text(
-                  l10n.inventorySubtitle,
-                  style: const TextStyle(
-                    color: Color(0xFF4A5565),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    fontFamily: "LeagueSpartan",
+                  Text(
+                    l10n.inventorySubtitle,
+                    style: const TextStyle(
+                      color: Color(0xFF4A5565),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: "LeagueSpartan",
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              centerTitle: false,
             ),
-            centerTitle: false,
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 15),
-                SearchBarWidget(
-                  hintText: l10n.searchIngredient,
-                  onChanged: _onSearchChanged,
-                ),
-                const SizedBox(height: 25),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 15),
+                  SearchBarWidget(
+                    hintText: l10n.searchIngredient,
+                    onChanged: _onSearchChanged,
+                  ),
+                  const SizedBox(height: 25),
 
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 20.0,
-                      ), // Add padding for the bottom
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (!isSearching) ...[
-                            _buildAvailableIngredients(state),
-                            SizedBox(height: 25),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 20.0,
+                        ), // Add padding for the bottom
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!isSearching) ...[
+                              _buildAvailableIngredients(state),
+                              SizedBox(height: 25),
+                            ],
+
+                            _buildBrowseSection(state, filteredIngredients),
                           ],
-
-                          _buildBrowseSection(state, filteredIngredients),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
