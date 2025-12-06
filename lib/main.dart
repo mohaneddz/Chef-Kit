@@ -29,16 +29,28 @@ import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final repo = IngredientsRepo.getInstance();
   await repo.seedIngredients();
-  runApp(const MainApp());
+
+  const storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+  final String? savedLanguageCode = await storage.read(key: 'selected_locale');
+  final initialLocale = savedLanguageCode != null
+      ? Locale(savedLanguageCode)
+      : null;
+
+  runApp(MainApp(initialLocale: initialLocale));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final Locale? initialLocale;
+
+  const MainApp({super.key, this.initialLocale});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +102,7 @@ class MainApp extends StatelessWidget {
           BlocProvider(
             create: (_) => NotificationsBloc()..add(const LoadNotifications()),
           ),
-          BlocProvider(create: (_) => LocaleCubit()),
+          BlocProvider(create: (_) => LocaleCubit(initialLocale)),
         ],
         child: BlocBuilder<LocaleCubit, Locale>(
           builder: (context, locale) {
