@@ -3,6 +3,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../common/constants.dart';
 import '../../widgets/recipe/recipe_card_widget.dart';
 import '../recipe/item_page.dart';
+import '../recipe/recipe_details_page.dart';
 import '../../../domain/repositories/recipe_repository.dart';
 import '../../../domain/models/recipe.dart';
 
@@ -196,19 +197,18 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ItemPage(
-                                      title: recipe.name,
-                                      imagePath: recipe.imageUrl,
-                                      servings:
-                                          '${recipe.servingsCount} servings',
-                                      calories: '${recipe.calories} Kcal',
-                                      time:
-                                          '${recipe.prepTime + recipe.cookTime} min',
-                                      ingredients: recipe.ingredients,
-                                      tags: recipe.tags,
-                                      recipeText: recipe.instructions.join(
-                                        '\n',
-                                      ),
+                                    builder: (context) => RecipeDetailsPage(
+                                      recipeId: recipe.id,
+                                      recipeName: recipe.name,
+                                      recipeDescription: recipe.description,
+                                      recipeImageUrl: recipe.imageUrl,
+                                      recipePrepTime: recipe.prepTime,
+                                      recipeCookTime: recipe.cookTime,
+                                      recipeCalories: recipe.calories,
+                                      recipeServingsCount: recipe.servingsCount,
+                                      recipeIngredients: recipe.ingredients,
+                                      recipeInstructions: recipe.instructions,
+                                      recipeTags: recipe.tags,
                                       initialFavorite: recipe.isFavorite,
                                     ),
                                   ),
