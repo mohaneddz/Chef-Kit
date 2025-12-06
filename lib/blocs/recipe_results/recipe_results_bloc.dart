@@ -69,6 +69,18 @@ class RecipeResultsBloc extends Bloc<RecipeResultsEvent, RecipeResultsState> {
     ToggleRecipeResultFavorite event,
     Emitter<RecipeResultsState> emit,
   ) async {
+    final previousState = state;
+
+    // Optimistic update
+    final updatedMatchedRecipes = state.matchedRecipes.map((r) {
+      if (r.id == event.recipeId) {
+        return r.copyWith(isFavorite: !r.isFavorite);
+      }
+      return r;
+    }).toList();
+
+    emit(state.copyWith(matchedRecipes: updatedMatchedRecipes));
+
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
       emit(
@@ -79,7 +91,7 @@ class RecipeResultsBloc extends Bloc<RecipeResultsEvent, RecipeResultsState> {
         ),
       );
     } catch (e) {
-      // Handle error silently or emit error state
+      emit(previousState.copyWith(error: e.toString()));
     }
   }
 }
