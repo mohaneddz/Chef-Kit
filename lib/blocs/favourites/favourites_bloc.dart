@@ -46,6 +46,8 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
       event.allSavedText,
       event.recipeText,
       event.recipesText,
+      event.locale,
+      event.otherText,
     );
   }
 
@@ -59,6 +61,8 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
       event.allSavedText,
       event.recipeText,
       event.recipesText,
+      event.locale,
+      event.otherText,
     );
   }
 
@@ -67,22 +71,36 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     String? allSavedText,
     String? recipeText,
     String? recipesText,
+    String locale,
+    String? otherText,
   ) async {
     try {
       final favoriteRecipes = await recipeRepository.fetchFavoriteRecipes();
       final allSavedTitle = allSavedText ?? "All Saved";
       final recipeSingular = recipeText ?? "recipe";
       final recipePlural = recipesText ?? "recipes";
+      final otherTitle = otherText ?? "Other";
 
       final Map<String, List<Recipe>> grouped = {};
       for (var recipe in favoriteRecipes) {
-        if (recipe.tags.isEmpty) {
-          grouped.putIfAbsent('Other', () => []).add(recipe);
+        List<String> tagsToUse = recipe.tags;
+        if (locale == 'ar' &&
+            recipe.tagsAr != null &&
+            recipe.tagsAr!.isNotEmpty) {
+          tagsToUse = recipe.tagsAr!;
+        } else if (locale == 'fr' &&
+            recipe.tagsFr != null &&
+            recipe.tagsFr!.isNotEmpty) {
+          tagsToUse = recipe.tagsFr!;
+        }
+
+        if (tagsToUse.isEmpty) {
+          grouped.putIfAbsent(otherTitle, () => []).add(recipe);
         } else {
-          for (var tag in recipe.tags) {
+          for (var tag in tagsToUse) {
             final key = tag.isNotEmpty
                 ? tag[0].toUpperCase() + tag.substring(1)
-                : 'Other';
+                : otherTitle;
             grouped.putIfAbsent(key, () => []).add(recipe);
           }
         }

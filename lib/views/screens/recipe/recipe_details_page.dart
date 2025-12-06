@@ -1,98 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../../domain/models/recipe.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
 import '../../../common/constants.dart';
 
 class RecipeDetailsPage extends StatelessWidget {
-  final String recipeId;
-  final String recipeName;
-  final String? recipeDescription;
-  final String recipeImageUrl;
-  final int recipePrepTime;
-  final int recipeCookTime;
-  final int recipeCalories;
-  final int recipeServingsCount;
-  final List<String> recipeIngredients;
-  final List<String> recipeInstructions;
-  final List<String> recipeTags;
-  final bool initialFavorite;
-  final String? recipeOwner;
+  final Recipe recipe;
 
-  const RecipeDetailsPage({
-    Key? key,
-    required this.recipeId,
-    required this.recipeName,
-    this.recipeDescription,
-    required this.recipeImageUrl,
-    this.recipePrepTime = 0,
-    this.recipeCookTime = 0,
-    this.recipeCalories = 0,
-    this.recipeServingsCount = 4,
-    required this.recipeIngredients,
-    required this.recipeInstructions,
-    this.recipeTags = const [],
-    this.initialFavorite = false,
-    this.recipeOwner,
-  }) : super(key: key);
+  const RecipeDetailsPage({Key? key, required this.recipe}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => RecipeDetailsCubit(
-        initialFavorite: initialFavorite,
-        initialServings: recipeServingsCount,
+        initialFavorite: recipe.isFavorite,
+        initialServings: recipe.servingsCount,
       ),
-      child: _RecipeDetailsContent(
-        recipeId: recipeId,
-        recipeName: recipeName,
-        recipeDescription: recipeDescription,
-        recipeImageUrl: recipeImageUrl,
-        recipePrepTime: recipePrepTime,
-        recipeCookTime: recipeCookTime,
-        recipeCalories: recipeCalories,
-        recipeServingsCount: recipeServingsCount,
-        recipeIngredients: recipeIngredients,
-        recipeInstructions: recipeInstructions,
-        recipeTags: recipeTags,
-        recipeOwner: recipeOwner,
-      ),
+      child: _RecipeDetailsContent(recipe: recipe),
     );
   }
 }
 
 class _RecipeDetailsContent extends StatelessWidget {
-  final String recipeId;
-  final String recipeName;
-  final String? recipeDescription;
-  final String recipeImageUrl;
-  final int recipePrepTime;
-  final int recipeCookTime;
-  final int recipeCalories;
-  final int recipeServingsCount;
-  final List<String> recipeIngredients;
-  final List<String> recipeInstructions;
-  final List<String> recipeTags;
-  final String? recipeOwner;
+  final Recipe recipe;
 
-  const _RecipeDetailsContent({
-    required this.recipeId,
-    required this.recipeName,
-    this.recipeDescription,
-    required this.recipeImageUrl,
-    required this.recipePrepTime,
-    required this.recipeCookTime,
-    required this.recipeCalories,
-    required this.recipeServingsCount,
-    required this.recipeIngredients,
-    required this.recipeInstructions,
-    required this.recipeTags,
-    this.recipeOwner,
-  });
+  const _RecipeDetailsContent({required this.recipe});
 
-  int get totalTime => recipePrepTime + recipeCookTime;
+  int get totalTime => recipe.prepTime + recipe.cookTime;
+
+  String _getLocalizedName(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'ar' && recipe.titleAr != null && recipe.titleAr!.isNotEmpty)
+      return recipe.titleAr!;
+    if (locale == 'fr' && recipe.titleFr != null && recipe.titleFr!.isNotEmpty)
+      return recipe.titleFr!;
+    return recipe.name;
+  }
+
+  String? _getLocalizedDescription(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'ar' || locale == 'fr') {
+      return _getLocalizedName(context);
+    }
+    return recipe.description;
+  }
+
+  List<String> _getLocalizedTags(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'ar' && recipe.tagsAr != null && recipe.tagsAr!.isNotEmpty)
+      return recipe.tagsAr!;
+    if (locale == 'fr' && recipe.tagsFr != null && recipe.tagsFr!.isNotEmpty)
+      return recipe.tagsFr!;
+    return recipe.tags;
+  }
+
+  List<String> _getLocalizedInstructions(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'ar' &&
+        recipe.instructionsAr != null &&
+        recipe.instructionsAr!.isNotEmpty)
+      return recipe.instructionsAr!;
+    if (locale == 'fr' &&
+        recipe.instructionsFr != null &&
+        recipe.instructionsFr!.isNotEmpty)
+      return recipe.instructionsFr!;
+    return recipe.instructions;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +86,7 @@ class _RecipeDetailsContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title & Description Section
-                _buildHeaderSection(),
+                _buildHeaderSection(context),
 
                 // Quick Info Cards
                 _buildQuickInfoSection(),
@@ -118,7 +94,8 @@ class _RecipeDetailsContent extends StatelessWidget {
                 // Servings shown in Quick Info (no adjuster)
 
                 // Tags Section
-                if (recipeTags.isNotEmpty) _buildTagsSection(),
+                if (_getLocalizedTags(context).isNotEmpty)
+                  _buildTagsSection(context),
 
                 // Ingredients Section
                 _buildIngredientsSection(),
@@ -193,7 +170,7 @@ class _RecipeDetailsContent extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Hero(tag: 'recipe_$recipeId', child: _buildHeaderImage()),
+            Hero(tag: 'recipe_${recipe.id}', child: _buildHeaderImage()),
             // Gradient overlays
             Positioned(
               bottom: 0,
@@ -222,18 +199,18 @@ class _RecipeDetailsContent extends StatelessWidget {
 
   Widget _buildHeaderImage() {
     // Handle asset images
-    if (recipeImageUrl.startsWith('assets/')) {
+    if (recipe.imageUrl.startsWith('assets/')) {
       return Image.asset(
-        recipeImageUrl,
+        recipe.imageUrl,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
       );
     }
 
     // Handle network images
-    if (recipeImageUrl.startsWith('http')) {
+    if (recipe.imageUrl.startsWith('http')) {
       return Image.network(
-        recipeImageUrl,
+        recipe.imageUrl,
         fit: BoxFit.cover,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
@@ -255,14 +232,17 @@ class _RecipeDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderSection() {
+  Widget _buildHeaderSection(BuildContext context) {
+    final localizedName = _getLocalizedName(context);
+    final localizedDescription = _getLocalizedDescription(context);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            recipeName,
+            localizedName,
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
@@ -272,10 +252,11 @@ class _RecipeDetailsContent extends StatelessWidget {
               letterSpacing: -0.5,
             ),
           ),
-          if (recipeDescription != null && recipeDescription!.isNotEmpty) ...[
+          if (localizedDescription != null &&
+              localizedDescription.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
-              recipeDescription!,
+              localizedDescription,
               style: TextStyle(
                 fontSize: 16,
                 height: 1.6,
@@ -308,7 +289,7 @@ class _RecipeDetailsContent extends StatelessWidget {
                 child: _InfoCard(
                   icon: LucideIcons.flame,
                   label: AppLocalizations.of(context)!.caloriesLabel,
-                  value: '$recipeCalories',
+                  value: '${recipe.calories}',
                 ),
               ),
               const SizedBox(width: 12),
@@ -328,13 +309,14 @@ class _RecipeDetailsContent extends StatelessWidget {
 
   // Removed servings adjuster per design: servings is a property only
 
-  Widget _buildTagsSection() {
+  Widget _buildTagsSection(BuildContext context) {
+    final tags = _getLocalizedTags(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
       child: Wrap(
         spacing: 10,
         runSpacing: 10,
-        children: recipeTags.map((tag) {
+        children: tags.map((tag) {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
@@ -370,7 +352,15 @@ class _RecipeDetailsContent extends StatelessWidget {
   Widget _buildIngredientsSection() {
     return BlocBuilder<RecipeDetailsCubit, RecipeDetailsState>(
       builder: (context, state) {
-        final servingMultiplier = state.servings / recipeServingsCount;
+        final servingMultiplier = state.servings / recipe.servingsCount;
+
+        // Use basicIngredients if available, otherwise fallback to ingredients list
+        List<String> ingredientsList = [];
+        if (recipe.basicIngredients.isNotEmpty) {
+          ingredientsList = recipe.basicIngredients;
+        } else {
+          ingredientsList = recipe.ingredients;
+        }
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
@@ -405,7 +395,7 @@ class _RecipeDetailsContent extends StatelessWidget {
                   Text(
                     AppLocalizations.of(
                       context,
-                    )!.itemsCount(recipeIngredients.length),
+                    )!.itemsCount(ingredientsList.length),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -416,7 +406,7 @@ class _RecipeDetailsContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              ...recipeIngredients.asMap().entries.map((entry) {
+              ...ingredientsList.asMap().entries.map((entry) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
@@ -508,6 +498,7 @@ class _RecipeDetailsContent extends StatelessWidget {
   }
 
   Widget _buildInstructionsSection(BuildContext context) {
+    final instructions = _getLocalizedInstructions(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       child: Column(
@@ -539,9 +530,7 @@ class _RecipeDetailsContent extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                AppLocalizations.of(
-                  context,
-                )!.stepsCount(recipeInstructions.length),
+                AppLocalizations.of(context)!.stepsCount(instructions.length),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -552,7 +541,7 @@ class _RecipeDetailsContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          ...recipeInstructions.asMap().entries.map((entry) {
+          ...instructions.asMap().entries.map((entry) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: Row(

@@ -17,6 +17,15 @@ class Recipe {
   final bool isFavorite;
   final bool isTrending;
   final bool isSeasonal;
+  final List<String> basicIngredients;
+
+  // Localized fields
+  final String? titleAr;
+  final String? titleFr;
+  final List<String>? tagsAr;
+  final List<String>? tagsFr;
+  final List<String>? instructionsAr;
+  final List<String>? instructionsFr;
 
   const Recipe({
     required this.id,
@@ -35,11 +44,19 @@ class Recipe {
     this.isFavorite = false,
     this.isTrending = false,
     this.isSeasonal = false,
+    this.basicIngredients = const [],
+    this.titleAr,
+    this.titleFr,
+    this.tagsAr,
+    this.tagsFr,
+    this.instructionsAr,
+    this.instructionsFr,
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     print('  📦 Recipe.fromJson called');
     print('  JSON keys: ${json.keys.toList()}');
+
 
     try {
       print('  Parsing time fields...');
@@ -48,9 +65,11 @@ class Recipe {
       print('  prep_time: $prepTime (${prepTime.runtimeType})');
       print('  cook_time: $cookTime (${cookTime.runtimeType})');
 
+
       // Safely parse time values
       int prepMinutes = 0;
       int cookMinutes = 0;
+
 
       if (prepTime != null) {
         if (prepTime is int) {
@@ -60,6 +79,7 @@ class Recipe {
         }
       }
 
+
       if (cookTime != null) {
         if (cookTime is int) {
           cookMinutes = cookTime;
@@ -68,7 +88,9 @@ class Recipe {
         }
       }
 
+
       print('  ✅ Total time: ${prepMinutes + cookMinutes} min');
+
 
       // Safely parse array fields
       print('  Parsing ingredients...');
@@ -179,6 +201,13 @@ class Recipe {
             : (json['is_favourite'] as bool? ?? false),
         isTrending: json['recipe_is_trending'] == true,
         isSeasonal: json['recipe_is_seasonal'] == true,
+        basicIngredients: _parseList(json['basic_ingredients']),
+        titleAr: json['title_ar']?.toString(),
+        titleFr: json['title_fr']?.toString(),
+        tagsAr: _parseList(json['tags_ar']),
+        tagsFr: _parseList(json['tags_fr']),
+        instructionsAr: _parseList(json['steps_ar']),
+        instructionsFr: _parseList(json['steps_fr']),
       );
 
       print('  ✅ Recipe object created: ${recipe.name}');
@@ -236,6 +265,13 @@ class Recipe {
     bool? isFavorite,
     bool? isTrending,
     bool? isSeasonal,
+    List<String>? basicIngredients,
+    String? titleAr,
+    String? titleFr,
+    List<String>? tagsAr,
+    List<String>? tagsFr,
+    List<String>? instructionsAr,
+    List<String>? instructionsFr,
   }) {
     return Recipe(
       id: id ?? this.id,
@@ -254,6 +290,13 @@ class Recipe {
       isFavorite: isFavorite ?? this.isFavorite,
       isTrending: isTrending ?? this.isTrending,
       isSeasonal: isSeasonal ?? this.isSeasonal,
+      basicIngredients: basicIngredients ?? this.basicIngredients,
+      titleAr: titleAr ?? this.titleAr,
+      titleFr: titleFr ?? this.titleFr,
+      tagsAr: tagsAr ?? this.tagsAr,
+      tagsFr: tagsFr ?? this.tagsFr,
+      instructionsAr: instructionsAr ?? this.instructionsAr,
+      instructionsFr: instructionsFr ?? this.instructionsFr,
     );
   }
 

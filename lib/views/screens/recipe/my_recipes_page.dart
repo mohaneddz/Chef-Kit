@@ -423,21 +423,7 @@ class _MyRecipesContent extends StatelessWidget {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            RecipeDetailsPage(
-              recipeId: recipe.id,
-              recipeName: recipe.name,
-              recipeDescription: recipe.description,
-              recipeImageUrl: recipe.imageUrl,
-              recipePrepTime: recipe.prepTime,
-              recipeCookTime: recipe.cookTime,
-              recipeCalories: recipe.calories,
-              recipeServingsCount: recipe.servingsCount,
-              recipeIngredients: recipe.ingredients,
-              recipeInstructions: recipe.instructions,
-              recipeTags: recipe.tags,
-              initialFavorite: recipe.isFavorite,
-              recipeOwner: recipe.ownerId,
-            ),
+            RecipeDetailsPage(recipe: recipe),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;

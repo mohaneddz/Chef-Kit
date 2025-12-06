@@ -42,12 +42,22 @@ class RecipesGrid extends StatelessWidget {
             children: recipes.map((r) {
               final double itemWidth =
                   (availableWidth - (crossAxisCount - 1) * 16) / crossAxisCount;
+
+              final locale = Localizations.localeOf(context).languageCode;
+              final title =
+                  locale == 'ar' && r.titleAr != null && r.titleAr!.isNotEmpty
+                  ? r.titleAr!
+                  : (locale == 'fr' &&
+                            r.titleFr != null &&
+                            r.titleFr!.isNotEmpty
+                        ? r.titleFr!
+                        : r.name);
               return SizedBox(
                 width: itemWidth,
                 height: itemWidth / 0.75,
                 child: RecipeCardWidget(
-                  title: r.name,
-                  subtitle: r.description,
+                  title: title,
+                  subtitle: title,
                   imageUrl: r.imageUrl,
                   isFavorite: r.isFavorite,
                   onFavoritePressed: () => onFavoriteToggle(r),
@@ -55,20 +65,7 @@ class RecipesGrid extends StatelessWidget {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RecipeDetailsPage(
-                          recipeId: r.id,
-                          recipeName: r.name,
-                          recipeDescription: r.description,
-                          recipeImageUrl: r.imageUrl,
-                          recipePrepTime: r.prepTime,
-                          recipeCookTime: r.cookTime,
-                          recipeCalories: r.calories,
-                          recipeServingsCount: r.servingsCount,
-                          recipeIngredients: r.ingredients,
-                          recipeInstructions: r.instructions,
-                          recipeTags: r.tags,
-                          initialFavorite: r.isFavorite,
-                        ),
+                        builder: (context) => RecipeDetailsPage(recipe: r),
                       ),
                     );
                     // Refresh favourites when returning from details page
@@ -83,6 +80,8 @@ class RecipesGrid extends StatelessWidget {
                           recipesText: AppLocalizations.of(
                             context,
                           )!.recipePlural,
+                          locale: Localizations.localeOf(context).languageCode,
+                          otherText: "Other",
                         ),
                       );
                     }

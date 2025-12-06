@@ -309,7 +309,7 @@ update_user_service = update_user
 _RECIPE_COLUMNS = (
     "recipe_id, recipe_name, recipe_description, recipe_image_url, recipe_owner, "
     "recipe_servings_count, recipe_prep_time, recipe_cook_time, recipe_calories, "
-    "recipe_ingredients, recipe_instructions, recipe_tags, recipe_is_trending, recipe_is_seasonal"
+    "recipe_ingredients, recipe_instructions, recipe_tags, recipe_is_trending, recipe_is_seasonal, title_ar, title_fr, tags_ar, tags_fr, steps_ar, steps_fr, basic_ingredients"
 )
 
 def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:

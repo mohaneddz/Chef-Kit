@@ -2,6 +2,7 @@ import 'package:chefkit/blocs/recipe_results/recipe_results_bloc.dart';
 import 'package:chefkit/blocs/recipe_results/recipe_results_events.dart';
 import 'package:chefkit/blocs/recipe_results/recipe_results_state.dart';
 import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/domain/models/recipe.dart';
 import 'package:chefkit/domain/repositories/recipe_repository.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
@@ -13,6 +14,19 @@ class RecipeResultsPage extends StatelessWidget {
   final List<String> selectedIngredients;
 
   const RecipeResultsPage({super.key, required this.selectedIngredients});
+
+  String _getLocalizedTitle(BuildContext context, Recipe recipe) {
+    final locale = Localizations.localeOf(context).languageCode;
+    return locale == 'ar' &&
+            recipe.titleAr != null &&
+            recipe.titleAr!.isNotEmpty
+        ? recipe.titleAr!
+        : (locale == 'fr' &&
+                  recipe.titleFr != null &&
+                  recipe.titleFr!.isNotEmpty
+              ? recipe.titleFr!
+              : recipe.name);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,12 +198,13 @@ class RecipeResultsPage extends StatelessWidget {
                                 ? availableWidth
                                 : (availableWidth - (crossAxisCount - 1) * 16) /
                                       crossAxisCount;
+                            final title = _getLocalizedTitle(context, recipe);
                             return SizedBox(
                               width: itemWidth,
                               height: itemWidth / 0.75,
                               child: RecipeCardWidget(
-                                title: recipe.name,
-                                subtitle: recipe.description,
+                                title: title,
+                                subtitle: title,
                                 imageUrl: recipe.imageUrl,
                                 isFavorite: recipe.isFavorite,
                                 onFavoritePressed: () {
@@ -201,21 +216,8 @@ class RecipeResultsPage extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => RecipeDetailsPage(
-                                        recipeId: recipe.id,
-                                        recipeName: recipe.name,
-                                        recipeDescription: recipe.description,
-                                        recipeImageUrl: recipe.imageUrl,
-                                        recipePrepTime: recipe.prepTime,
-                                        recipeCookTime: recipe.cookTime,
-                                        recipeCalories: recipe.calories,
-                                        recipeServingsCount:
-                                            recipe.servingsCount,
-                                        recipeIngredients: recipe.ingredients,
-                                        recipeInstructions: recipe.instructions,
-                                        recipeTags: recipe.tags,
-                                        initialFavorite: recipe.isFavorite,
-                                      ),
+                                      builder: (context) =>
+                                          RecipeDetailsPage(recipe: recipe),
                                     ),
                                   );
                                 },

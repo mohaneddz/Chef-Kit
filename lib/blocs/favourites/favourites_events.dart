@@ -4,8 +4,16 @@ class LoadFavourites extends FavouritesEvent {
   final String? allSavedText;
   final String? recipeText;
   final String? recipesText;
+  final String locale;
+  final String? otherText;
 
-  LoadFavourites({this.allSavedText, this.recipeText, this.recipesText});
+  LoadFavourites({
+    this.allSavedText,
+    this.recipeText,
+    this.recipesText,
+    this.locale = 'en',
+    this.otherText,
+  });
 }
 
 class SelectCategory extends FavouritesEvent {
@@ -27,6 +35,14 @@ class RefreshFavourites extends FavouritesEvent {
   final String? allSavedText;
   final String? recipeText;
   final String? recipesText;
+  final String locale;
+  final String? otherText;
 
-  RefreshFavourites({this.allSavedText, this.recipeText, this.recipesText});
+  RefreshFavourites({
+    this.allSavedText,
+    this.recipeText,
+    this.recipesText,
+    this.locale = 'en',
+    this.otherText,
+  });
 }
