@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
 import '../../../common/constants.dart';
+import '../../../database/repositories/ingredients/ingredients_repository.dart';
 
 class RecipeDetailsPage extends StatelessWidget {
   final Recipe recipe;
@@ -15,10 +16,16 @@ class RecipeDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => RecipeDetailsCubit(
-        initialFavorite: recipe.isFavorite,
-        initialServings: recipe.servingsCount,
-      ),
+      create: (_) =>
+          RecipeDetailsCubit(
+            initialFavorite: recipe.isFavorite,
+            initialServings: recipe.servingsCount,
+          )..loadIngredientTranslations(
+            recipe.basicIngredients.isNotEmpty
+                ? recipe.basicIngredients
+                : recipe.ingredients,
+            Localizations.localeOf(context).languageCode,
+          ),
       child: _RecipeDetailsContent(recipe: recipe),
     );
   }
@@ -435,7 +442,11 @@ class _RecipeDetailsContent extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: Text(
-                          _scaleIngredient(entry.value, servingMultiplier),
+                          _scaleIngredient(
+                            entry.value,
+                            servingMultiplier,
+                            state.ingredientTranslations,
+                          ),
                           style: const TextStyle(
                             fontSize: 16,
                             height: 1.5,
@@ -455,46 +466,61 @@ class _RecipeDetailsContent extends StatelessWidget {
     );
   }
 
-  String _scaleIngredient(String ingredient, double multiplier) {
-    if (multiplier == 1.0) return ingredient;
+  String _scaleIngredient(
+    String ingredient,
+    double multiplier, [
+    Map<String, IngredientTranslation>? translations,
+  ]) {
+    String result = ingredient;
 
-    // Match numbers (including fractions like 1/2, 1/4, decimals)
-    final numberPattern = RegExp(r'^(\d+\.?\d*|\d+/\d+)\s*');
-    final match = numberPattern.firstMatch(ingredient);
+    if (multiplier != 1.0) {
+      // Match numbers (including fractions like 1/2, 1/4, decimals)
+      final numberPattern = RegExp(r'^(\d+\.?\d*|\d+/\d+)\s*');
+      final match = numberPattern.firstMatch(ingredient);
 
-    if (match != null) {
-      final originalAmount = match.group(1)!;
-      final rest = ingredient.substring(match.end);
+      if (match != null) {
+        final originalAmount = match.group(1)!;
+        final rest = ingredient.substring(match.end);
 
-      // Parse the amount
-      double amount;
-      if (originalAmount.contains('/')) {
-        final parts = originalAmount.split('/');
-        amount = double.parse(parts[0]) / double.parse(parts[1]);
-      } else {
-        amount = double.parse(originalAmount);
+        // Parse the amount
+        double amount;
+        if (originalAmount.contains('/')) {
+          final parts = originalAmount.split('/');
+          amount = double.parse(parts[0]) / double.parse(parts[1]);
+        } else {
+          amount = double.parse(originalAmount);
+        }
+
+        // Scale it
+        final scaledAmount = amount * multiplier;
+
+        // Format nicely
+        String formattedAmount;
+        if (scaledAmount == scaledAmount.roundToDouble()) {
+          formattedAmount = scaledAmount.toInt().toString();
+        } else if ((scaledAmount * 2).roundToDouble() == scaledAmount * 2) {
+          // Handle common fractions
+          formattedAmount = '${(scaledAmount * 2).toInt()}/2';
+        } else if ((scaledAmount * 4).roundToDouble() == scaledAmount * 4) {
+          formattedAmount = '${(scaledAmount * 4).toInt()}/4';
+        } else {
+          formattedAmount = scaledAmount.toStringAsFixed(1);
+        }
+
+        result = '$formattedAmount $rest';
       }
-
-      // Scale it
-      final scaledAmount = amount * multiplier;
-
-      // Format nicely
-      String formattedAmount;
-      if (scaledAmount == scaledAmount.roundToDouble()) {
-        formattedAmount = scaledAmount.toInt().toString();
-      } else if ((scaledAmount * 2).roundToDouble() == scaledAmount * 2) {
-        // Handle common fractions
-        formattedAmount = '${(scaledAmount * 2).toInt()}/2';
-      } else if ((scaledAmount * 4).roundToDouble() == scaledAmount * 4) {
-        formattedAmount = '${(scaledAmount * 4).toInt()}/4';
-      } else {
-        formattedAmount = scaledAmount.toStringAsFixed(1);
-      }
-
-      return '$formattedAmount $rest';
     }
 
-    return ingredient;
+    if (translations != null && translations.containsKey(ingredient)) {
+      final translation = translations[ingredient]!;
+      final pattern = RegExp(
+        RegExp.escape(translation.matchedEnglishName),
+        caseSensitive: false,
+      );
+      result = result.replaceAll(pattern, translation.translatedName);
+    }
+
+    return result;
   }
 
   Widget _buildInstructionsSection(BuildContext context) {
