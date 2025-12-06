@@ -95,7 +95,8 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                     ),
                     BlocBuilder<NotificationsBloc, NotificationsState>(
                       builder: (context, state) {
-                        if (state is NotificationsLoaded && state.unreadCount > 0) {
+                        if (state is NotificationsLoaded &&
+                            state.unreadCount > 0) {
                           return Positioned(
                             right: 0,
                             top: 0,
@@ -126,13 +127,64 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
           }
           if (state.error != null) {
             return Center(
-              child: Text(AppLocalizations.of(context)!.error(state.error!)),
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.wifi_off_rounded,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      AppLocalizations.of(context)!.connectionIssue,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.connectionIssueMessage,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                        fontFamily: 'Poppins',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<DiscoveryBloc>().add(LoadDiscovery());
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: Text(AppLocalizations.of(context)!.retry),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.red600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
           return RefreshIndicator(
             onRefresh: () async {
-              // Trigger reload of all discovery data
-              context.read<DiscoveryBloc>().add(LoadDiscovery());
+              // Force refresh all discovery data
+              context.read<DiscoveryBloc>().add(RefreshDiscovery());
               // Wait for the state to finish loading
               await Future.delayed(const Duration(milliseconds: 500));
             },
@@ -140,198 +192,201 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10.0,
-                horizontal: 25,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  SearchBarWidget(
-                    hintText: AppLocalizations.of(
-                      context,
-                    )!.searchRecipesOrChefs,
-                  ),
-                  const SizedBox(height: 30),
-                  SectionHeaderWidget(
-                    title: AppLocalizations.of(context)!.chefs,
-                    onSeeAllPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AllChefsPage()),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 25,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    SearchBarWidget(
+                      hintText: AppLocalizations.of(
+                        context,
+                      )!.searchRecipesOrChefs,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    clipBehavior: Clip.none,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (final chef in state.chefsOnFire) ...[
-                          ChefCardWidget(
-                            name: chef.name,
-                            imageUrl: chef.imageUrl,
-                            isOnFire: chef.isOnFire,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      ChefProfilePublicPage(chefId: chef.id),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 16),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  SectionHeaderWidget(
-                    title: AppLocalizations.of(context)!.hotRecipes,
-                    onSeeAllPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AllHotRecipesPage(),
+                    const SizedBox(height: 30),
+                    SectionHeaderWidget(
+                      title: AppLocalizations.of(context)!.chefs,
+                      onSeeAllPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AllChefsPage()),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      // Decrease aspect ratio to increase tile height and prevent overflow
-                      childAspectRatio: 0.82,
-                    ),
-                    itemCount: state.hotRecipes.length.clamp(0, 4),
-                    itemBuilder: (context, index) {
-                      final recipe = state.hotRecipes[index];
-                      return RecipeCardWidget(
-                        title: recipe.name,
-                        subtitle: recipe.description,
-                        imageUrl: recipe.imageUrl,
-                        isFavorite: recipe.isFavorite,
-                        heroTag: 'recipe_${recipe.id}',
-                        onFavoritePressed: () => context
-                            .read<DiscoveryBloc>()
-                            .add(ToggleDiscoveryRecipeFavorite(recipe.id)),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      RecipeDetailsPage(
-                                        recipeId: recipe.id,
-                                        recipeName: recipe.name,
-                                        recipeDescription: recipe.description,
-                                        recipeImageUrl: recipe.imageUrl,
-                                        recipePrepTime: recipe.prepTime,
-                                        recipeCookTime: recipe.cookTime,
-                                        recipeCalories: recipe.calories,
-                                        recipeServingsCount:
-                                            recipe.servingsCount,
-                                        recipeIngredients: recipe.ingredients,
-                                        recipeInstructions: recipe.instructions,
-                                        recipeTags: recipe.tags,
-                                        initialFavorite: recipe.isFavorite,
-                                      ),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) {
-                                    const begin = Offset(0.8, 0.0);
-                                    const end = Offset.zero;
-                                    final curved = CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeOutQuart,
-                                    );
-
-                                    return FadeTransition(
-                                      opacity: curved,
-                                      child: SlideTransition(
-                                        position: Tween(
-                                          begin: begin,
-                                          end: end,
-                                        ).animate(curved),
-                                        child: child,
-                                      ),
-                                    );
-                                  },
-                              transitionDuration: const Duration(
-                                milliseconds: 350,
-                              ),
-                              reverseTransitionDuration: const Duration(
-                                milliseconds: 300,
-                              ),
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      clipBehavior: Clip.none,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final chef in state.chefsOnFire) ...[
+                            ChefCardWidget(
+                              name: chef.name,
+                              imageUrl: chef.imageUrl,
+                              isOnFire: chef.isOnFire,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ChefProfilePublicPage(chefId: chef.id),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                  SectionHeaderWidget(
-                    title: AppLocalizations.of(context)!.seasonalDelights,
-                    onSeeAllPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AllSeasonalPage(),
+                            const SizedBox(width: 16),
+                          ],
+                        ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
-                    children: [
-                      for (final recipe in state.seasonalRecipes) ...[
-                        SeasonalItemWidget(
+                    const SizedBox(height: 30),
+                    SectionHeaderWidget(
+                      title: AppLocalizations.of(context)!.hotRecipes,
+                      onSeeAllPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AllHotRecipesPage(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        // Decrease aspect ratio to increase tile height and prevent overflow
+                        childAspectRatio: 0.82,
+                      ),
+                      itemCount: state.hotRecipes.length.clamp(0, 4),
+                      itemBuilder: (context, index) {
+                        final recipe = state.hotRecipes[index];
+                        return RecipeCardWidget(
                           title: recipe.name,
                           subtitle: recipe.description,
                           imageUrl: recipe.imageUrl,
+                          isFavorite: recipe.isFavorite,
+                          heroTag: 'recipe_${recipe.id}',
+                          onFavoritePressed: () => context
+                              .read<DiscoveryBloc>()
+                              .add(ToggleDiscoveryRecipeFavorite(recipe.id)),
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => ItemPage(
-                                  title: recipe.name,
-                                  imagePath: recipe.imageUrl,
-                                  servings: AppLocalizations.of(
-                                    context,
-                                  )!.servings(recipe.servingsCount.toString()),
-                                  calories: AppLocalizations.of(
-                                    context,
-                                  )!.calories(recipe.calories.toString()),
-                                  time: AppLocalizations.of(context)!.minutes(
-                                    (recipe.prepTime + recipe.cookTime)
-                                        .toString(),
-                                  ),
-                                  ingredients: recipe.ingredients,
-                                  tags: recipe.tags,
-                                  recipeText: recipe.instructions.join('\n'),
-                                  initialFavorite: recipe.isFavorite,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                    ) => RecipeDetailsPage(
+                                      recipeId: recipe.id,
+                                      recipeName: recipe.name,
+                                      recipeDescription: recipe.description,
+                                      recipeImageUrl: recipe.imageUrl,
+                                      recipePrepTime: recipe.prepTime,
+                                      recipeCookTime: recipe.cookTime,
+                                      recipeCalories: recipe.calories,
+                                      recipeServingsCount: recipe.servingsCount,
+                                      recipeIngredients: recipe.ingredients,
+                                      recipeInstructions: recipe.instructions,
+                                      recipeTags: recipe.tags,
+                                      initialFavorite: recipe.isFavorite,
+                                    ),
+                                transitionsBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) {
+                                      const begin = Offset(0.8, 0.0);
+                                      const end = Offset.zero;
+                                      final curved = CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.easeOutQuart,
+                                      );
+
+                                      return FadeTransition(
+                                        opacity: curved,
+                                        child: SlideTransition(
+                                          position: Tween(
+                                            begin: begin,
+                                            end: end,
+                                          ).animate(curved),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                transitionDuration: const Duration(
+                                  milliseconds: 350,
+                                ),
+                                reverseTransitionDuration: const Duration(
+                                  milliseconds: 300,
                                 ),
                               ),
                             );
                           },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    SectionHeaderWidget(
+                      title: AppLocalizations.of(context)!.seasonalDelights,
+                      onSeeAllPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AllSeasonalPage(),
                         ),
-                        const SizedBox(height: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Column(
+                      children: [
+                        for (final recipe in state.seasonalRecipes) ...[
+                          SeasonalItemWidget(
+                            title: recipe.name,
+                            subtitle: recipe.description,
+                            imageUrl: recipe.imageUrl,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ItemPage(
+                                    title: recipe.name,
+                                    imagePath: recipe.imageUrl,
+                                    servings: AppLocalizations.of(context)!
+                                        .servings(
+                                          recipe.servingsCount.toString(),
+                                        ),
+                                    calories: AppLocalizations.of(
+                                      context,
+                                    )!.calories(recipe.calories.toString()),
+                                    time: AppLocalizations.of(context)!.minutes(
+                                      (recipe.prepTime + recipe.cookTime)
+                                          .toString(),
+                                    ),
+                                    ingredients: recipe.ingredients,
+                                    tags: recipe.tags,
+                                    recipeText: recipe.instructions.join('\n'),
+                                    initialFavorite: recipe.isFavorite,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                ],
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
-            ),
             ),
           );
         },

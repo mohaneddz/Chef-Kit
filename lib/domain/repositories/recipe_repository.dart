@@ -36,12 +36,22 @@ class RecipeRepository {
     Uri uri, {
     Map<String, String>? headers,
     int maxRetries = 3,
+    Duration timeout = const Duration(seconds: 10),
   }) async {
     int attempts = 0;
     while (true) {
       attempts++;
       try {
-        return await http.get(uri, headers: headers);
+        return await http.get(uri, headers: headers).timeout(timeout);
+      } on TimeoutException {
+        if (attempts < maxRetries) {
+          print(
+            '⏱️ HTTP timeout, retry attempt $attempts/$maxRetries for $uri',
+          );
+          await Future.delayed(Duration(milliseconds: 500 * attempts));
+          continue;
+        }
+        throw Exception('Connection timed out. Please check your connection.');
       } catch (e) {
         // Check if it's a connection-related error
         final isConnectionError =

@@ -27,7 +27,10 @@ class _LoginPageState extends State<LoginPage> {
     Future.microtask(() {
       if (mounted) {
         context.read<AuthCubit>().emit(
-          context.read<AuthCubit>().state.copyWith(fieldErrors: {}, error: null),
+          context.read<AuthCubit>().state.copyWith(
+            fieldErrors: {},
+            error: null,
+          ),
         );
       }
     });
@@ -39,17 +42,39 @@ class _LoginPageState extends State<LoginPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (!state.loading && state.user != null && state.fieldErrors.isEmpty) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => const HomePage(),));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
         }
         // If login returned 403 (unverified), needsOtp is set in cubit
         if (!state.loading && state.needsOtp) {
-          final email = context.read<AuthCubit>().pendingEmail ?? emailController.text.trim();
+          final email =
+              context.read<AuthCubit>().pendingEmail ??
+              emailController.text.trim();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Your email is not verified. We sent a new code.')),
+            const SnackBar(
+              content: Text('Your email is not verified. We sent a new code.'),
+            ),
           );
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OtpVerifyPage(email: email, fromSignup: false)),
+            MaterialPageRoute(
+              builder: (context) =>
+                  OtpVerifyPage(email: email, fromSignup: false),
+            ),
+          );
+        }
+        // Show general errors (connection errors, etc.)
+        if (!state.loading &&
+            state.error != null &&
+            state.fieldErrors.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.error!),
+              backgroundColor: Colors.red[700],
+              duration: const Duration(seconds: 4),
+            ),
           );
         }
       },
@@ -123,7 +148,10 @@ class _LoginPageState extends State<LoginPage> {
                           children: [
                             ButtonWidget(
                               text: "Log In",
-                              isLoading: context.watch<AuthCubit>().state.loading,
+                              isLoading: context
+                                  .watch<AuthCubit>()
+                                  .state
+                                  .loading,
                               onTap: () {
                                 context.read<AuthCubit>().login(
                                   emailController.text.trim(),

@@ -171,5 +171,8 @@
   "saveChanges": "حفظ التغييرات",
   "fullNameEmptyError": "الاسم الكامل لا يمكن أن يكون فارغاً",
   "profileUpdateError": "فشل تحديث الملف الشخصي: {error}",
-  "profileUpdateSuccess": "تم تحديث المعلومات الشخصية"
+  "profileUpdateSuccess": "تم تحديث المعلومات الشخصية",
+  "noRecipesFound": "لم يتم العثور على وصفات",
+  "connectionIssue": "مشكلة في الاتصال",
+  "connectionIssueMessage": "يرجى التحقق من اتصالك والمحاولة مرة أخرى"
 }

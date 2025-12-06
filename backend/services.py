@@ -319,8 +319,11 @@ def get_recipe(recipe_id: str) -> Dict[str, Any]:
 
 
 def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
+    print(f"[create_recipe] Received data: {data}")
+    print(f"[create_recipe] recipe_tags value: {data.get('recipe_tags')}")
     resp = supabase.table("recipe").insert(data).execute()
     result = _extract_response_data(resp)
+    print(f"[create_recipe] Inserted recipe result: {result}")
     
     # Notify followers
     try:
@@ -368,6 +371,7 @@ def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
 def update_recipe(recipe_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"[services.update_recipe] Recipe ID: {recipe_id}")
     print(f"[services.update_recipe] Data to update: {data}")
+    print(f"[services.update_recipe] recipe_tags value: {data.get('recipe_tags')}")
     print(f"[services.update_recipe] recipe_image_url value: {data.get('recipe_image_url')}")
     
     # Execute update

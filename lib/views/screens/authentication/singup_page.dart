@@ -29,7 +29,10 @@ class _SingupPageState extends State<SingupPage> {
     Future.microtask(() {
       if (mounted) {
         context.read<AuthCubit>().emit(
-          context.read<AuthCubit>().state.copyWith(fieldErrors: {}, error: null),
+          context.read<AuthCubit>().state.copyWith(
+            fieldErrors: {},
+            error: null,
+          ),
         );
       }
     });
@@ -41,20 +44,36 @@ class _SingupPageState extends State<SingupPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         // Debug outputs for signup flow
-        debugPrint('[SignupPage] AuthState loading=${state.loading} error=${state.error} signedUp=${state.signedUp}');
-        
+        debugPrint(
+          '[SignupPage] AuthState loading=${state.loading} error=${state.error} signedUp=${state.signedUp}',
+        );
+
         // Only navigate to OTP if signedUp is true AND no field errors exist
-        if (!state.loading && state.signedUp && state.error == null && state.fieldErrors.isEmpty) {
+        if (!state.loading &&
+            state.signedUp &&
+            state.error == null &&
+            state.fieldErrors.isEmpty) {
           // With OTP flow, navigate to verification page
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OtpVerifyPage(email: emailController.text.trim(), fromSignup: true)),
+            MaterialPageRoute(
+              builder: (context) => OtpVerifyPage(
+                email: emailController.text.trim(),
+                fromSignup: true,
+              ),
+            ),
           );
         }
-        
-        if (state.error != null && !state.loading) {
+
+        if (state.error != null &&
+            !state.loading &&
+            state.fieldErrors.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Signup failed: ${state.error}')),
+            SnackBar(
+              content: Text(state.error!),
+              backgroundColor: Colors.red[700],
+              duration: const Duration(seconds: 4),
+            ),
           );
         }
       },
@@ -145,9 +164,14 @@ class _SingupPageState extends State<SingupPage> {
                               const SizedBox(height: 30),
                               ButtonWidget(
                                 text: "Sign Up",
-                                isLoading: context.watch<AuthCubit>().state.loading,
+                                isLoading: context
+                                    .watch<AuthCubit>()
+                                    .state
+                                    .loading,
                                 onTap: () {
-                                  debugPrint('[SignupPage] SignUp button tapped');
+                                  debugPrint(
+                                    '[SignupPage] SignUp button tapped',
+                                  );
                                   context.read<AuthCubit>().signup(
                                     fullnameController.text.trim(),
                                     emailController.text.trim(),

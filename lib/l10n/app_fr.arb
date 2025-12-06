@@ -171,5 +171,8 @@
   "saveChanges": "Enregistrer les modifications",
   "fullNameEmptyError": "Le nom complet ne peut pas être vide",
   "profileUpdateError": "Échec de la mise à jour du profil : {error}",
-  "profileUpdateSuccess": "Informations personnelles mises à jour"
+  "profileUpdateSuccess": "Informations personnelles mises à jour",
+  "noRecipesFound": "Aucune recette trouvée",
+  "connectionIssue": "Problème de connexion",
+  "connectionIssueMessage": "Veuillez vérifier votre connexion et réessayer"
 }

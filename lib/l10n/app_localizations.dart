@@ -1137,6 +1137,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Personal info updated'**
   String get profileUpdateSuccess;
+
+  /// No description provided for @noRecipesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipes found'**
+  String get noRecipesFound;
+
+  /// No description provided for @connectionIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection issue'**
+  String get connectionIssue;
+
+  /// No description provided for @connectionIssueMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your connection and try again'**
+  String get connectionIssueMessage;
 }
 
 class _AppLocalizationsDelegate
