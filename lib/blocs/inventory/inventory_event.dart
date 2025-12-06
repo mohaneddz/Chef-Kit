@@ -5,7 +5,13 @@ class InventoryEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadInventoryEvent extends InventoryEvent {}
+class LoadInventoryEvent extends InventoryEvent {
+  final String langCode;
+  LoadInventoryEvent(this.langCode);
+
+  @override
+  List<Object?> get props => [langCode];
+}
 
 class SearchInventoryEvent extends InventoryEvent {
   final String searchTerm;

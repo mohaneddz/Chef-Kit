@@ -1,3 +1,4 @@
+import 'package:chefkit/blocs/locale/locale_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
 import 'package:chefkit/blocs/inventory/inventory_event.dart';
@@ -41,7 +42,8 @@ class _InventoryPageState extends State<InventoryPage> {
   @override
   void initState() {
     super.initState();
-    context.read<InventoryBloc>().add(LoadInventoryEvent());
+    final lang = context.read<LocaleCubit>().state.languageCode;
+    context.read<InventoryBloc>().add(LoadInventoryEvent(lang));
   }
 
   void _onSearchChanged(String value) {
