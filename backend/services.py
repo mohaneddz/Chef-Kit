@@ -306,8 +306,28 @@ update_user_service = update_user
 # -----------------------------
 # Recipes
 # -----------------------------
-def get_all_recipes() -> List[Dict[str, Any]]:
-    resp = supabase.table("recipe").select("*").execute()
+def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:
+    query = supabase.table("recipe").select("*")
+    if tag:
+        query = query.contains("recipe_tags", [tag])
+    resp = query.execute()
+    data = _extract_response_data(resp)
+    return data or []
+
+
+def get_recipes_result(ingredients: List[str] = None) -> List[Dict[str, Any]]:
+    """
+    Get a fixed list of 10 recipes for the results page.
+    TODO: Implement actual logic for recipe results based on ingredients/preferences.
+    """
+    # Select specific fields to ensure we don't fetch unnecessary large data
+    # and to ensure the response is clean.
+    columns = (
+        "recipe_id, recipe_name, recipe_description, recipe_image_url, recipe_owner, "
+        "recipe_servings_count, recipe_prep_time, recipe_cook_time, recipe_calories, "
+        "recipe_ingredients, recipe_instructions, recipe_tags"
+    )
+    resp = supabase.table("recipe").select(columns).limit(10).execute()
     data = _extract_response_data(resp)
     return data or []
 
