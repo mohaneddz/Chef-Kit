@@ -31,26 +31,6 @@ class DBHelper {
             image_path TEXT NOT NULL
           )
         ''');
-
-        await db.execute('''
-          CREATE TABLE recipes (
-            recipe_id TEXT PRIMARY KEY,
-            recipe_name TEXT,
-            recipe_description TEXT,
-            recipe_image_url TEXT,
-            recipe_owner TEXT,
-            recipe_servings_count INTEGER,
-            recipe_prep_time INTEGER,
-            recipe_cook_time INTEGER,
-            recipe_calories INTEGER,
-            recipe_ingredients TEXT,
-            recipe_instructions TEXT,
-            recipe_items TEXT,
-            recipe_tags TEXT,
-            recipe_external_sources TEXT,
-            is_favourite INTEGER DEFAULT 0
-          )
-        ''');
       },
     );
   }
