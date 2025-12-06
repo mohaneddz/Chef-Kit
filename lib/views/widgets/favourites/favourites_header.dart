@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class FavouritesHeader extends StatelessWidget {
   const FavouritesHeader({super.key});
@@ -8,17 +9,17 @@ class FavouritesHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Favourites",
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.favouritesTitle,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const Text(
-          "Find Your Saved Recipes",
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.favouritesSubtitle,
+          style: const TextStyle(
             color: Color(0xFF4A5565),
             fontSize: 14,
             fontWeight: FontWeight.w400,

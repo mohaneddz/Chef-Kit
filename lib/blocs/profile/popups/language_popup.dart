@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../common/constants.dart';
+import '../../locale/locale_cubit.dart';
 
 class LanguagePopup extends StatefulWidget {
   const LanguagePopup({Key? key}) : super(key: key);
@@ -9,7 +11,13 @@ class LanguagePopup extends StatefulWidget {
 }
 
 class _LanguagePopupState extends State<LanguagePopup> {
-  String _selectedLanguage = 'en'; // Static - no actual logic
+  late String _selectedLanguage;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLanguage = context.read<LocaleCubit>().state.languageCode;
+  }
 
   final List<Map<String, dynamic>> _languages = [
     {
@@ -29,24 +37,6 @@ class _LanguagePopupState extends State<LanguagePopup> {
       'name': 'Arabic',
       'nativeName': 'العربية',
       'flag': '🇩🇿',
-    },
-    {
-      'code': 'es',
-      'name': 'Spanish',
-      'nativeName': 'Español',
-      'flag': '🇪🇸',
-    },
-    {
-      'code': 'it',
-      'name': 'Italian',
-      'nativeName': 'Italiano',
-      'flag': '🇮🇹',
-    },
-    {
-      'code': 'de',
-      'name': 'German',
-      'nativeName': 'Deutsch',
-      'flag': '🇩🇪',
     },
   ];
 
@@ -121,6 +111,7 @@ class _LanguagePopupState extends State<LanguagePopup> {
                       setState(() {
                         _selectedLanguage = language['code'];
                       });
+                      context.read<LocaleCubit>().setLocale(Locale(language['code']));
                       // Close after selection with a small delay
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 // Repositories
 import 'package:chefkit/domain/repositories/chef_repository.dart';
@@ -19,6 +20,7 @@ import 'package:chefkit/blocs/chefs/chefs_events.dart';
 import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
+import 'package:chefkit/blocs/locale/locale_cubit.dart';
 
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
@@ -29,7 +31,7 @@ import 'dart:io' show Platform;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final repo = IngredientsRepo.getInstance();
-  await repo.seedIngredients(); 
+  await repo.seedIngredients();
   runApp(const MainApp());
 }
 
@@ -61,7 +63,7 @@ class MainApp extends StatelessWidget {
             create: (_) => DiscoveryBloc(
               chefRepository: chefRepository,
               recipeRepository: recipeRepository,
-            )..add(LoadDiscovery()), 
+            )..add(LoadDiscovery()),
           ),
           BlocProvider(
             create: (_) => ChefProfileBloc(
@@ -75,21 +77,27 @@ class MainApp extends StatelessWidget {
           ),
           BlocProvider(create: (_) => InventoryBloc()),
           BlocProvider(
-            create: (_) => AuthCubit(
-              baseUrl: baseUrl,
-              offline: OfflineProvider(),
-            ),
+            create: (_) =>
+                AuthCubit(baseUrl: baseUrl, offline: OfflineProvider()),
           ),
           BlocProvider(
             create: (_) =>
                 FavouritesBloc(recipeRepository: recipeRepository)
                   ..add(LoadFavourites()),
           ),
+          BlocProvider(create: (_) => LocaleCubit()),
         ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(fontFamily: 'Poppins'),
-          home: const AuthInitializer(),
+        child: BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(fontFamily: 'Poppins'),
+              locale: locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const AuthInitializer(),
+            );
+          },
         ),
       ),
     );
@@ -119,12 +127,12 @@ class _AuthInitializerState extends State<AuthInitializer> {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        
+
         if (state.userId != null && state.accessToken != null) {
           // User is authenticated, show main app
           return const HomePage();
         }
-        
+
         return const SingupPage();
       },
     );

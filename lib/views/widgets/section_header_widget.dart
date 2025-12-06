@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class SectionHeaderWidget extends StatelessWidget {
   final String title;
@@ -25,9 +26,9 @@ class SectionHeaderWidget extends StatelessWidget {
         ),
         GestureDetector(
           onTap: onSeeAllPressed,
-          child: const Text(
-            'See all',
-            style: TextStyle(
+          child: Text(
+            AppLocalizations.of(context)!.seeAll,
+            style: const TextStyle(
               fontSize: 14,
               color: Color(0xFFFF5D69),
               fontFamily: 'Poppins',

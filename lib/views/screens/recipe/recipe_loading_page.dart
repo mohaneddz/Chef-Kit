@@ -1,6 +1,7 @@
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/recipe/recipe_results_page.dart';
 import 'package:flutter/material.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class RecipeLoadingPage extends StatefulWidget {
   final List<String> selectedIngredients;
@@ -18,12 +19,8 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
   late Animation<double> _scaleAnimation;
 
   int _currentStep = 0;
-  final List<String> _loadingSteps = [
-    "Analyzing your ingredients...",
-    "Searching recipes...",
-    "Matching...",
-    "Finding perfect recipes...",
-  ];
+  // Number of steps to iterate through
+  final int _totalSteps = 4;
 
   @override
   void initState() {
@@ -44,7 +41,7 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
   }
 
   void _simulateLoading() async {
-    for (int i = 0; i < _loadingSteps.length; i++) {
+    for (int i = 0; i < _totalSteps; i++) {
       await Future.delayed(const Duration(milliseconds: 1200));
       if (mounted) {
         setState(() {
@@ -131,8 +128,8 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
 
               const SizedBox(height: 50),
               Text(
-                "Finding Recipes",
-                style: TextStyle(
+                AppLocalizations.of(context)!.findingRecipes,
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: AppColors.black,
@@ -143,7 +140,7 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
                 child: Text(
-                  _loadingSteps[_currentStep],
+                  _getLoadingText(context, _currentStep),
                   key: ValueKey<int>(_currentStep),
                   style: TextStyle(
                     fontSize: 16,
@@ -231,5 +228,20 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
         ),
       ),
     );
+  }
+
+  String _getLoadingText(BuildContext context, int step) {
+    switch (step) {
+      case 0:
+        return AppLocalizations.of(context)!.loadingAnalyzing;
+      case 1:
+        return AppLocalizations.of(context)!.loadingSearching;
+      case 2:
+        return AppLocalizations.of(context)!.loadingMatching;
+      case 3:
+        return AppLocalizations.of(context)!.loadingFinding;
+      default:
+        return AppLocalizations.of(context)!.loadingFinding;
+    }
   }
 }

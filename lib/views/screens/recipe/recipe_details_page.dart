@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
 import '../../../common/constants.dart';
@@ -123,7 +124,7 @@ class _RecipeDetailsContent extends StatelessWidget {
                 _buildIngredientsSection(),
 
                 // Instructions Section
-                _buildInstructionsSection(),
+                _buildInstructionsSection(context),
 
                 const SizedBox(height: 40),
               ],
@@ -150,7 +151,11 @@ class _RecipeDetailsContent extends StatelessWidget {
           child: InkWell(
             onTap: () => Navigator.pop(context),
             customBorder: const CircleBorder(),
-            child: const Icon(LucideIcons.arrowLeft, color: Colors.black, size: 20),
+            child: const Icon(
+              LucideIcons.arrowLeft,
+              color: Colors.black,
+              size: 20,
+            ),
           ),
         ),
       ),
@@ -165,13 +170,16 @@ class _RecipeDetailsContent extends StatelessWidget {
                 shadowColor: Colors.black.withOpacity(0.15),
                 shape: const CircleBorder(),
                 child: InkWell(
-                  onTap: () => context.read<RecipeDetailsCubit>().toggleFavorite(),
+                  onTap: () =>
+                      context.read<RecipeDetailsCubit>().toggleFavorite(),
                   customBorder: const CircleBorder(),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Icon(
                       state.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: state.isFavorite ? AppColors.primary : Colors.black87,
+                      color: state.isFavorite
+                          ? AppColors.primary
+                          : Colors.black87,
                       size: 20,
                     ),
                   ),
@@ -185,10 +193,7 @@ class _RecipeDetailsContent extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Hero(
-              tag: 'recipe_$recipeId',
-              child: _buildHeaderImage(),
-            ),
+            Hero(tag: 'recipe_$recipeId', child: _buildHeaderImage()),
             // Gradient overlays
             Positioned(
               bottom: 0,
@@ -224,7 +229,7 @@ class _RecipeDetailsContent extends StatelessWidget {
         errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
       );
     }
-    
+
     // Handle network images
     if (recipeImageUrl.startsWith('http')) {
       return Image.network(
@@ -237,10 +242,10 @@ class _RecipeDetailsContent extends StatelessWidget {
         errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
       );
     }
-    
+
     return _buildImagePlaceholder();
   }
-  
+
   Widget _buildImagePlaceholder() {
     return Container(
       color: Colors.grey[200],
@@ -294,7 +299,7 @@ class _RecipeDetailsContent extends StatelessWidget {
               Expanded(
                 child: _InfoCard(
                   icon: LucideIcons.clock,
-                  label: 'Total',
+                  label: AppLocalizations.of(context)!.total,
                   value: '${totalTime}m',
                 ),
               ),
@@ -302,7 +307,7 @@ class _RecipeDetailsContent extends StatelessWidget {
               Expanded(
                 child: _InfoCard(
                   icon: LucideIcons.flame,
-                  label: 'Calories',
+                  label: AppLocalizations.of(context)!.caloriesLabel,
                   value: '$recipeCalories',
                 ),
               ),
@@ -310,7 +315,7 @@ class _RecipeDetailsContent extends StatelessWidget {
               Expanded(
                 child: _InfoCard(
                   icon: LucideIcons.users,
-                  label: 'Servings',
+                  label: AppLocalizations.of(context)!.servingsLabel,
                   value: '${state.servings}',
                 ),
               ),
@@ -343,11 +348,7 @@ class _RecipeDetailsContent extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  LucideIcons.tag,
-                  size: 14,
-                  color: AppColors.primary,
-                ),
+                Icon(LucideIcons.tag, size: 14, color: AppColors.primary),
                 const SizedBox(width: 6),
                 Text(
                   tag,
@@ -370,7 +371,7 @@ class _RecipeDetailsContent extends StatelessWidget {
     return BlocBuilder<RecipeDetailsCubit, RecipeDetailsState>(
       builder: (context, state) {
         final servingMultiplier = state.servings / recipeServingsCount;
-        
+
         return Padding(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
           child: Column(
@@ -391,9 +392,9 @@ class _RecipeDetailsContent extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Ingredients',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.ingredients,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Poppins',
@@ -402,7 +403,9 @@ class _RecipeDetailsContent extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    '${recipeIngredients.length} items',
+                    AppLocalizations.of(
+                      context,
+                    )!.itemsCount(recipeIngredients.length),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -464,15 +467,15 @@ class _RecipeDetailsContent extends StatelessWidget {
 
   String _scaleIngredient(String ingredient, double multiplier) {
     if (multiplier == 1.0) return ingredient;
-    
+
     // Match numbers (including fractions like 1/2, 1/4, decimals)
     final numberPattern = RegExp(r'^(\d+\.?\d*|\d+/\d+)\s*');
     final match = numberPattern.firstMatch(ingredient);
-    
+
     if (match != null) {
       final originalAmount = match.group(1)!;
       final rest = ingredient.substring(match.end);
-      
+
       // Parse the amount
       double amount;
       if (originalAmount.contains('/')) {
@@ -481,10 +484,10 @@ class _RecipeDetailsContent extends StatelessWidget {
       } else {
         amount = double.parse(originalAmount);
       }
-      
+
       // Scale it
       final scaledAmount = amount * multiplier;
-      
+
       // Format nicely
       String formattedAmount;
       if (scaledAmount == scaledAmount.roundToDouble()) {
@@ -497,14 +500,14 @@ class _RecipeDetailsContent extends StatelessWidget {
       } else {
         formattedAmount = scaledAmount.toStringAsFixed(1);
       }
-      
+
       return '$formattedAmount $rest';
     }
-    
+
     return ingredient;
   }
 
-  Widget _buildInstructionsSection() {
+  Widget _buildInstructionsSection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       child: Column(
@@ -525,9 +528,9 @@ class _RecipeDetailsContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Instructions',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.instructions,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Poppins',
@@ -536,7 +539,9 @@ class _RecipeDetailsContent extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${recipeInstructions.length} steps',
+                AppLocalizations.of(
+                  context,
+                )!.stepsCount(recipeInstructions.length),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

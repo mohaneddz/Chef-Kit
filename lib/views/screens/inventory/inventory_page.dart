@@ -6,6 +6,7 @@ import 'package:chefkit/views/widgets/inventory/ingredient_card.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class InventoryPage extends StatefulWidget {
   const InventoryPage({super.key});
@@ -15,7 +16,19 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  final List<String> ingredientTypes = [
+  List<String> _getIngredientTypes(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.ingredientTypeAll,
+      l10n.ingredientTypeProtein,
+      l10n.ingredientTypeVegetables,
+      l10n.ingredientTypeSpices,
+      l10n.ingredientTypeFruits,
+    ];
+  }
+
+  // Keep original keys for logic filtering
+  final List<String> _ingredientTypeKeys = [
     "All",
     "Protein",
     "Vegetables",
@@ -108,13 +121,14 @@ class _InventoryPageState extends State<InventoryPage> {
         ? state.available
         : state.available.take(4).toList();
     final totalItems = state.browse.length + state.available.length;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         headerText(
-          title: "Available Ingredients",
-          subtitle: "Your current pantry items",
+          title: l10n.availableIngredientsTitle,
+          subtitle: l10n.availableIngredientsSubtitle,
         ),
         const SizedBox(height: 10),
         Row(
@@ -124,7 +138,7 @@ class _InventoryPageState extends State<InventoryPage> {
               gradientColor1: AppColors.success1.withOpacity(0.2),
               gradientColor2: AppColors.success2.withOpacity(0.3),
               textColor: AppColors.green,
-              text: "${state.available.length} Available",
+              text: l10n.availableCount(state.available.length),
               icon: Image.asset(
                 "assets/images/package_icon.png",
                 width: 12,
@@ -134,12 +148,10 @@ class _InventoryPageState extends State<InventoryPage> {
             const SizedBox(width: 20),
             availabilityCard(
               borderColor: const Color(0xFFFD5D69).withOpacity(0.3),
-              gradientColor1: const Color(
-                0xFFFD5D69,
-              ).withOpacity(0.2),
+              gradientColor1: const Color(0xFFFD5D69).withOpacity(0.2),
               gradientColor2: AppColors.orange.withOpacity(0.2),
               textColor: AppColors.red600,
-              text: "${totalItems} Total Items",
+              text: l10n.totalItemsCount(totalItems),
               icon: Image.asset(
                 "assets/images/star_icon.png",
                 width: 12,
@@ -152,13 +164,12 @@ class _InventoryPageState extends State<InventoryPage> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate:
-              const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-                mainAxisExtent: 180,
-              ),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
+            crossAxisSpacing: 15,
+            mainAxisSpacing: 15,
+            mainAxisExtent: 180,
+          ),
           itemCount: availableToShow.length,
           itemBuilder: (context, index) {
             final item = availableToShow[index];
@@ -167,9 +178,7 @@ class _InventoryPageState extends State<InventoryPage> {
               ingredientName: item["name"]!,
               ingredientType: item["type"]!,
               onRemove: () {
-                context.read<InventoryBloc>().add(
-                  RemoveIngredientEvent(item),
-                );
+                context.read<InventoryBloc>().add(RemoveIngredientEvent(item));
               },
             );
           },
@@ -185,12 +194,10 @@ class _InventoryPageState extends State<InventoryPage> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 onPressed: () {
-                  context.read<InventoryBloc>().add(
-                    ToggleShowMoreEvent(),
-                  );
+                  context.read<InventoryBloc>().add(ToggleShowMoreEvent());
                 },
                 child: Text(
-                  state.showMore ? "Show less" : "Show more",
+                  state.showMore ? l10n.showLess : l10n.showMore,
                   style: TextStyle(
                     color: AppColors.browmpod,
                     fontSize: 16,
@@ -201,14 +208,10 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
               IconButton(
                 onPressed: () {
-                  context.read<InventoryBloc>().add(
-                    ToggleShowMoreEvent(),
-                  );
+                  context.read<InventoryBloc>().add(ToggleShowMoreEvent());
                 },
                 icon: Icon(
-                  state.showMore
-                      ? Icons.arrow_upward
-                      : Icons.arrow_downward,
+                  state.showMore ? Icons.arrow_upward : Icons.arrow_downward,
                   size: 24,
                   color: Color(0xFF8F4A4C),
                 ),
@@ -225,13 +228,19 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
-  Widget _buildBrowseSection(InventoryState state, List<Map<String, String>> filteredIngredients) {
+  Widget _buildBrowseSection(
+    InventoryState state,
+    List<Map<String, String>> filteredIngredients,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final displayTypes = _getIngredientTypes(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         headerText(
-          title: "Browse all the ingredients ",
-          subtitle: "Find what you need ?",
+          title: l10n.browseIngredientsTitle,
+          subtitle: l10n.browseIngredientsSubtitle,
         ),
         const SizedBox(height: 30),
 
@@ -240,7 +249,7 @@ class _InventoryPageState extends State<InventoryPage> {
           child: Row(
             spacing: 30,
             children: List.generate(
-              ingredientTypes.length,
+              displayTypes.length,
               (index) => TextButton(
                 onPressed: () => _updateIngredientType(index),
                 style: TextButton.styleFrom(
@@ -249,7 +258,7 @@ class _InventoryPageState extends State<InventoryPage> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  ingredientTypes[index],
+                  displayTypes[index],
                   style: selectedType == index
                       ? TextStyle(
                           color: AppColors.red600,
@@ -276,13 +285,12 @@ class _InventoryPageState extends State<InventoryPage> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate:
-              const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-                mainAxisExtent: 180,
-              ),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
+            crossAxisSpacing: 15,
+            mainAxisSpacing: 15,
+            mainAxisExtent: 180,
+          ),
           itemCount: filteredIngredients.length,
           itemBuilder: (context, index) {
             final item = filteredIngredients[index];
@@ -292,9 +300,7 @@ class _InventoryPageState extends State<InventoryPage> {
               ingredientType: item["type"]!,
               addIngredient: true,
               onAdd: () {
-                context.read<InventoryBloc>().add(
-                  AddIngredientEvent(item),
-                );
+                context.read<InventoryBloc>().add(AddIngredientEvent(item));
               },
             );
           },
@@ -307,7 +313,6 @@ class _InventoryPageState extends State<InventoryPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<InventoryBloc, InventoryState>(
       builder: (context, state) {
-        
         List<Map<String, String>> searchFilteredIngredients = state.browse;
         if (state.searchTerm.isNotEmpty) {
           final query = state.searchTerm.toLowerCase();
@@ -320,13 +325,14 @@ class _InventoryPageState extends State<InventoryPage> {
         if (selectedType == 0) {
           filteredIngredients = searchFilteredIngredients;
         } else {
-          final selected = ingredientTypes[selectedType];
+          final selected = _ingredientTypeKeys[selectedType];
           filteredIngredients = searchFilteredIngredients
               .where((i) => i["type"] == selected)
               .toList();
         }
-        
+
         final isSearching = state.searchTerm.isNotEmpty;
+        final l10n = AppLocalizations.of(context)!;
 
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -342,18 +348,18 @@ class _InventoryPageState extends State<InventoryPage> {
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  "My Kitchen Inventory",
-                  style: TextStyle(
+                  l10n.inventoryTitle,
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  "Manage your ingredients",
-                  style: TextStyle(
+                  l10n.inventorySubtitle,
+                  style: const TextStyle(
                     color: Color(0xFF4A5565),
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -371,6 +377,7 @@ class _InventoryPageState extends State<InventoryPage> {
               children: [
                 const SizedBox(height: 15),
                 SearchBarWidget(
+                  hintText: l10n.searchIngredient,
                   onChanged: _onSearchChanged,
                 ),
                 const SizedBox(height: 25),
@@ -378,7 +385,9 @@ class _InventoryPageState extends State<InventoryPage> {
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0), // Add padding for the bottom
+                      padding: const EdgeInsets.only(
+                        bottom: 20.0,
+                      ), // Add padding for the bottom
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -386,7 +395,7 @@ class _InventoryPageState extends State<InventoryPage> {
                             _buildAvailableIngredients(state),
                             SizedBox(height: 25),
                           ],
-                          
+
                           _buildBrowseSection(state, filteredIngredients),
                         ],
                       ),

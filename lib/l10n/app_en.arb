@@ -1,0 +1,320 @@
+{
+  "appTitle": "Chef Kit",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "discoverRecipes": "Discover Recipes",
+  "findYourNextFavoriteMeal": "Find your next favorite meal",
+  "searchRecipesOrChefs": "Search Recipes or Chefs",
+  "chefs": "Chefs",
+  "hotRecipes": "Hot Recipes",
+  "seasonalDelights": "Seasonal Delights",
+  "seeAll": "See all",
+  "servings": "{count} servings",
+  "@servings": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "calories": "{count} Kcal",
+  "@calories": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "recipeDetailsFor": "Recipe details for {name}",
+  "@recipeDetailsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "minutes": "{count} min",
+  "@minutes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "error": "Error: {message}",
+  "@error": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "allChefs": "All Chefs",
+  "superHot": "Super Hot",
+  "total": "Total",
+  "superHotChefs": "Super Hot Chefs",
+  "trendingChefsSubtitle": "The most trending chefs right now",
+  "paginationInfo": "Page {currentPage} of {totalPages} • {chefCount} chefs",
+  "@paginationInfo": {
+    "placeholders": {
+      "currentPage": {
+        "type": "int"
+      },
+      "totalPages": {
+        "type": "int"
+      },
+      "chefCount": {
+        "type": "int"
+      }
+    }
+  },
+  "recipesStat": "recipes",
+  "trendingStat": "trending",
+  "favoritesStat": "favorites",
+  "filterAll": "All",
+  "filterTrending": "Trending",
+  "filterTraditional": "Traditional",
+  "filterSoup": "Soup",
+  "filterQuick": "Quick",
+  "hotBadge": "HOT",
+  "seasonalDelightsTitle": "Seasonal Delights",
+  "freshThisSeason": "Fresh This Season",
+  "seasonalDescription": "Discover recipes perfect for the current season",
+  "seasonSpring": "Spring",
+  "seasonSummer": "Summer",
+  "seasonAutumn": "Autumn",
+  "seasonWinter": "Winter",
+  "seasonalRecipesCount": "{count} {season} recipes",
+  "@seasonalRecipesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "season": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsTitle": "Notifications",
+  "markAllRead": "Mark all read",
+  "noNotifications": "No notifications yet",
+  "notificationNewRecipeTitle": "New Recipe Posted!",
+  "notificationNewRecipeMessage": "Chef Gordon posted a new Beef Wellington recipe",
+  "notificationRecipeLikedTitle": "Recipe Liked",
+  "notificationRecipeLikedMessage": "Sarah liked your Mahjouba recipe",
+  "notificationNewFollowerTitle": "New Follower",
+  "notificationNewFollowerMessage": "Chef Jamie started following you",
+  "notificationCommentTitle": "Comment on Recipe",
+  "notificationCommentMessage": "Mike commented on your Couscous recipe: \"Looks delicious!\"",
+  "notificationChallengeTitle": "Weekly Challenge",
+  "notificationChallengeMessage": "New weekly cooking challenge is now available!",
+  "notificationSavedTitle": "Recipe Saved",
+  "notificationSavedMessage": "Your Tajine recipe was saved by 15 people this week",
+  "notificationTrendingTitle": "Trending Recipe",
+  "notificationTrendingMessage": "Your Chorba recipe is trending! 🔥",
+  "notificationAchievementTitle": "New Achievement",
+  "notificationAchievementMessage": "Congratulations! You unlocked \"Master Chef\" badge",
+  "notificationRecipeDayTitle": "Recipe of the Day",
+  "notificationRecipeDayMessage": "Your Barkoukes was featured as Recipe of the Day!",
+  "notificationIngredientTitle": "Ingredient Alert",
+  "notificationIngredientMessage": "Paprika is running low in your inventory",
+  "timeMinAgo": "{count} min ago",
+  "@timeMinAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHourAgo": "{count} hour ago",
+  "@timeHourAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{count} hours ago",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDayAgo": "{count} day ago",
+  "@timeDayAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{count} days ago",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryTitle": "My Kitchen Inventory",
+  "inventorySubtitle": "Manage your ingredients",
+  "availableIngredientsTitle": "Available Ingredients",
+  "availableIngredientsSubtitle": "Your current pantry items",
+  "availableCount": "{count} Available",
+  "@availableCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalItemsCount": "{count} Total Items",
+  "@totalItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "showLess": "Show less",
+  "showMore": "Show more",
+  "browseIngredientsTitle": "Browse all the ingredients",
+  "browseIngredientsSubtitle": "Find what you need?",
+  "ingredientTypeAll": "All",
+  "ingredientTypeProtein": "Protein",
+  "ingredientTypeVegetables": "Vegetables",
+  "ingredientTypeSpices": "Spices",
+  "ingredientTypeFruits": "Fruits",
+  "favouritesTitle": "Favourites",
+  "favouritesSubtitle": "Find Your Saved Recipes",
+  "noFavouritesYet": "No Favourites Yet",
+  "noFavouritesMessage": "Explore the app and save your favourite recipes!",
+  "searchYourRecipes": "Search Your Recipes...",
+  "categoriesTitle": "Categories",
+  "searchIngredient": "Search ingredient...",
+  "profileTitle": "Profile",
+  "notLoggedIn": "Not logged in",
+  "goToLogin": "Go to Login",
+  "errorLoadingProfile": "Error loading profile",
+  "retry": "Retry",
+  "noProfileData": "No profile data",
+  "recipesCount": "Recipes",
+  "followingCount": "Following",
+  "followersCount": "Followers",
+  "chefsCorner": "Chef's Corner",
+  "myRecipes": "My Recipes",
+  "general": "General",
+  "personalInfo": "Personal Info",
+  "security": "Security",
+  "preferences": "Preferences",
+  "language": "Language",
+  "darkMode": "Dark Mode",
+  "logOut": "Log Out",
+  "english": "English",
+  "french": "French",
+  "arabic": "Arabic",
+  "securityTitle": "Security",
+  "accountSecurity": "Account Security",
+  "accountSecuritySubtitle": "Manage how you sign in and keep your account protected.",
+  "changeEmail": "Change email",
+  "changeEmailSubtitle": "We will send a six-digit code to your new address to confirm the switch.",
+  "newEmailAddress": "New email address",
+  "enterOtp": "Enter OTP",
+  "sendCode": "Send code",
+  "confirmChange": "Confirm change",
+  "editEmailInput": "Edit email input",
+  "updatePassword": "Update password",
+  "updatePasswordSubtitle": "Your password must include at least eight characters. We will confirm with a code sent to your inbox.",
+  "currentPassword": "Current password",
+  "newPassword": "New password",
+  "passwordHelperText": "Use at least 8 characters",
+  "confirmNewPassword": "Confirm new password",
+  "editPasswordInputs": "Edit password inputs",
+  "noEmailOnFile": "No email on file",
+  "enterNewEmail": "Please enter a new email address.",
+  "enterValidEmail": "Enter a valid email address.",
+  "emailMatchesCurrent": "New email matches your current email.",
+  "otpSentTo": "OTP sent to {email}. Check your inbox to continue.",
+  "@otpSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "enterOtpSent": "Enter the OTP code sent to your new email.",
+  "otpLengthError": "OTP codes are 6 digits.",
+  "emailUpdatedSuccess": "Email updated successfully.",
+  "completePasswordFields": "Complete all password fields.",
+  "passwordLengthError": "Use at least 8 characters for your new password.",
+  "passwordsDoNotMatch": "New password and confirmation do not match.",
+  "passwordMustDiffer": "New password must differ from the current password.",
+  "otpSentEmail": "OTP sent to your email. Enter it to confirm the password update.",
+  "provideOtpAndPassword": "Provide both the OTP code and new password.",
+  "passwordUpdatedSuccess": "Password updated successfully. Use your new password next time you sign in.",
+  "somethingWentWrong": "Something went wrong.",
+  "navDiscovery": "Discovery",
+  "navInventory": "Inventory",
+  "navFavorite": "Favorite",
+  "navProfile": "Profile",
+  "allSaved": "All Saved",
+  "recipeSingular": "recipe",
+  "recipePlural": "recipes",
+  "loadingAnalyzing": "Analyzing your ingredients...",
+  "loadingSearching": "Searching recipes...",
+  "loadingMatching": "Matching...",
+  "loadingFinding": "Finding perfect recipes...",
+  "findingRecipes": "Finding Recipes",
+  "recipeResultsTitle": "Recipe Results",
+  "recipesFound": "{count, plural, =0{No recipes found} =1{1 recipe found} other{{count} recipes found}}",
+  "@recipesFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yourIngredients": "Your Ingredients:",
+  "recipesYouCanMake": "Recipes You Can Make",
+  "sortedByMatch": "Sorted by ingredient match",
+  "caloriesLabel": "Calories",
+  "servingsLabel": "Servings",
+  "ingredients": "Ingredients",
+  "itemsCount": "{count} items",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "instructions": "Instructions",
+  "stepsCount": "{count} steps",
+  "@stepsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "personalInfoTitle": "Personal Info",
+  "fullNameLabel": "Full Name",
+  "bioLabel": "Bio",
+  "storyLabel": "Story",
+  "specialtiesLabel": "Specialities",
+  "addSpecialtyHint": "Add speciality",
+  "saveChanges": "Save Changes",
+  "fullNameEmptyError": "Full Name cannot be empty",
+  "profileUpdateError": "Failed to update profile: {error}",
+  "@profileUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileUpdateSuccess": "Personal info updated"
+}

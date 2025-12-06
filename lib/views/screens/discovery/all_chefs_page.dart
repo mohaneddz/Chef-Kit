@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../common/constants.dart';
 import '../../widgets/profile/chef_card_widget.dart';
 import '../../../blocs/chefs/chefs_bloc.dart';
@@ -22,14 +23,14 @@ class AllChefsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'All Chefs',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins',
-            ),
+        title: Text(
+          AppLocalizations.of(context)!.allChefs,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
         ),
         centerTitle: false,
       ),
@@ -64,11 +65,31 @@ class AllChefsPage extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatItem(Icons.local_fire_department, '${state.superHotChefs.length}', 'Super Hot'),
-                        Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
-                        _buildStatItem(Icons.restaurant_menu, '${state.allChefs.where((c)=>!c.isOnFire).length}', 'All Chefs'),
-                        Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
-                        _buildStatItem(Icons.people, '${state.allChefs.length}', 'Total'),
+                        _buildStatItem(
+                          Icons.local_fire_department,
+                          '${state.superHotChefs.length}',
+                          AppLocalizations.of(context)!.superHot,
+                        ),
+                        Container(
+                          width: 1,
+                          height: 40,
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                        _buildStatItem(
+                          Icons.restaurant_menu,
+                          '${state.allChefs.where((c) => !c.isOnFire).length}',
+                          AppLocalizations.of(context)!.allChefs,
+                        ),
+                        Container(
+                          width: 1,
+                          height: 40,
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                        _buildStatItem(
+                          Icons.people,
+                          '${state.allChefs.length}',
+                          AppLocalizations.of(context)!.total,
+                        ),
                       ],
                     ),
                   ),
@@ -78,27 +99,48 @@ class AllChefsPage extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xFFFF6B6B), Color(0xFFFFAA6B)]),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF6B6B), Color(0xFFFFAA6B)],
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.local_fire_department, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.local_fire_department,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      const Text('Super Hot Chefs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                      Text(
+                        AppLocalizations.of(context)!.superHotChefs,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('The most trending chefs right now', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontFamily: 'Poppins')),
+                  Text(
+                    AppLocalizations.of(context)!.trendingChefsSubtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 24,
-                      childAspectRatio: 0.75,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 24,
+                          childAspectRatio: 0.75,
+                        ),
                     itemCount: state.superHotChefs.length,
                     itemBuilder: (context, index) {
                       final chef = state.superHotChefs[index];
@@ -111,28 +153,56 @@ class AllChefsPage extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [AppColors.orange.withOpacity(0.8), AppColors.orange]),
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.orange.withOpacity(0.8),
+                              AppColors.orange,
+                            ],
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.restaurant_menu, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.restaurant_menu,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      const Text('All Chefs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                      Text(
+                        AppLocalizations.of(context)!.allChefs,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('Page ${state.currentPage} of ${state.totalPages} • ${state.displayedChefs.length} chefs', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontFamily: 'Poppins')),
+                  Text(
+                    AppLocalizations.of(context)!.paginationInfo(
+                      state.currentPage,
+                      state.totalPages,
+                      state.displayedChefs.length,
+                    ),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   GridView.builder(
                     key: ValueKey(state.currentPage),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 24,
-                      childAspectRatio: 0.75,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 24,
+                          childAspectRatio: 0.75,
+                        ),
                     itemCount: state.displayedChefs.length,
                     itemBuilder: (context, index) {
                       final chef = state.displayedChefs[index];
@@ -158,8 +228,23 @@ class AllChefsPage extends StatelessWidget {
       children: [
         Icon(icon, color: Colors.white, size: 24),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Poppins')),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.white, fontFamily: 'Poppins')),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+            fontFamily: 'Poppins',
+          ),
+        ),
       ],
     );
   }
@@ -201,11 +286,25 @@ class AllChefsPage extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildNavButton(icon: Icons.chevron_left, onTap: state.currentPage > 1 ? () => context.read<ChefsBloc>().add(GoToChefsPage(state.currentPage - 1)) : null),
+            _buildNavButton(
+              icon: Icons.chevron_left,
+              onTap: state.currentPage > 1
+                  ? () => context.read<ChefsBloc>().add(
+                      GoToChefsPage(state.currentPage - 1),
+                    )
+                  : null,
+            ),
             const SizedBox(width: 8),
             ..._buildPageNumbers(context, state),
             const SizedBox(width: 8),
-            _buildNavButton(icon: Icons.chevron_right, onTap: state.currentPage < state.totalPages ? () => context.read<ChefsBloc>().add(GoToChefsPage(state.currentPage + 1)) : null),
+            _buildNavButton(
+              icon: Icons.chevron_right,
+              onTap: state.currentPage < state.totalPages
+                  ? () => context.read<ChefsBloc>().add(
+                      GoToChefsPage(state.currentPage + 1),
+                    )
+                  : null,
+            ),
           ],
         ),
       ),
@@ -240,7 +339,11 @@ class AllChefsPage extends StatelessWidget {
     return pageButtons;
   }
 
-  Widget _buildPageButton(BuildContext context, int pageNumber, ChefsState state) {
+  Widget _buildPageButton(
+    BuildContext context,
+    int pageNumber,
+    ChefsState state,
+  ) {
     final isActive = pageNumber == state.currentPage;
     return GestureDetector(
       onTap: () => context.read<ChefsBloc>().add(GoToChefsPage(pageNumber)),
@@ -249,7 +352,11 @@ class AllChefsPage extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          gradient: isActive ? const LinearGradient(colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)]) : null,
+          gradient: isActive
+              ? const LinearGradient(
+                  colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
+                )
+              : null,
           color: isActive ? null : Colors.grey[200],
           borderRadius: BorderRadius.circular(12),
         ),
@@ -274,7 +381,14 @@ class AllChefsPage extends StatelessWidget {
       width: 36,
       height: 36,
       child: Center(
-        child: Text('...', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontFamily: 'Poppins')),
+        child: Text(
+          '...',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+            fontFamily: 'Poppins',
+          ),
+        ),
       ),
     );
   }
@@ -290,7 +404,11 @@ class AllChefsPage extends StatelessWidget {
           color: isEnabled ? AppColors.red600 : Colors.grey[300],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: isEnabled ? Colors.white : Colors.grey[500], size: 20),
+        child: Icon(
+          icon,
+          color: isEnabled ? Colors.white : Colors.grey[500],
+          size: 20,
+        ),
       ),
     );
   }

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 import '../../../domain/models/user_profile.dart';
 
@@ -25,7 +26,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _storyController = TextEditingController();
-  final TextEditingController _specialtyInputController = TextEditingController();
+  final TextEditingController _specialtyInputController =
+      TextEditingController();
 
   List<String> _specialties = <String>[];
   String _avatarUrl = '';
@@ -68,10 +70,13 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       _formInitialized = true;
     }
 
-    final updatedSpecialties = List<String>.from(profile.specialties ?? const <String>[]);
+    final updatedSpecialties = List<String>.from(
+      profile.specialties ?? const <String>[],
+    );
     final updatedAvatar = profile.avatarUrl;
 
-    if (!listEquals(_specialties, updatedSpecialties) || _avatarUrl != updatedAvatar) {
+    if (!listEquals(_specialties, updatedSpecialties) ||
+        _avatarUrl != updatedAvatar) {
       setState(() {
         _specialties = updatedSpecialties;
         _avatarUrl = updatedAvatar;
@@ -90,13 +95,20 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         if (!mounted) return;
 
         if (state.profile != null) {
-          final shouldSyncText = !_formInitialized || (_wasSaving && !state.saving);
+          final shouldSyncText =
+              !_formInitialized || (_wasSaving && !state.saving);
           _refreshFromProfile(state.profile!, syncText: shouldSyncText);
         }
 
-        if (state.error != null && state.error!.isNotEmpty && state.error != _lastError) {
+        if (state.error != null &&
+            state.error!.isNotEmpty &&
+            state.error != _lastError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update profile: ${state.error}')),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.profileUpdateError(state.error!),
+              ),
+            ),
           );
           _lastError = state.error;
         } else if (state.error == null) {
@@ -105,7 +117,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
         if (_wasSaving && !state.saving && state.error == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Personal info updated')),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.profileUpdateSuccess),
+            ),
           );
           _lastError = null;
         }
@@ -129,9 +143,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
-              'Personal Info',
-              style: TextStyle(
+            title: Text(
+              AppLocalizations.of(context)!.personalInfoTitle,
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -161,11 +175,19 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         child: CircleAvatar(
                           radius: 55,
                           backgroundColor: Colors.grey[200],
-                          backgroundImage: _avatarUrl.isNotEmpty && _avatarUrl.startsWith('http')
+                          backgroundImage:
+                              _avatarUrl.isNotEmpty &&
+                                  _avatarUrl.startsWith('http')
                               ? NetworkImage(_avatarUrl)
                               : null,
-                          child: (_avatarUrl.isEmpty || !_avatarUrl.startsWith('http'))
-                              ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                          child:
+                              (_avatarUrl.isEmpty ||
+                                  !_avatarUrl.startsWith('http'))
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: Colors.grey,
+                                )
                               : null,
                         ),
                       ),
@@ -197,7 +219,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 const SizedBox(height: 32),
 
                 _buildLabeledField(
-                  label: 'Full Name',
+                  label: AppLocalizations.of(context)!.fullNameLabel,
                   controller: _fullNameController,
                   textInputAction: TextInputAction.next,
                 ),
@@ -206,22 +228,22 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 // Only show chef-specific fields if user is a chef
                 if (state.profile?.isChef ?? false) ...[
                   _buildLabeledField(
-                    label: 'Bio',
+                    label: AppLocalizations.of(context)!.bioLabel,
                     controller: _bioController,
                     maxLines: 3,
                   ),
                   const SizedBox(height: 20),
 
                   _buildLabeledField(
-                    label: 'Story',
+                    label: AppLocalizations.of(context)!.storyLabel,
                     controller: _storyController,
                     maxLines: 4,
                   ),
                   const SizedBox(height: 24),
 
-                  const Text(
-                    'Specialities',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.specialtiesLabel,
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
                       fontWeight: FontWeight.w600,
@@ -239,7 +261,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           deleteIcon: const Icon(Icons.close, size: 16),
                           onDeleted: () {
                             setState(() {
-                              _specialties = List<String>.from(_specialties)..remove(item);
+                              _specialties = List<String>.from(_specialties)
+                                ..remove(item);
                             });
                           },
                         ),
@@ -254,14 +277,19 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           textInputAction: TextInputAction.done,
                           onSubmitted: (_) => _addSpecialty(),
                           decoration: InputDecoration(
-                            hintText: 'Add speciality',
+                            hintText: AppLocalizations.of(
+                              context,
+                            )!.addSpecialtyHint,
                             filled: true,
                             fillColor: Colors.grey[50],
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -270,8 +298,13 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         onPressed: _addSpecialty,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.red600,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         child: const Icon(Icons.add, color: Colors.white),
                       ),
@@ -283,21 +316,30 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: state.saving ? null : () => _onSavePressed(context, state.profile!.id),
+                    onPressed: state.saving
+                        ? null
+                        : () => _onSavePressed(context, state.profile!.id),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.red600,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                     child: state.saving
                         ? const SizedBox(
                             height: 22,
                             width: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
                           )
-                        : const Text(
-                            'Save Changes',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!.saveChanges,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -335,18 +377,22 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
     if (fullName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Full Name cannot be empty')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.fullNameEmptyError),
+        ),
       );
       return;
     }
 
-    context.read<ProfileBloc>().add(UpdatePersonalInfo(
-          userId: userId,
-          fullName: fullName,
-          bio: bio,
-          story: story,
-          specialties: specialties,
-        ));
+    context.read<ProfileBloc>().add(
+      UpdatePersonalInfo(
+        userId: userId,
+        fullName: fullName,
+        bio: bio,
+        story: story,
+        specialties: specialties,
+      ),
+    );
   }
 }
 
@@ -387,7 +433,10 @@ Widget _buildLabeledField({
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.red600.withOpacity(0.5), width: 1),
+            borderSide: BorderSide(
+              color: AppColors.red600.withOpacity(0.5),
+              width: 1,
+            ),
           ),
           contentPadding: const EdgeInsets.all(16),
         ),
@@ -427,7 +476,9 @@ Future<void> _onEditAvatarPressed(BuildContext context, String userId) async {
     final accessToken = authState.accessToken;
     print('Access token present: ${accessToken != null}');
     if (accessToken != null) {
-      final preview = accessToken.length > 16 ? '${accessToken.substring(0, 16)}...' : accessToken;
+      final preview = accessToken.length > 16
+          ? '${accessToken.substring(0, 16)}...'
+          : accessToken;
       print('Access token preview: $preview');
     }
 

@@ -49,18 +49,34 @@ class CollectionCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 4),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isActive ? AppColors.red600 : AppColors.black,
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isActive ? AppColors.red600 : AppColors.black,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    subtitle,
+                    maxLines: 1,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ),
               ),
             ],
           ),

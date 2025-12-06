@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../common/constants.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -10,93 +11,100 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   // Mock notification data
-  final List<Map<String, dynamic>> _notifications = [
-    {
-      'title': 'New Recipe Posted!',
-      'message': 'Chef Gordon posted a new Beef Wellington recipe',
-      'time': '5 min ago',
-      'icon': Icons.restaurant_menu,
-      'color': AppColors.red600,
-      'isRead': false,
-    },
-    {
-      'title': 'Recipe Liked',
-      'message': 'Sarah liked your Mahjouba recipe',
-      'time': '1 hour ago',
-      'icon': Icons.favorite,
-      'color': AppColors.orange,
-      'isRead': false,
-    },
-    {
-      'title': 'New Follower',
-      'message': 'Chef Jamie started following you',
-      'time': '2 hours ago',
-      'icon': Icons.person_add,
-      'color': AppColors.success1,
-      'isRead': false,
-    },
-    {
-      'title': 'Comment on Recipe',
-      'message': 'Mike commented on your Couscous recipe: "Looks delicious!"',
-      'time': '3 hours ago',
-      'icon': Icons.chat_bubble,
-      'color': AppColors.red600,
-      'isRead': true,
-    },
-    {
-      'title': 'Weekly Challenge',
-      'message': 'New weekly cooking challenge is now available!',
-      'time': '5 hours ago',
-      'icon': Icons.emoji_events,
-      'color': AppColors.orange,
-      'isRead': true,
-    },
-    {
-      'title': 'Recipe Saved',
-      'message': 'Your Tajine recipe was saved by 15 people this week',
-      'time': '1 day ago',
-      'icon': Icons.bookmark,
-      'color': AppColors.red600,
-      'isRead': true,
-    },
-    {
-      'title': 'Trending Recipe',
-      'message': 'Your Chorba recipe is trending! 🔥',
-      'time': '1 day ago',
-      'icon': Icons.trending_up,
-      'color': AppColors.success1,
-      'isRead': true,
-    },
-    {
-      'title': 'New Achievement',
-      'message': 'Congratulations! You unlocked "Master Chef" badge',
-      'time': '2 days ago',
-      'icon': Icons.military_tech,
-      'color': AppColors.orange,
-      'isRead': true,
-    },
-    {
-      'title': 'Recipe of the Day',
-      'message': 'Your Barkoukes was featured as Recipe of the Day!',
-      'time': '3 days ago',
-      'icon': Icons.star,
-      'color': AppColors.red600,
-      'isRead': true,
-    },
-    {
-      'title': 'Ingredient Alert',
-      'message': 'Paprika is running low in your inventory',
-      'time': '3 days ago',
-      'icon': Icons.notifications_active,
-      'color': AppColors.orange,
-      'isRead': true,
-    },
-  ];
+  List<Map<String, dynamic>> _getNotifications(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      {
+        'title': l10n.notificationNewRecipeTitle,
+        'message': l10n.notificationNewRecipeMessage,
+        'time': l10n.timeMinAgo(5),
+        'icon': Icons.restaurant_menu,
+        'color': AppColors.red600,
+        'isRead': false,
+      },
+      {
+        'title': l10n.notificationRecipeLikedTitle,
+        'message': l10n.notificationRecipeLikedMessage,
+        'time': l10n.timeHourAgo(1),
+        'icon': Icons.favorite,
+        'color': AppColors.orange,
+        'isRead': false,
+      },
+      {
+        'title': l10n.notificationNewFollowerTitle,
+        'message': l10n.notificationNewFollowerMessage,
+        'time': l10n.timeHoursAgo(2),
+        'icon': Icons.person_add,
+        'color': AppColors.success1,
+        'isRead': false,
+      },
+      {
+        'title': l10n.notificationCommentTitle,
+        'message': l10n.notificationCommentMessage,
+        'time': l10n.timeHoursAgo(3),
+        'icon': Icons.chat_bubble,
+        'color': AppColors.red600,
+        'isRead': true,
+      },
+      {
+        'title': l10n.notificationChallengeTitle,
+        'message': l10n.notificationChallengeMessage,
+        'time': l10n.timeHoursAgo(5),
+        'icon': Icons.emoji_events,
+        'color': AppColors.orange,
+        'isRead': true,
+      },
+      {
+        'title': l10n.notificationSavedTitle,
+        'message': l10n.notificationSavedMessage,
+        'time': l10n.timeDayAgo(1),
+        'icon': Icons.bookmark,
+        'color': AppColors.red600,
+        'isRead': true,
+      },
+      {
+        'title': l10n.notificationTrendingTitle,
+        'message': l10n.notificationTrendingMessage,
+        'time': l10n.timeDayAgo(1),
+        'icon': Icons.trending_up,
+        'color': AppColors.success1,
+        'isRead': true,
+      },
+      {
+        'title': l10n.notificationAchievementTitle,
+        'message': l10n.notificationAchievementMessage,
+        'time': l10n.timeDaysAgo(2),
+        'icon': Icons.military_tech,
+        'color': AppColors.orange,
+        'isRead': true,
+      },
+      {
+        'title': l10n.notificationRecipeDayTitle,
+        'message': l10n.notificationRecipeDayMessage,
+        'time': l10n.timeDaysAgo(3),
+        'icon': Icons.star,
+        'color': AppColors.red600,
+        'isRead': true,
+      },
+      {
+        'title': l10n.notificationIngredientTitle,
+        'message': l10n.notificationIngredientMessage,
+        'time': l10n.timeDaysAgo(3),
+        'icon': Icons.notifications_active,
+        'color': AppColors.orange,
+        'isRead': true,
+      },
+    ];
+  }
 
-  int get _unreadCount => _notifications.where((n) => !n['isRead']).length;
+  int _getUnreadCount(List<Map<String, dynamic>> notifications) =>
+      notifications.where((n) => !n['isRead']).length;
 
   @override
   Widget build(BuildContext context) {
+    final notifications = _getNotifications(context);
+    final unreadCount = _getUnreadCount(notifications);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -106,9 +114,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.notificationsTitle,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -117,11 +125,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ),
         centerTitle: true,
         actions: [
-          if (_unreadCount > 0)
+          if (unreadCount > 0)
             TextButton(
               onPressed: () {},
               child: Text(
-                'Mark all read',
+                AppLocalizations.of(context)!.markAllRead,
                 style: TextStyle(
                   color: AppColors.red600,
                   fontSize: 14,
@@ -132,7 +140,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
         ],
       ),
-      body: _notifications.isEmpty
+      body: notifications.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -144,7 +152,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No notifications yet',
+                    AppLocalizations.of(context)!.noNotifications,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -157,17 +165,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
             )
           : ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              itemCount: _notifications.length,
+              itemCount: notifications.length,
               separatorBuilder: (context, index) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                return _buildNotificationCard(index);
+                return _buildNotificationCard(notifications[index]);
               },
             ),
     );
   }
 
-  Widget _buildNotificationCard(int index) {
-    final notification = _notifications[index];
+  Widget _buildNotificationCard(Map<String, dynamic> notification) {
     final isRead = notification['isRead'] as bool;
 
     return Container(
@@ -210,7 +217,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 15,
-                          fontWeight: isRead ? FontWeight.w500 : FontWeight.w600,
+                          fontWeight: isRead
+                              ? FontWeight.w500
+                              : FontWeight.w600,
                           fontFamily: 'Poppins',
                         ),
                       ),

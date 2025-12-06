@@ -8,6 +8,7 @@ import 'package:chefkit/domain/repositories/security_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -24,9 +25,11 @@ class _SecurityPageState extends State<SecurityPage> {
 
   final TextEditingController _newEmailController = TextEditingController();
   final TextEditingController _emailOtpController = TextEditingController();
-  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _passwordOtpController = TextEditingController();
 
   bool _emailOtpSent = false;
@@ -46,7 +49,10 @@ class _SecurityPageState extends State<SecurityPage> {
     _accessToken = authState.accessToken;
     _userId = authState.userId;
     _baseUrl = _resolveBaseUrl();
-    _repository = SecurityRepository(baseUrl: _baseUrl, accessToken: _accessToken);
+    _repository = SecurityRepository(
+      baseUrl: _baseUrl,
+      accessToken: _accessToken,
+    );
   }
 
   @override
@@ -73,9 +79,9 @@ class _SecurityPageState extends State<SecurityPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Security',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.securityTitle,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -89,9 +95,9 @@ class _SecurityPageState extends State<SecurityPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Account Security',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.accountSecurity,
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -100,7 +106,7 @@ class _SecurityPageState extends State<SecurityPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Manage how you sign in and keep your account protected.',
+              AppLocalizations.of(context)!.accountSecuritySubtitle,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,
@@ -125,9 +131,9 @@ class _SecurityPageState extends State<SecurityPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Change email',
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.changeEmail,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
@@ -135,7 +141,7 @@ class _SecurityPageState extends State<SecurityPage> {
         ),
         const SizedBox(height: 4),
         Text(
-          'We will send a six-digit code to your new address to confirm the switch.',
+          AppLocalizations.of(context)!.changeEmailSubtitle,
           style: TextStyle(
             fontSize: 13,
             color: Colors.grey[600],
@@ -148,13 +154,11 @@ class _SecurityPageState extends State<SecurityPage> {
           readOnly: _emailOtpSent,
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
-            labelText: 'New email address',
+            labelText: AppLocalizations.of(context)!.newEmailAddress,
             hintText: 'you@example.com',
             filled: true,
             fillColor: Colors.grey[100],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColors.red600, width: 1.5),
@@ -168,7 +172,7 @@ class _SecurityPageState extends State<SecurityPage> {
             keyboardType: TextInputType.number,
             maxLength: 6,
             decoration: InputDecoration(
-              labelText: 'Enter OTP',
+              labelText: AppLocalizations.of(context)!.enterOtp,
               counterText: '',
               filled: true,
               fillColor: Colors.grey[100],
@@ -187,21 +191,30 @@ class _SecurityPageState extends State<SecurityPage> {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: _emailOtpSent ? null : () => _requestEmailOtp(currentEmail),
+                onPressed: _emailOtpSent
+                    ? null
+                    : () => _requestEmailOtp(currentEmail),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.red600,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: _emailRequestLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
                       )
-                    : const Text(
-                        'Send code',
-                        style: TextStyle(
+                    : Text(
+                        AppLocalizations.of(context)!.sendCode,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -218,17 +231,24 @@ class _SecurityPageState extends State<SecurityPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black87,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _emailVerifyLoading
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
                         )
-                      : const Text(
-                          'Confirm change',
-                          style: TextStyle(
+                      : Text(
+                          AppLocalizations.of(context)!.confirmChange,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -251,7 +271,7 @@ class _SecurityPageState extends State<SecurityPage> {
                         _resetEmailFlow();
                       });
                     },
-              child: const Text('Edit email input'),
+              child: Text(AppLocalizations.of(context)!.editEmailInput),
             ),
           ),
       ],
@@ -262,9 +282,9 @@ class _SecurityPageState extends State<SecurityPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Update password',
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.updatePassword,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
@@ -272,7 +292,7 @@ class _SecurityPageState extends State<SecurityPage> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Your password must include at least eight characters. We will confirm with a code sent to your inbox.',
+          AppLocalizations.of(context)!.updatePasswordSubtitle,
           style: TextStyle(
             fontSize: 13,
             color: Colors.grey[600],
@@ -285,12 +305,10 @@ class _SecurityPageState extends State<SecurityPage> {
           readOnly: _passwordOtpSent,
           obscureText: true,
           decoration: InputDecoration(
-            labelText: 'Current password',
+            labelText: AppLocalizations.of(context)!.currentPassword,
             filled: true,
             fillColor: Colors.grey[100],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColors.red600, width: 1.5),
@@ -303,13 +321,11 @@ class _SecurityPageState extends State<SecurityPage> {
           readOnly: _passwordOtpSent,
           obscureText: true,
           decoration: InputDecoration(
-            labelText: 'New password',
-            helperText: 'Use at least 8 characters',
+            labelText: AppLocalizations.of(context)!.newPassword,
+            helperText: AppLocalizations.of(context)!.passwordHelperText,
             filled: true,
             fillColor: Colors.grey[100],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.black87, width: 1.5),
@@ -322,12 +338,10 @@ class _SecurityPageState extends State<SecurityPage> {
           readOnly: _passwordOtpSent,
           obscureText: true,
           decoration: InputDecoration(
-            labelText: 'Confirm new password',
+            labelText: AppLocalizations.of(context)!.confirmNewPassword,
             filled: true,
             fillColor: Colors.grey[100],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.black87, width: 1.5),
@@ -341,7 +355,7 @@ class _SecurityPageState extends State<SecurityPage> {
             keyboardType: TextInputType.number,
             maxLength: 6,
             decoration: InputDecoration(
-              labelText: 'Enter OTP',
+              labelText: AppLocalizations.of(context)!.enterOtp,
               counterText: '',
               filled: true,
               fillColor: Colors.grey[100],
@@ -364,17 +378,24 @@ class _SecurityPageState extends State<SecurityPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.red600,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: _passwordRequestLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
                       )
-                    : const Text(
-                        'Send code',
-                        style: TextStyle(
+                    : Text(
+                        AppLocalizations.of(context)!.sendCode,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -391,17 +412,24 @@ class _SecurityPageState extends State<SecurityPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black87,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _passwordVerifyLoading
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
                         )
-                      : const Text(
-                          'Confirm change',
-                          style: TextStyle(
+                      : Text(
+                          AppLocalizations.of(context)!.confirmChange,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -424,7 +452,7 @@ class _SecurityPageState extends State<SecurityPage> {
                         _resetPasswordFlow();
                       });
                     },
-              child: const Text('Edit password inputs'),
+              child: Text(AppLocalizations.of(context)!.editPasswordInputs),
             ),
           ),
       ],
@@ -432,7 +460,9 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 
   Widget _buildCurrentEmailBadge(String currentEmail) {
-    final display = currentEmail.isEmpty ? 'No email on file' : currentEmail;
+    final display = currentEmail.isEmpty
+        ? AppLocalizations.of(context)!.noEmailOnFile
+        : currentEmail;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -460,15 +490,18 @@ class _SecurityPageState extends State<SecurityPage> {
   Future<void> _requestEmailOtp(String currentEmail) async {
     final newEmail = _newEmailController.text.trim().toLowerCase();
     if (newEmail.isEmpty) {
-      _showSnack('Please enter a new email address.', isError: true);
+      _showSnack(AppLocalizations.of(context)!.enterNewEmail, isError: true);
       return;
     }
     if (!_emailRegex.hasMatch(newEmail)) {
-      _showSnack('Enter a valid email address.', isError: true);
+      _showSnack(AppLocalizations.of(context)!.enterValidEmail, isError: true);
       return;
     }
     if (currentEmail.isNotEmpty && currentEmail.toLowerCase() == newEmail) {
-      _showSnack('New email matches your current email.', isError: true);
+      _showSnack(
+        AppLocalizations.of(context)!.emailMatchesCurrent,
+        isError: true,
+      );
       return;
     }
 
@@ -479,7 +512,7 @@ class _SecurityPageState extends State<SecurityPage> {
       setState(() {
         _emailOtpSent = true;
       });
-      _showSnack('OTP sent to $newEmail. Check your inbox to continue.');
+      _showSnack(AppLocalizations.of(context)!.otpSentTo(newEmail));
     } catch (e) {
       _showError(e);
     } finally {
@@ -494,11 +527,11 @@ class _SecurityPageState extends State<SecurityPage> {
     final otp = _emailOtpController.text.trim();
 
     if (newEmail.isEmpty || otp.isEmpty) {
-      _showSnack('Enter the OTP code sent to your new email.', isError: true);
+      _showSnack(AppLocalizations.of(context)!.enterOtpSent, isError: true);
       return;
     }
     if (otp.length < 6) {
-      _showSnack('OTP codes are 6 digits.', isError: true);
+      _showSnack(AppLocalizations.of(context)!.otpLengthError, isError: true);
       return;
     }
 
@@ -510,7 +543,7 @@ class _SecurityPageState extends State<SecurityPage> {
         _resetEmailFlow();
         _newEmailController.clear();
       });
-      _showSnack('Email updated successfully.');
+      _showSnack(AppLocalizations.of(context)!.emailUpdatedSuccess);
       if (_userId != null) {
         context.read<ProfileBloc>().add(LoadProfile(userId: _userId!));
       }
@@ -528,31 +561,48 @@ class _SecurityPageState extends State<SecurityPage> {
     final newPassword = _newPasswordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
-    if (currentPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
-      _showSnack('Complete all password fields.', isError: true);
+    if (currentPassword.isEmpty ||
+        newPassword.isEmpty ||
+        confirmPassword.isEmpty) {
+      _showSnack(
+        AppLocalizations.of(context)!.completePasswordFields,
+        isError: true,
+      );
       return;
     }
     if (newPassword.length < 8) {
-      _showSnack('Use at least 8 characters for your new password.', isError: true);
+      _showSnack(
+        AppLocalizations.of(context)!.passwordLengthError,
+        isError: true,
+      );
       return;
     }
     if (newPassword != confirmPassword) {
-      _showSnack('New password and confirmation do not match.', isError: true);
+      _showSnack(
+        AppLocalizations.of(context)!.passwordsDoNotMatch,
+        isError: true,
+      );
       return;
     }
     if (newPassword == currentPassword) {
-      _showSnack('New password must differ from the current password.', isError: true);
+      _showSnack(
+        AppLocalizations.of(context)!.passwordMustDiffer,
+        isError: true,
+      );
       return;
     }
 
     setState(() => _passwordRequestLoading = true);
     try {
-      await _repository.requestPasswordChange(currentPassword: currentPassword, newPassword: newPassword);
+      await _repository.requestPasswordChange(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
       if (!mounted) return;
       setState(() {
         _passwordOtpSent = true;
       });
-      _showSnack('OTP sent to your email. Enter it to confirm the password update.');
+      _showSnack(AppLocalizations.of(context)!.otpSentEmail);
     } catch (e) {
       _showError(e);
     } finally {
@@ -567,22 +617,28 @@ class _SecurityPageState extends State<SecurityPage> {
     final newPassword = _newPasswordController.text.trim();
 
     if (otp.isEmpty || newPassword.isEmpty) {
-      _showSnack('Provide both the OTP code and new password.', isError: true);
+      _showSnack(
+        AppLocalizations.of(context)!.provideOtpAndPassword,
+        isError: true,
+      );
       return;
     }
     if (otp.length < 6) {
-      _showSnack('OTP codes are 6 digits.', isError: true);
+      _showSnack(AppLocalizations.of(context)!.otpLengthError, isError: true);
       return;
     }
 
     setState(() => _passwordVerifyLoading = true);
     try {
-      await _repository.verifyPasswordChange(newPassword: newPassword, otp: otp);
+      await _repository.verifyPasswordChange(
+        newPassword: newPassword,
+        otp: otp,
+      );
       if (!mounted) return;
       setState(() {
         _resetPasswordFlow();
       });
-      _showSnack('Password updated successfully. Use your new password next time you sign in.');
+      _showSnack(AppLocalizations.of(context)!.passwordUpdatedSuccess);
     } catch (e) {
       _showError(e);
     } finally {
@@ -620,7 +676,12 @@ class _SecurityPageState extends State<SecurityPage> {
     if (message.startsWith('Exception: ')) {
       message = message.substring(11);
     }
-    _showSnack(message.isEmpty ? 'Something went wrong.' : message, isError: true);
+    _showSnack(
+      message.isEmpty
+          ? AppLocalizations.of(context)!.somethingWentWrong
+          : message,
+      isError: true,
+    );
   }
 
   String _resolveBaseUrl() {
