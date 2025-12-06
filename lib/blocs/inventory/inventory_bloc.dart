@@ -44,9 +44,10 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     on<LoadInventoryEvent>((event, emit) async {
       final repo = IngredientsRepo.getInstance();
       final results = await repo.getAllIngredients();
+      final lang = event.langCode; // "en", "fr", "ar"
       final browseList = results.map((e) => {
-        "name": e["name_en"].toString(), 
-        "type": e["type_en"].toString(),
+        "name": e["name_$lang"].toString(),
+        "type": e["type_$lang"].toString(),
         "imageUrl": e["image_path"].toString(),
       }).toList();
 

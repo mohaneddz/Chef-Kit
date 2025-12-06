@@ -1,3 +1,4 @@
+import 'package:chefkit/blocs/locale/locale_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
 import 'package:chefkit/blocs/inventory/inventory_event.dart';
@@ -22,18 +23,37 @@ class _InventoryPageState extends State<InventoryPage> {
       l10n.ingredientTypeAll,
       l10n.ingredientTypeProtein,
       l10n.ingredientTypeVegetables,
-      l10n.ingredientTypeSpices,
       l10n.ingredientTypeFruits,
+      l10n.ingredientTypeSpices,
+      // l10n.ingredientTypeDairy,
+      // l10n.ingredientTypeFats,
+      // l10n.ingredientTypeGrains,
+      // l10n.ingredientTypeSugars,
+      // l10n.ingredientTypeLeavening,
+      // l10n.ingredientTypeLiquids,
+      // l10n.ingredientTypeExtracts,
+      // l10n.ingredientTypeAcids,
+      // l10n.ingredientTypeNutsSeeds,
+      // l10n.ingredientTypePantry,
     ];
   }
 
-  // Keep original keys for logic filtering
   final List<String> _ingredientTypeKeys = [
     "All",
     "Protein",
     "Vegetables",
-    "Spices",
     "Fruits",
+    "Spices",
+    "Dairy",
+    "Fats",
+    "Grains",
+    "Sugars",
+    "Leavening Agents",
+    "Liquids",
+    "Extracts",
+    "Acids",
+    "Nuts & Seeds",
+    "Pantry Staples",
   ];
 
   int selectedType = 0;
@@ -41,7 +61,8 @@ class _InventoryPageState extends State<InventoryPage> {
   @override
   void initState() {
     super.initState();
-    context.read<InventoryBloc>().add(LoadInventoryEvent());
+    final lang = context.read<LocaleCubit>().state.languageCode;
+    context.read<InventoryBloc>().add(LoadInventoryEvent(lang));
   }
 
   void _onSearchChanged(String value) {
