@@ -161,5 +161,15 @@
   "ingredients": "Ingrédients",
   "itemsCount": "{count} articles",
   "instructions": "Instructions",
-  "stepsCount": "{count} étapes"
+  "stepsCount": "{count} étapes",
+  "personalInfoTitle": "Informations personnelles",
+  "fullNameLabel": "Nom complet",
+  "bioLabel": "Bio",
+  "storyLabel": "Histoire",
+  "specialtiesLabel": "Spécialités",
+  "addSpecialtyHint": "Ajouter une spécialité",
+  "saveChanges": "Enregistrer les modifications",
+  "fullNameEmptyError": "Le nom complet ne peut pas être vide",
+  "profileUpdateError": "Échec de la mise à jour du profil : {error}",
+  "profileUpdateSuccess": "Informations personnelles mises à jour"
 }

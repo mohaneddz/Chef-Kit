@@ -299,5 +299,22 @@
         "type": "int"
       }
     }
-  }
+  },
+  "personalInfoTitle": "Personal Info",
+  "fullNameLabel": "Full Name",
+  "bioLabel": "Bio",
+  "storyLabel": "Story",
+  "specialtiesLabel": "Specialities",
+  "addSpecialtyHint": "Add speciality",
+  "saveChanges": "Save Changes",
+  "fullNameEmptyError": "Full Name cannot be empty",
+  "profileUpdateError": "Failed to update profile: {error}",
+  "@profileUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileUpdateSuccess": "Personal info updated"
 }

@@ -560,4 +560,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String stepsCount(int count) {
     return '$count steps';
   }
+
+  @override
+  String get personalInfoTitle => 'Personal Info';
+
+  @override
+  String get fullNameLabel => 'Full Name';
+
+  @override
+  String get bioLabel => 'Bio';
+
+  @override
+  String get storyLabel => 'Story';
+
+  @override
+  String get specialtiesLabel => 'Specialities';
+
+  @override
+  String get addSpecialtyHint => 'Add speciality';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get fullNameEmptyError => 'Full Name cannot be empty';
+
+  @override
+  String profileUpdateError(String error) {
+    return 'Failed to update profile: $error';
+  }
+
+  @override
+  String get profileUpdateSuccess => 'Personal info updated';
 }

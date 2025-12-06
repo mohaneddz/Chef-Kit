@@ -161,5 +161,15 @@
   "ingredients": "المكونات",
   "itemsCount": "{count} عناصر",
   "instructions": "التعليمات",
-  "stepsCount": "{count} خطوات"
+  "stepsCount": "{count} خطوات",
+  "personalInfoTitle": "المعلومات الشخصية",
+  "fullNameLabel": "الاسم الكامل",
+  "bioLabel": "نبذة",
+  "storyLabel": "قصتي",
+  "specialtiesLabel": "التخصصات",
+  "addSpecialtyHint": "أضف تخصص",
+  "saveChanges": "حفظ التغييرات",
+  "fullNameEmptyError": "الاسم الكامل لا يمكن أن يكون فارغاً",
+  "profileUpdateError": "فشل تحديث الملف الشخصي: {error}",
+  "profileUpdateSuccess": "تم تحديث المعلومات الشخصية"
 }

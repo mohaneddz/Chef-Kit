@@ -1077,6 +1077,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} steps'**
   String stepsCount(int count);
+
+  /// No description provided for @personalInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Info'**
+  String get personalInfoTitle;
+
+  /// No description provided for @fullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullNameLabel;
+
+  /// No description provided for @bioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get bioLabel;
+
+  /// No description provided for @storyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Story'**
+  String get storyLabel;
+
+  /// No description provided for @specialtiesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialities'**
+  String get specialtiesLabel;
+
+  /// No description provided for @addSpecialtyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add speciality'**
+  String get addSpecialtyHint;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @fullNameEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name cannot be empty'**
+  String get fullNameEmptyError;
+
+  /// No description provided for @profileUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile: {error}'**
+  String profileUpdateError(String error);
+
+  /// No description provided for @profileUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal info updated'**
+  String get profileUpdateSuccess;
 }
 
 class _AppLocalizationsDelegate

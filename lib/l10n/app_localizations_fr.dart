@@ -562,4 +562,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String stepsCount(int count) {
     return '$count étapes';
   }
+
+  @override
+  String get personalInfoTitle => 'Informations personnelles';
+
+  @override
+  String get fullNameLabel => 'Nom complet';
+
+  @override
+  String get bioLabel => 'Bio';
+
+  @override
+  String get storyLabel => 'Histoire';
+
+  @override
+  String get specialtiesLabel => 'Spécialités';
+
+  @override
+  String get addSpecialtyHint => 'Ajouter une spécialité';
+
+  @override
+  String get saveChanges => 'Enregistrer les modifications';
+
+  @override
+  String get fullNameEmptyError => 'Le nom complet ne peut pas être vide';
+
+  @override
+  String profileUpdateError(String error) {
+    return 'Échec de la mise à jour du profil : $error';
+  }
+
+  @override
+  String get profileUpdateSuccess => 'Informations personnelles mises à jour';
 }

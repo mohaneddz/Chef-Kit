@@ -32,7 +32,7 @@ class ProfilePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Not logged in'),
+              Text(AppLocalizations.of(context)!.notLoggedIn),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -41,7 +41,7 @@ class ProfilePage extends StatelessWidget {
                     MaterialPageRoute(builder: (_) => const LoginPage()),
                   );
                 },
-                child: const Text('Go to Login'),
+                child: Text(AppLocalizations.of(context)!.goToLogin),
               ),
             ],
           ),
@@ -299,7 +299,7 @@ class _ProfilePageContent extends StatelessWidget {
                       _buildMenuItem(
                         context,
                         icon: Icons.person_outline_rounded,
-                        title: "Personal Info",
+                        title: AppLocalizations.of(context)!.personalInfo,
                         onTap: () {
                           final profileBloc = context.read<ProfileBloc>();
                           Navigator.push(

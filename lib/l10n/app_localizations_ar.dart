@@ -558,4 +558,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String stepsCount(int count) {
     return '$count خطوات';
   }
+
+  @override
+  String get personalInfoTitle => 'المعلومات الشخصية';
+
+  @override
+  String get fullNameLabel => 'الاسم الكامل';
+
+  @override
+  String get bioLabel => 'نبذة';
+
+  @override
+  String get storyLabel => 'قصتي';
+
+  @override
+  String get specialtiesLabel => 'التخصصات';
+
+  @override
+  String get addSpecialtyHint => 'أضف تخصص';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
+  String get fullNameEmptyError => 'الاسم الكامل لا يمكن أن يكون فارغاً';
+
+  @override
+  String profileUpdateError(String error) {
+    return 'فشل تحديث الملف الشخصي: $error';
+  }
+
+  @override
+  String get profileUpdateSuccess => 'تم تحديث المعلومات الشخصية';
 }

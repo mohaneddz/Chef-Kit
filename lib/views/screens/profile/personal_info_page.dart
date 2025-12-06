@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 import '../../../domain/models/user_profile.dart';
 
@@ -96,7 +97,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
         if (state.error != null && state.error!.isNotEmpty && state.error != _lastError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update profile: ${state.error}')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdateError(state.error!))),
           );
           _lastError = state.error;
         } else if (state.error == null) {
@@ -105,7 +106,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
         if (_wasSaving && !state.saving && state.error == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Personal info updated')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdateSuccess)),
           );
           _lastError = null;
         }
@@ -129,9 +130,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
-              'Personal Info',
-              style: TextStyle(
+            title: Text(
+              AppLocalizations.of(context)!.personalInfoTitle,
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -197,7 +198,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 const SizedBox(height: 32),
 
                 _buildLabeledField(
-                  label: 'Full Name',
+                  label: AppLocalizations.of(context)!.fullNameLabel,
                   controller: _fullNameController,
                   textInputAction: TextInputAction.next,
                 ),
@@ -206,22 +207,22 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 // Only show chef-specific fields if user is a chef
                 if (state.profile?.isChef ?? false) ...[
                   _buildLabeledField(
-                    label: 'Bio',
+                    label: AppLocalizations.of(context)!.bioLabel,
                     controller: _bioController,
                     maxLines: 3,
                   ),
                   const SizedBox(height: 20),
 
                   _buildLabeledField(
-                    label: 'Story',
+                    label: AppLocalizations.of(context)!.storyLabel,
                     controller: _storyController,
                     maxLines: 4,
                   ),
                   const SizedBox(height: 24),
 
-                  const Text(
-                    'Specialities',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.specialtiesLabel,
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
                       fontWeight: FontWeight.w600,
@@ -254,7 +255,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           textInputAction: TextInputAction.done,
                           onSubmitted: (_) => _addSpecialty(),
                           decoration: InputDecoration(
-                            hintText: 'Add speciality',
+                            hintText: AppLocalizations.of(context)!.addSpecialtyHint,
                             filled: true,
                             fillColor: Colors.grey[50],
                             border: OutlineInputBorder(
@@ -295,9 +296,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                             width: 22,
                             child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
                           )
-                        : const Text(
-                            'Save Changes',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!.saveChanges,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -335,7 +336,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
     if (fullName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Full Name cannot be empty')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.fullNameEmptyError)),
       );
       return;
     }
