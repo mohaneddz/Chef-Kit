@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
-import '../notifications_page.dart';
+// import '../notifications_page.dart';
 import 'personal_info_page.dart';
 import 'security_page.dart';
 import '../recipe/my_recipes_page.dart';
@@ -313,17 +313,17 @@ class _ProfilePageContent extends StatelessWidget {
                           );
                         },
                       ),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.notifications_outlined,
-                        title: AppLocalizations.of(context)!.notificationsTitle,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const NotificationsPage(),
-                          ),
-                        ),
-                      ),
+                      // _buildMenuItem(
+                      //   context,
+                      //   icon: Icons.notifications_outlined,
+                      //   title: AppLocalizations.of(context)!.notificationsTitle,
+                      //   onTap: () => Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => const NotificationsPage(),
+                      //     ),
+                      //   ),
+                      // ),
                       _buildMenuItem(
                         context,
                         icon: Icons.security_outlined,

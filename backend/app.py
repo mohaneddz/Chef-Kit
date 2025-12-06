@@ -24,6 +24,7 @@ from services import (
     get_notifications_for_user,
     create_notification,
     mark_notification_read,
+    mark_all_notifications_read,
     auth_signup,
     auth_login,
     auth_refresh,
@@ -38,6 +39,7 @@ from services import (
     get_user_favorites,
     toggle_user_favorite,
     get_user_favorite_ids,
+    update_fcm_token,
 )
 from auth import token_required, optional_token
 from supabase_client import set_postgrest_token
@@ -191,7 +193,7 @@ def refresh():
 
 @app.route("/auth/logout", methods=["POST"])
 @token_required
-def logout(token_claims):
+def logout(token_claims, token=None):
     try:
         auth_logout()
         return jsonify({"message": "signed out"}), 200
@@ -954,16 +956,7 @@ def create_notification(token_claims, token):
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/api/notifications/<notification_id>/read", methods=["PUT"])
-@token_required
-def mark_notification_read_route(notification_id, token_claims, token):
-    """Mark a notification as read. Requires valid JWT token."""
-    try:
-        set_postgrest_token(token)
-        updated = mark_notification_read(notification_id)
-        return jsonify(updated), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+
 
 
 # Chefs & Trending
@@ -1090,6 +1083,56 @@ def get_favorite_ids(token_claims, token=None):
         return jsonify(ids), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+# Notifications
+@app.route("/api/notifications", methods=["GET"])
+@token_required
+def get_notifications_route(token_claims, token=None):
+    try:
+        user_id = token_claims.get("sub")
+        notifications = get_notifications_for_user(user_id)
+        return jsonify(notifications), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/notifications/<notification_id>/read", methods=["PUT"])
+@token_required
+def mark_notification_read_route(token_claims, notification_id, token=None):
+    try:
+        result = mark_notification_read(notification_id)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/notifications/read-all", methods=["PUT"])
+@token_required
+def mark_all_notifications_read_route(token_claims, token=None):
+    try:
+        user_id = token_claims.get("sub")
+        result = mark_all_notifications_read(user_id)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/notifications/token", methods=["POST"])
+@token_required
+def update_fcm_token_route(token_claims, token=None):
+    try:
+        user_id = token_claims.get("sub")
+        data = request.get_json()
+        fcm_token = data.get("token")
+        
+        if not fcm_token:
+            return jsonify({"error": "Token is required"}), 400
+            
+        result = update_fcm_token(user_id, fcm_token)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # Error Handlers

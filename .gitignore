@@ -48,6 +48,18 @@ app.*.map.json
 # Generated plugin registrant files (platform-generated)
 linux/flutter/generated_plugin_registrant.cc
 linux/flutter/generated_plugin_registrant.h
+
+# Secrets
+backend/.env
+backend/serviceAccountKey.json
+android/app/google-services.json
+
+
+# Secrets
+backend/.env
+backend/serviceAccountKey.json
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 linux/flutter/generated_plugins.cmake
 macos/Flutter/GeneratedPluginRegistrant.swift
 windows/flutter/generated_plugin_registrant.cc

@@ -5,6 +5,8 @@ import 'package:chefkit/l10n/app_localizations.dart';
 import '../../../blocs/discovery/discovery_bloc.dart';
 import '../../../blocs/discovery/discovery_state.dart';
 import '../../../blocs/discovery/discovery_events.dart';
+import '../../../blocs/notifications/notifications_bloc.dart';
+import '../../../blocs/notifications/notifications_state.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../widgets/section_header_widget.dart';
 import '../../widgets/profile/chef_card_widget.dart';
@@ -84,10 +86,33 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.withOpacity(0.1)),
                 ),
-                child: const Icon(
-                  Icons.notifications_outlined,
-                  size: 24,
-                  color: Colors.black,
+                child: Stack(
+                  children: [
+                    const Icon(
+                      Icons.notifications_outlined,
+                      size: 24,
+                      color: Colors.black,
+                    ),
+                    BlocBuilder<NotificationsBloc, NotificationsState>(
+                      builder: (context, state) {
+                        if (state is NotificationsLoaded && state.unreadCount > 0) {
+                          return Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

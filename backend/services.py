@@ -4,8 +4,24 @@ Contains functions that wrap Supabase client operations.
 Keeping database logic here makes `app.py` simple and easy to test.
 """
 from typing import Any, Dict, List, Optional
+import os
+import json
+import firebase_admin
+from firebase_admin import credentials, messaging
 from supabase_client import supabase, supabase_admin
 from supabase_client import set_postgrest_token
+
+# Initialize Firebase Admin
+try:
+    cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+    if cred_path and os.path.exists(cred_path):
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred)
+        print("Firebase Admin initialized successfully")
+    else:
+        print("Warning: GOOGLE_APPLICATION_CREDENTIALS not found or invalid. Push notifications will not work.")
+except Exception as e:
+    print(f"Error initializing Firebase Admin: {e}")
 
 
 def _extract_response_data(resp):
@@ -304,8 +320,49 @@ def get_recipe(recipe_id: str) -> Dict[str, Any]:
 
 def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
     resp = supabase.table("recipe").insert(data).execute()
-    data = _extract_response_data(resp)
-    return data
+    result = _extract_response_data(resp)
+    
+    # Notify followers
+    try:
+        if isinstance(result, list) and result:
+            recipe_data = result[0]
+        elif isinstance(result, dict):
+            recipe_data = result
+        else:
+            recipe_data = {}
+
+        if recipe_data:
+            owner_id = recipe_data.get('recipe_owner')
+            recipe_id = recipe_data.get('recipe_id')
+            recipe_name = recipe_data.get('recipe_name')
+            
+            if owner_id:
+                # Get followers
+                followers_resp = supabase.table("follows").select("follower_id").eq("following_id", owner_id).execute()
+                followers = _extract_response_data(followers_resp)
+                
+                if followers:
+                    notifications = []
+                    for f in followers:
+                        notifications.append({
+                            "user_id": f['follower_id'],
+                            "notification_title": "New Recipe",
+                            "notification_type": "new_recipe",
+                            "notification_message": f"Chef you follow posted: {recipe_name}",
+                            "notification_data": {"recipe_id": recipe_id, "chef_id": owner_id}
+                        })
+                    
+                    if notifications:
+                        supabase.table("notifications").insert(notifications).execute()
+                        print(f"Created {len(notifications)} notifications for new recipe")
+                        
+                        # Send Push Notifications
+                        for n in notifications:
+                            _send_push_notification(n)
+    except Exception as e:
+        print(f"Error creating new recipe notifications: {e}")
+        
+    return result
 
 
 def update_recipe(recipe_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -374,23 +431,131 @@ def create_ingredient(data: Dict[str, Any]) -> Dict[str, Any]:
 # Notifications
 # -----------------------------
 def get_notifications_for_user(user_id: str) -> List[Dict[str, Any]]:
-    resp = supabase.table("notifications").select("*").eq("user_id", user_id).execute()
+    # Use admin client to bypass RLS if needed, or ensure RLS allows users to read their own notifications
+    client = supabase_admin if supabase_admin else supabase
+    resp = client.table("notifications").select("*").eq("user_id", user_id).order("notification_created_at", desc=True).execute()
     data = _extract_response_data(resp)
     return data or []
 
 
+def update_fcm_token(user_id: str, token: str) -> Dict[str, Any]:
+    """Update user's FCM token list."""
+    try:
+        # Get current devices
+        resp = supabase.table("users").select("user_devices").eq("user_id", user_id).single().execute()
+        current_data = _extract_response_data(resp)
+        
+        devices_json = current_data.get("user_devices")
+        devices = []
+        if devices_json:
+            try:
+                devices = json.loads(devices_json)
+                if not isinstance(devices, list):
+                    devices = []
+            except:
+                devices = []
+        
+        if token not in devices:
+            devices.append(token)
+            # Update DB
+            supabase.table("users").update({
+                "user_devices": json.dumps(devices)
+            }).eq("user_id", user_id).execute()
+            
+        return {"message": "Token updated"}
+    except Exception as e:
+        print(f"Error updating FCM token: {e}")
+        return {"error": str(e)}
+
+
+def _send_push_notification(data: Dict[str, Any]) -> None:
+    print(f"[_send_push_notification] Preparing to send push for user {data.get('user_id')}")
+    try:
+        user_id = data.get("user_id")
+        title = data.get("notification_title")
+        body = data.get("notification_message")
+        
+        if user_id and title and body:
+            # Get user tokens
+            client = supabase_admin if supabase_admin else supabase
+            user_resp = client.table("users").select("user_devices").eq("user_id", user_id).single().execute()
+            user_data = _extract_response_data(user_resp)
+            devices_json = user_data.get("user_devices")
+            
+            if devices_json:
+                tokens = []
+                try:
+                    tokens = json.loads(devices_json)
+                except:
+                    pass
+                    
+                if tokens and isinstance(tokens, list):
+                    print(f"[_send_push_notification] Found {len(tokens)} tokens. Sending...")
+                    # Send to all tokens
+                    message = messaging.MulticastMessage(
+                        notification=messaging.Notification(
+                            title=title,
+                            body=body,
+                        ),
+                        data={k: str(v) for k, v in data.get("notification_data", {}).items()},
+                        tokens=tokens,
+                    )
+                    response = messaging.send_multicast(message)
+                    print(f"[_send_push_notification] Sent {response.success_count} messages; {response.failure_count} failed.")
+                else:
+                    print(f"[_send_push_notification] No valid tokens found in list.")
+            else:
+                print(f"[_send_push_notification] No devices registered for user.")
+    except Exception as e:
+        print(f"[_send_push_notification] Error sending push notification: {e}")
+
+
 def create_notification(data: Dict[str, Any]) -> Dict[str, Any]:
-    resp = supabase.table("notifications").insert(data).execute()
-    data = _extract_response_data(resp)
-    return data
+    print(f"[create_notification] Attempting to create notification: {data}")
+    # Insert into DB using admin client to bypass RLS (since users create notifications for others)
+    client = supabase_admin if supabase_admin else supabase
+    try:
+        resp = client.table("notifications").insert(data).execute()
+        result = _extract_response_data(resp)
+        print(f"[create_notification] Successfully inserted notification: {result}")
+        
+        # Send Push Notification
+        _send_push_notification(data)
+
+        return result
+    except Exception as e:
+        print(f"[create_notification] FAILED to insert notification: {e}")
+        raise e
 
 
 def mark_notification_read(notification_id: str) -> Dict[str, Any]:
-    resp = supabase.table("notifications").update({"notification_is_read": True}).eq("notification_id", notification_id).execute()
+    # Use admin client to bypass RLS policies that might block updates
+    client = supabase_admin if supabase_admin else supabase
+    print(f"[mark_notification_read] Marking {notification_id} as read")
+    resp = client.table("notifications").update({"notification_is_read": True}).eq("notification_id", notification_id).execute()
     data = _extract_response_data(resp)
+    
     if isinstance(data, list) and data:
+        print(f"[mark_notification_read] Success: {data[0]}")
         return data[0]
+    
+    print(f"[mark_notification_read] Warning: No rows updated. Check RLS or ID.")
     return data or {}
+
+
+def mark_all_notifications_read(user_id: str) -> List[Dict[str, Any]]:
+    """Mark all unread notifications for a user as read."""
+    client = supabase_admin if supabase_admin else supabase
+    print(f"[mark_all_notifications_read] Marking all read for user {user_id}")
+    
+    # Update all unread notifications for this user
+    resp = client.table("notifications").update({"notification_is_read": True})\
+        .eq("user_id", user_id)\
+        .eq("notification_is_read", False)\
+        .execute()
+        
+    data = _extract_response_data(resp)
+    return data or []
 
 
 # -----------------------------
@@ -430,7 +595,8 @@ def get_trending_recipes() -> List[Dict[str, Any]]:
 def check_if_following(follower_id: str, following_id: str) -> bool:
     """Check if follower_id is following following_id."""
     try:
-        resp = supabase.table("follows").select("id").eq("follower_id", follower_id).eq("following_id", following_id).execute()
+        client = supabase_admin if supabase_admin else supabase
+        resp = client.table("follows").select("id").eq("follower_id", follower_id).eq("following_id", following_id).execute()
         data = _extract_response_data(resp)
         return len(data) > 0 if data else False
     except Exception as e:
@@ -447,21 +613,39 @@ def toggle_follow(follower_id: str, chef_id: str) -> Dict[str, Any]:
     # Check if already following
     is_following = check_if_following(follower_id, chef_id)
     
+    # Use admin client to bypass RLS for reliable toggling
+    client = supabase_admin if supabase_admin else supabase
+
     try:
         if is_following:
             # Unfollow: Delete the follow relationship
-            supabase.table("follows").delete().eq("follower_id", follower_id).eq("following_id", chef_id).execute()
+            client.table("follows").delete().eq("follower_id", follower_id).eq("following_id", chef_id).execute()
             print(f"User {follower_id} unfollowed chef {chef_id}")
         else:
             # Follow: Insert a new follow relationship
-            supabase.table("follows").insert({
+            client.table("follows").insert({
                 "follower_id": follower_id,
                 "following_id": chef_id
             }).execute()
             print(f"User {follower_id} followed chef {chef_id}")
+            
+            # Create notification for the chef
+            try:
+                follower = get_user(follower_id)
+                follower_name = follower.get('user_full_name', 'Someone') if follower else 'Someone'
+                
+                create_notification({
+                    "user_id": chef_id,
+                    "notification_title": "New Follower",
+                    "notification_type": "follow",
+                    "notification_message": f"{follower_name} started following you.",
+                    "notification_data": {"follower_id": follower_id}
+                })
+            except Exception as e:
+                print(f"Error creating follow notification: {e}")
         
         # Get updated follower count for the chef (trigger should have updated it)
-        chef_resp = supabase.table("users").select("user_followers_count").eq("user_id", chef_id).single().execute()
+        chef_resp = client.table("users").select("user_followers_count").eq("user_id", chef_id).single().execute()
         new_count = chef_resp.data.get("user_followers_count", 0) if chef_resp.data else 0
         
         return {
@@ -529,6 +713,25 @@ def toggle_user_favorite(user_id: str, recipe_id: str) -> bool:
         else:
             fav_ids.append(recipe_id)
             print(f"[toggle_user_favorite] Adding {recipe_id}")
+            
+            # Create notification for the recipe owner
+            try:
+                recipe = get_recipe(recipe_id)
+                owner_id = recipe.get('recipe_owner')
+                if owner_id and owner_id != user_id: # Don't notify self
+                    user = get_user(user_id)
+                    user_name = user.get('user_full_name', 'Someone') if user else 'Someone'
+                    recipe_name = recipe.get('recipe_name', 'your recipe')
+                    
+                    create_notification({
+                        "user_id": owner_id,
+                        "notification_title": "Recipe Liked",
+                        "notification_type": "like",
+                        "notification_message": f"{user_name} liked your recipe {recipe_name}.",
+                        "notification_data": {"recipe_id": recipe_id, "user_id": user_id}
+                    })
+            except Exception as e:
+                print(f"Error creating like notification: {e}")
             
         update_resp = client.table("users").update({"user_favourite_recipees": fav_ids}).eq("user_id", user_id).execute()
         _extract_response_data(update_resp)
