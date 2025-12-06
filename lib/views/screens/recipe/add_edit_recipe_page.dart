@@ -44,26 +44,23 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.recipe?.title ?? '');
-    _descriptionController = TextEditingController(text: widget.recipe?.subtitle ?? '');
+    _nameController = TextEditingController(text: widget.recipe?.name ?? '');
+    _descriptionController = TextEditingController(text: widget.recipe?.description ?? '');
     _imageUrlController = TextEditingController(text: widget.recipe?.imageUrl ?? '');
     _servingsController = TextEditingController(
-      text: widget.recipe != null ? widget.recipe!.servings.split(' ').first : '4',
+      text: widget.recipe != null ? widget.recipe!.servingsCount.toString() : '4',
     );
     
     // Parse time
-    final time = widget.recipe?.time ?? '';
-    if (time.contains('min')) {
-      final totalMin = int.tryParse(time.split(' ').first) ?? 0;
-      _prepTimeController = TextEditingController(text: '${totalMin ~/ 2}');
-      _cookTimeController = TextEditingController(text: '${totalMin ~/ 2}');
-    } else {
-      _prepTimeController = TextEditingController(text: '15');
-      _cookTimeController = TextEditingController(text: '30');
-    }
+    _prepTimeController = TextEditingController(
+      text: widget.recipe?.prepTime.toString() ?? '15',
+    );
+    _cookTimeController = TextEditingController(
+      text: widget.recipe?.cookTime.toString() ?? '30',
+    );
     
     _caloriesController = TextEditingController(
-      text: widget.recipe != null ? widget.recipe!.calories.split(' ').first : '500',
+      text: widget.recipe != null ? widget.recipe!.calories.toString() : '500',
     );
 
     // Load existing ingredients and instructions

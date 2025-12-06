@@ -14,6 +14,7 @@ import '../profile/chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
 import 'all_seasonal_page.dart';
 import '../recipe/recipe_details_page.dart';
+import '../recipe/item_page.dart';
 import '../../../common/constants.dart';
 
 class RecipeDiscoveryScreen extends StatefulWidget {

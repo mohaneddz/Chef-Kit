@@ -188,7 +188,7 @@ class _MyRecipesContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      recipe.title,
+                      recipe.name,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -199,7 +199,7 @@ class _MyRecipesContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      recipe.subtitle,
+                      recipe.description,
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey[600],
@@ -214,7 +214,7 @@ class _MyRecipesContent extends StatelessWidget {
                         Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
                         const SizedBox(width: 4),
                         Text(
-                          recipe.time,
+                          '${recipe.prepTime + recipe.cookTime} min',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -225,7 +225,7 @@ class _MyRecipesContent extends StatelessWidget {
                         Icon(Icons.restaurant, size: 14, color: Colors.grey[500]),
                         const SizedBox(width: 4),
                         Text(
-                          recipe.servings,
+                          '${recipe.servingsCount} servings',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -258,7 +258,7 @@ class _MyRecipesContent extends StatelessWidget {
                       : const Icon(Icons.delete, size: 20),
                   onPressed: state.isDeleting || state.isUpdating
                       ? null
-                      : () => _confirmDelete(context, recipe.id, recipe.title),
+                      : () => _confirmDelete(context, recipe.id, recipe.name),
                   color: Colors.red,
                 ),
               ],
@@ -335,18 +335,18 @@ class _MyRecipesContent extends StatelessWidget {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => RecipeDetailsPage(
           recipeId: recipe.id,
-          recipeName: recipe.title,
-          recipeDescription: recipe.subtitle,
+          recipeName: recipe.name,
+          recipeDescription: recipe.description,
           recipeImageUrl: recipe.imageUrl,
-          recipePrepTime: 0, // Parse from recipe.time if needed
-          recipeCookTime: int.tryParse(recipe.time.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
-          recipeCalories: int.tryParse(recipe.calories.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
-          recipeServingsCount: int.tryParse(recipe.servings.replaceAll(RegExp(r'[^0-9]'), '')) ?? 4,
+          recipePrepTime: recipe.prepTime,
+          recipeCookTime: recipe.cookTime,
+          recipeCalories: recipe.calories,
+          recipeServingsCount: recipe.servingsCount,
           recipeIngredients: recipe.ingredients,
           recipeInstructions: recipe.instructions,
           recipeTags: recipe.tags,
           initialFavorite: recipe.isFavorite,
-          recipeOwner: recipe.chefId,
+          recipeOwner: recipe.ownerId,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
