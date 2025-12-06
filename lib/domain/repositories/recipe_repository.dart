@@ -273,4 +273,36 @@ class RecipeRepository {
     }
     throw Exception('Failed to toggle favorite');
   }
+
+  Future<List<Recipe>> generateRecipes({
+    required String lang,
+    required String maxTime,
+    required List<String> ingredients,
+  }) async {
+    final headers = await _getHeaders();
+    final body = json.encode({
+      'lang': lang,
+      'max_time': maxTime,
+      'ingredients': ingredients,
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/generate-recipes'),
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> recipesJson = data['recipes'];
+        return recipesJson.map((json) => Recipe.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to generate recipes: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error generating recipes: $e');
+      rethrow;
+    }
+  }
 }

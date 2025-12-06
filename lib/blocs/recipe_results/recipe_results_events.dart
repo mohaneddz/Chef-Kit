@@ -1,3 +1,4 @@
+import 'package:chefkit/domain/models/recipe.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class RecipeResultsEvent extends Equatable {
@@ -14,6 +15,15 @@ class LoadRecipeResults extends RecipeResultsEvent {
 
   @override
   List<Object> get props => [selectedIngredients];
+}
+
+class SetRecipeResults extends RecipeResultsEvent {
+  final List<Recipe> recipes;
+
+  const SetRecipeResults(this.recipes);
+
+  @override
+  List<Object> get props => [recipes];
 }
 
 class ToggleRecipeResultFavorite extends RecipeResultsEvent {

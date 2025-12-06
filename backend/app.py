@@ -41,6 +41,7 @@ from services import (
     toggle_user_favorite,
     get_user_favorite_ids,
     update_fcm_token,
+    generate_recipes,
 )
 from auth import token_required, optional_token
 from supabase_client import set_postgrest_token
@@ -764,28 +765,23 @@ def get_recipes():
 
 
 # TODO: Implement actual logic for recipe results
-@app.route("/api/recipes/result", methods=["POST"])
-def get_recipes_result_route():
-    """Fetch 10 recipes for the results page based on ingredients."""
+@app.route("/api/generate-recipes", methods=["POST"])
+def generate_recipes_route():
+    """Generate recipes based on language, time, and ingredients."""
     try:
         payload = request.get_json() or {}
+        lang = payload.get("lang", "en")
+        max_time = payload.get("max_time", "30:00")
         ingredients = payload.get("ingredients", [])
         
-        print(f"Fetching recipes result for ingredients: {ingredients}")
-        recipes = get_recipes_result(ingredients)
-        print(f"Fetched {len(recipes)} recipes.")
+        print(f"Generating recipes for lang={lang}, time={max_time}, ingredients={ingredients}")
         
-        # Debug: Check for circular references or non-serializable data
-        # by dumping to string first
-        import json
-        json_str = json.dumps(recipes, default=str)
-        print(f"JSON response size: {len(json_str)} bytes")
+        # Simulate processing time if needed, or just return mock data
+        result = generate_recipes(lang, max_time, ingredients)
         
-        response = jsonify(recipes)
-        response.headers["Connection"] = "close" # Force close to avoid keep-alive issues
-        return response, 200
+        return jsonify(result), 200
     except Exception as e:
-        print(f"Error in get_recipes_result_route: {e}")
+        print(f"Error in generate_recipes_route: {e}")
         return jsonify({"error": str(e)}), 500
 
 

@@ -174,5 +174,10 @@
   "profileUpdateSuccess": "Informations personnelles mises à jour",
   "noRecipesFound": "Aucune recette trouvée",
   "connectionIssue": "Problème de connexion",
-  "connectionIssueMessage": "Veuillez vérifier votre connexion et réessayer"
+  "connectionIssueMessage": "Veuillez vérifier votre connexion et réessayer",
+  "generateRecipe": "Générer une recette",
+  "cookingDuration": "Temps de cuisson",
+  "availableIngredients": "Ingrédients disponibles",
+  "cancel": "Annuler",
+  "proceed": "Continuer"
 }
