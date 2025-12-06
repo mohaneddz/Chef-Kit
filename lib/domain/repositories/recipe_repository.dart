@@ -216,16 +216,6 @@ class RecipeRepository {
     }
   }
 
-  Future<List<Recipe>> fetchAllRecipes() async {
-    final response = await _httpGetWithRetry(Uri.parse('$baseUrl/api/recipes'));
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final recipes = data.map((json) => Recipe.fromJson(json)).toList();
-      return _processRecipes(recipes);
-    }
-    throw Exception('Failed to load recipes');
-  }
-
   Future<List<Recipe>> fetchFavoriteRecipes() async {
     final headers = await _getHeaders();
     if (!headers.containsKey('Authorization')) return [];

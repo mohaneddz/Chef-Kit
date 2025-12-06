@@ -755,7 +755,9 @@ def get_recipes():
     tag = request.args.get('tag')
     try:
         recipes = get_all_recipes(tag=tag)
-        return jsonify(recipes), 200
+        response = jsonify(recipes)
+        response.headers["Connection"] = "close"
+        return response, 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -1053,7 +1055,9 @@ def get_trending_recipes_route():
     """Get all trending recipes. Public endpoint."""
     try:
         recipes = get_trending_recipes()
-        return jsonify(recipes), 200
+        response = jsonify(recipes)
+        response.headers["Connection"] = "close"
+        return response, 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
