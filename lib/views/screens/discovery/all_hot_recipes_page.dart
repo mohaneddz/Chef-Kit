@@ -221,23 +221,7 @@ class _AllHotRecipesView extends StatelessWidget {
                                                 animation,
                                                 secondaryAnimation,
                                               ) => RecipeDetailsPage(
-                                                recipeId: recipe.id,
-                                                recipeName: recipe.name,
-                                                recipeDescription:
-                                                    recipe.description,
-                                                recipeImageUrl: recipe.imageUrl,
-                                                recipePrepTime: recipe.prepTime,
-                                                recipeCookTime: recipe.cookTime,
-                                                recipeCalories: recipe.calories,
-                                                recipeServingsCount:
-                                                    recipe.servingsCount,
-                                                recipeIngredients:
-                                                    recipe.ingredients,
-                                                recipeInstructions:
-                                                    recipe.instructions,
-                                                recipeTags: recipe.tags,
-                                                initialFavorite:
-                                                    recipe.isFavorite,
+                                                recipe: recipe,
                                               ),
                                           transitionsBuilder:
                                               (

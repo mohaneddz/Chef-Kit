@@ -80,6 +80,8 @@ class RecipesGrid extends StatelessWidget {
                           recipesText: AppLocalizations.of(
                             context,
                           )!.recipePlural,
+                          locale: Localizations.localeOf(context).languageCode,
+                          otherText: "Other",
                         ),
                       );
                     }

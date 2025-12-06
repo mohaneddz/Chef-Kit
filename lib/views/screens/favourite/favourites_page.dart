@@ -81,6 +81,8 @@ class _FavouritesPageState extends State<FavouritesPage> {
                     allSavedText: AppLocalizations.of(context)!.allSaved,
                     recipeText: AppLocalizations.of(context)!.recipeSingular,
                     recipesText: AppLocalizations.of(context)!.recipePlural,
+                    locale: Localizations.localeOf(context).languageCode,
+                    otherText: "Other",
                   ),
                 );
                 await Future.delayed(const Duration(milliseconds: 500));
@@ -147,6 +149,8 @@ class _FavouritesPageState extends State<FavouritesPage> {
                   allSavedText: AppLocalizations.of(context)!.allSaved,
                   recipeText: AppLocalizations.of(context)!.recipeSingular,
                   recipesText: AppLocalizations.of(context)!.recipePlural,
+                  locale: Localizations.localeOf(context).languageCode,
+                  otherText: "Other",
                 ),
               );
               // Wait a bit to let the user see the visual feedback (state update is fast)

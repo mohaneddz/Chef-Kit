@@ -67,6 +67,8 @@ class _HomePageState extends State<HomePage> {
                   allSavedText: AppLocalizations.of(context)!.allSaved,
                   recipeText: AppLocalizations.of(context)!.recipeSingular,
                   recipesText: AppLocalizations.of(context)!.recipePlural,
+                  locale: Localizations.localeOf(context).languageCode,
+                  otherText: "Other",
                 ),
               );
             }
