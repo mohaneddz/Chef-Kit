@@ -36,12 +36,22 @@ class RecipeRepository {
     Uri uri, {
     Map<String, String>? headers,
     int maxRetries = 3,
+    Duration timeout = const Duration(seconds: 10),
   }) async {
     int attempts = 0;
     while (true) {
       attempts++;
       try {
-        return await http.get(uri, headers: headers);
+        return await http.get(uri, headers: headers).timeout(timeout);
+      } on TimeoutException {
+        if (attempts < maxRetries) {
+          print(
+            '⏱️ HTTP timeout, retry attempt $attempts/$maxRetries for $uri',
+          );
+          await Future.delayed(Duration(milliseconds: 500 * attempts));
+          continue;
+        }
+        throw Exception('Connection timed out. Please check your connection.');
       } catch (e) {
         // Check if it's a connection-related error
         final isConnectionError =
@@ -151,16 +161,19 @@ class RecipeRepository {
   }
 
   Future<List<Recipe>> fetchSeasonalRecipes() async {
-    // TODO: Add seasonal recipe filter to backend
+    print('Fetching seasonal recipes from $baseUrl/api/recipes/seasonal');
     final response = await _httpGetWithRetry(
-      Uri.parse('$baseUrl/api/recipes?tag=seasonal'),
+      Uri.parse('$baseUrl/api/recipes/seasonal'),
     );
+    print('Seasonal response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final recipes = data.map((json) => Recipe.fromJson(json)).toList();
       return _processRecipes(recipes);
     }
-    throw Exception('Failed to load seasonal recipes');
+    print('❌ Seasonal recipes failed with status ${response.statusCode}');
+    print('Response body: ${response.body}');
+    throw Exception('Failed to load seasonal recipes: ${response.statusCode}');
   }
 
   Future<List<Recipe>> fetchRecipesByChef(String chefId) async {

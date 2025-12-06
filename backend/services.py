@@ -309,8 +309,7 @@ update_user_service = update_user
 _RECIPE_COLUMNS = (
     "recipe_id, recipe_name, recipe_description, recipe_image_url, recipe_owner, "
     "recipe_servings_count, recipe_prep_time, recipe_cook_time, recipe_calories, "
-    "recipe_ingredients, recipe_instructions, recipe_tags, recipe_is_trending, "
-    "title_ar, title_fr, tags_ar, tags_fr, steps_ar, steps_fr, basic_ingredients"
+    "recipe_ingredients, recipe_instructions, recipe_tags, recipe_is_trending, recipe_is_seasonal, title_ar, title_fr, tags_ar, tags_fr, steps_ar, steps_fr, basic_ingredients"
 )
 
 def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -318,6 +317,17 @@ def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:
     if tag:
         query = query.contains("recipe_tags", [tag])
     # Limit to 20 to prevent huge payloads for now
+    resp = query.limit(20).execute()
+    data = _extract_response_data(resp)
+    return data or []
+
+
+def get_seasonal_recipes() -> List[Dict[str, Any]]:
+    """
+    Get all recipes marked as seasonal.
+    """
+    query = supabase.table("recipe").select(_RECIPE_COLUMNS).eq("recipe_is_seasonal", True)
+    # Limit to 20 for now
     resp = query.limit(20).execute()
     data = _extract_response_data(resp)
     return data or []
@@ -340,8 +350,11 @@ def get_recipe(recipe_id: str) -> Dict[str, Any]:
 
 
 def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
+    print(f"[create_recipe] Received data: {data}")
+    print(f"[create_recipe] recipe_tags value: {data.get('recipe_tags')}")
     resp = supabase.table("recipe").insert(data).execute()
     result = _extract_response_data(resp)
+    print(f"[create_recipe] Inserted recipe result: {result}")
     
     # Notify followers
     try:
@@ -389,6 +402,7 @@ def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
 def update_recipe(recipe_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"[services.update_recipe] Recipe ID: {recipe_id}")
     print(f"[services.update_recipe] Data to update: {data}")
+    print(f"[services.update_recipe] recipe_tags value: {data.get('recipe_tags')}")
     print(f"[services.update_recipe] recipe_image_url value: {data.get('recipe_image_url')}")
     
     # Execute update

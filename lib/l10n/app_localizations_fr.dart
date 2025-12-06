@@ -594,4 +594,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get profileUpdateSuccess => 'Informations personnelles mises à jour';
+
+  @override
+  String get noRecipesFound => 'Aucune recette trouvée';
+
+  @override
+  String get connectionIssue => 'Problème de connexion';
+
+  @override
+  String get connectionIssueMessage =>
+      'Veuillez vérifier votre connexion et réessayer';
 }

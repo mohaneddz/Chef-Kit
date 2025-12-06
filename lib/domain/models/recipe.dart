@@ -16,6 +16,7 @@ class Recipe {
   final List<String> externalSources;
   final bool isFavorite;
   final bool isTrending;
+  final bool isSeasonal;
   final List<String> basicIngredients;
 
   // Localized fields
@@ -42,6 +43,7 @@ class Recipe {
     this.externalSources = const [],
     this.isFavorite = false,
     this.isTrending = false,
+    this.isSeasonal = false,
     this.basicIngredients = const [],
     this.titleAr,
     this.titleFr,
@@ -55,6 +57,7 @@ class Recipe {
     print('  📦 Recipe.fromJson called');
     print('  JSON keys: ${json.keys.toList()}');
 
+
     try {
       print('  Parsing time fields...');
       final prepTime = json['recipe_prep_time'];
@@ -62,9 +65,11 @@ class Recipe {
       print('  prep_time: $prepTime (${prepTime.runtimeType})');
       print('  cook_time: $cookTime (${cookTime.runtimeType})');
 
+
       // Safely parse time values
       int prepMinutes = 0;
       int cookMinutes = 0;
+
 
       if (prepTime != null) {
         if (prepTime is int) {
@@ -74,6 +79,7 @@ class Recipe {
         }
       }
 
+
       if (cookTime != null) {
         if (cookTime is int) {
           cookMinutes = cookTime;
@@ -82,7 +88,9 @@ class Recipe {
         }
       }
 
+
       print('  ✅ Total time: ${prepMinutes + cookMinutes} min');
+
 
       // Safely parse array fields
       print('  Parsing ingredients...');
@@ -192,6 +200,7 @@ class Recipe {
             ? (json['is_favourite'] == 1)
             : (json['is_favourite'] as bool? ?? false),
         isTrending: json['recipe_is_trending'] == true,
+        isSeasonal: json['recipe_is_seasonal'] == true,
         basicIngredients: _parseList(json['basic_ingredients']),
         titleAr: json['title_ar']?.toString(),
         titleFr: json['title_fr']?.toString(),
@@ -255,6 +264,7 @@ class Recipe {
     List<String>? externalSources,
     bool? isFavorite,
     bool? isTrending,
+    bool? isSeasonal,
     List<String>? basicIngredients,
     String? titleAr,
     String? titleFr,
@@ -279,6 +289,7 @@ class Recipe {
       externalSources: externalSources ?? this.externalSources,
       isFavorite: isFavorite ?? this.isFavorite,
       isTrending: isTrending ?? this.isTrending,
+      isSeasonal: isSeasonal ?? this.isSeasonal,
       basicIngredients: basicIngredients ?? this.basicIngredients,
       titleAr: titleAr ?? this.titleAr,
       titleFr: titleFr ?? this.titleFr,

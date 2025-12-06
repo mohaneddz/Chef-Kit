@@ -1,6 +1,5 @@
 import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
 import 'package:chefkit/domain/models/recipe.dart';
-import 'package:chefkit/views/screens/recipe/item_page.dart';
 import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
 import 'package:flutter/material.dart';
 

@@ -316,5 +316,8 @@
       }
     }
   },
-  "profileUpdateSuccess": "Personal info updated"
+  "profileUpdateSuccess": "Personal info updated",
+  "noRecipesFound": "No recipes found",
+  "connectionIssue": "Connection issue",
+  "connectionIssueMessage": "Please check your connection and try again"
 }

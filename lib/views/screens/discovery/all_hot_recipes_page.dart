@@ -1,64 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../common/constants.dart';
-import '../../widgets/recipe/recipe_card_widget.dart';
-import '../recipe/item_page.dart';
-import '../recipe/recipe_details_page.dart';
+import '../../../blocs/hot_recipes/hot_recipes_bloc.dart';
+import '../../../blocs/hot_recipes/hot_recipes_state.dart';
+import '../../../blocs/hot_recipes/hot_recipes_events.dart';
 import '../../../domain/repositories/recipe_repository.dart';
-import '../../../domain/models/recipe.dart';
+import '../../widgets/recipe/recipe_card_widget.dart';
+import '../recipe/recipe_details_page.dart';
 
-class AllHotRecipesPage extends StatefulWidget {
+class AllHotRecipesPage extends StatelessWidget {
   const AllHotRecipesPage({Key? key}) : super(key: key);
 
   @override
-  State<AllHotRecipesPage> createState() => _AllHotRecipesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          HotRecipesBloc(recipeRepository: context.read<RecipeRepository>())
+            ..add(LoadHotRecipes()),
+      child: const _AllHotRecipesView(),
+    );
+  }
 }
 
-class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
-  String _selectedFilter = 'All';
-  late Future<List<Recipe>> _recipesFuture;
-  final RecipeRepository _recipeRepository = RecipeRepository();
-
-  @override
-  void initState() {
-    super.initState();
-    _recipesFuture = _recipeRepository.fetchHotRecipes();
-  }
-
-  String _getLocalizedTitle(Recipe recipe) {
-    final locale = Localizations.localeOf(context).languageCode;
-    return locale == 'ar' &&
-            recipe.titleAr != null &&
-            recipe.titleAr!.isNotEmpty
-        ? recipe.titleAr!
-        : (locale == 'fr' &&
-                  recipe.titleFr != null &&
-                  recipe.titleFr!.isNotEmpty
-              ? recipe.titleFr!
-              : recipe.name);
-  }
-
-  List<Recipe> _filterRecipes(List<Recipe> recipes) {
-    if (_selectedFilter == 'All') return recipes;
-    if (_selectedFilter == 'Trending') {
-      return recipes.where((r) => r.isTrending).toList();
-    }
-    // Simple tag-based filtering for other categories
-    return recipes.where((r) => r.tags.contains(_selectedFilter)).toList();
-  }
-
-  Future<void> _toggleFavorite(Recipe recipe) async {
-    try {
-      await _recipeRepository.toggleFavorite(recipe.id);
-      setState(() {
-        _recipesFuture = _recipeRepository.fetchHotRecipes();
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error toggling favorite: $e')));
-    }
-  }
+class _AllHotRecipesView extends StatelessWidget {
+  const _AllHotRecipesView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -82,18 +48,34 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
         ),
         centerTitle: false,
       ),
-      body: FutureBuilder<List<Recipe>>(
-        future: _recipesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: BlocBuilder<HotRecipesBloc, HotRecipesState>(
+        builder: (context, state) {
+          if (state.loading) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
 
-          final allRecipes = snapshot.data ?? [];
-          final filteredRecipes = _filterRecipes(allRecipes);
+          if (state.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.error(state.error!),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () =>
+                        context.read<HotRecipesBloc>().add(LoadHotRecipes()),
+                    child: Text(AppLocalizations.of(context)!.retry),
+                  ),
+                ],
+              ),
+            );
+          }
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,22 +92,25 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
                     Row(
                       children: [
                         _buildStatBadge(
+                          context,
                           Icons.whatshot,
-                          '${allRecipes.length}',
+                          '${state.totalCount}',
                           AppLocalizations.of(context)!.recipesStat,
                           const Color(0xFFFF6B6B),
                         ),
                         const SizedBox(width: 12),
                         _buildStatBadge(
+                          context,
                           Icons.trending_up,
-                          '${allRecipes.where((r) => r.isTrending).length}',
+                          '${state.trendingCount}',
                           AppLocalizations.of(context)!.trendingStat,
                           AppColors.orange,
                         ),
                         const SizedBox(width: 12),
                         _buildStatBadge(
+                          context,
                           Icons.favorite,
-                          '${allRecipes.where((r) => r.isFavorite).length}',
+                          '${state.favoritesCount}',
                           AppLocalizations.of(context)!.favoritesStat,
                           AppColors.red600,
                         ),
@@ -139,34 +124,31 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
                       child: Row(
                         children: [
                           _buildFilterChip(
+                            context,
                             'All',
                             AppLocalizations.of(context)!.filterAll,
                             Icons.grid_view,
+                            state.selectedTag,
                           ),
                           const SizedBox(width: 8),
                           _buildFilterChip(
+                            context,
                             'Trending',
                             AppLocalizations.of(context)!.filterTrending,
                             Icons.local_fire_department,
+                            state.selectedTag,
                           ),
-                          const SizedBox(width: 8),
-                          _buildFilterChip(
-                            'Traditional',
-                            AppLocalizations.of(context)!.filterTraditional,
-                            Icons.restaurant,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildFilterChip(
-                            'Soup',
-                            AppLocalizations.of(context)!.filterSoup,
-                            Icons.soup_kitchen,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildFilterChip(
-                            'Quick',
-                            AppLocalizations.of(context)!.filterQuick,
-                            Icons.bolt,
-                          ),
+                          // Dynamic tag filters
+                          for (final tag in state.availableTags) ...[
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              context,
+                              tag,
+                              tag,
+                              Icons.tag,
+                              state.selectedTag,
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -176,94 +158,175 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
 
               // Recipes Grid
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.75,
-                        ),
-                    itemCount: filteredRecipes.length,
-                    itemBuilder: (context, index) {
-                      final recipe = filteredRecipes[index];
-                      final title = _getLocalizedTitle(recipe);
-                      return TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        duration: Duration(milliseconds: 300 + (index * 50)),
-                        curve: Curves.easeOut,
-                        builder: (context, value, child) {
-                          return Transform.scale(
-                            scale: value,
-                            child: Opacity(opacity: value, child: child),
-                          );
-                        },
-                        child: Stack(
+                child: state.filteredRecipes.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            RecipeCardWidget(
-                              title: title,
-                              subtitle: title,
-                              imageUrl: recipe.imageUrl,
-                              isFavorite: recipe.isFavorite,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        RecipeDetailsPage(recipe: recipe),
-                                  ),
-                                );
-                              },
-                              onFavoritePressed: () => _toggleFavorite(recipe),
+                            Icon(
+                              Icons.restaurant_menu,
+                              size: 64,
+                              color: Colors.grey[300],
                             ),
-                            if (recipe.isTrending)
-                              Positioned(
-                                top: 8,
-                                left: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFF6B6B),
-                                        Color(0xFFFFAA6B),
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.local_fire_department,
-                                        color: Colors.white,
-                                        size: 12,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                        AppLocalizations.of(context)!.hotBadge,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                            const SizedBox(height: 16),
+                            Text(
+                              AppLocalizations.of(context)!.noRecipesFound,
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 16,
                               ),
+                            ),
                           ],
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 0.75,
+                              ),
+                          itemCount: state.filteredRecipes.length,
+                          itemBuilder: (context, index) {
+                            final recipe = state.filteredRecipes[index];
+                            return TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              duration: Duration(
+                                milliseconds: 300 + (index * 50),
+                              ),
+                              curve: Curves.easeOut,
+                              builder: (context, value, child) {
+                                return Transform.scale(
+                                  scale: value,
+                                  child: Opacity(opacity: value, child: child),
+                                );
+                              },
+                              child: Stack(
+                                children: [
+                                  RecipeCardWidget(
+                                    title: recipe.name,
+                                    subtitle: recipe.description,
+                                    imageUrl: recipe.imageUrl,
+                                    isFavorite: recipe.isFavorite,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder:
+                                              (
+                                                context,
+                                                animation,
+                                                secondaryAnimation,
+                                              ) => RecipeDetailsPage(
+                                                recipeId: recipe.id,
+                                                recipeName: recipe.name,
+                                                recipeDescription:
+                                                    recipe.description,
+                                                recipeImageUrl: recipe.imageUrl,
+                                                recipePrepTime: recipe.prepTime,
+                                                recipeCookTime: recipe.cookTime,
+                                                recipeCalories: recipe.calories,
+                                                recipeServingsCount:
+                                                    recipe.servingsCount,
+                                                recipeIngredients:
+                                                    recipe.ingredients,
+                                                recipeInstructions:
+                                                    recipe.instructions,
+                                                recipeTags: recipe.tags,
+                                                initialFavorite:
+                                                    recipe.isFavorite,
+                                              ),
+                                          transitionsBuilder:
+                                              (
+                                                context,
+                                                animation,
+                                                secondaryAnimation,
+                                                child,
+                                              ) {
+                                                const begin = Offset(0.8, 0.0);
+                                                const end = Offset.zero;
+                                                final curved = CurvedAnimation(
+                                                  parent: animation,
+                                                  curve: Curves.easeOutQuart,
+                                                );
+
+                                                return FadeTransition(
+                                                  opacity: curved,
+                                                  child: SlideTransition(
+                                                    position: Tween(
+                                                      begin: begin,
+                                                      end: end,
+                                                    ).animate(curved),
+                                                    child: child,
+                                                  ),
+                                                );
+                                              },
+                                          transitionDuration: const Duration(
+                                            milliseconds: 350,
+                                          ),
+                                          reverseTransitionDuration:
+                                              const Duration(milliseconds: 300),
+                                        ),
+                                      );
+                                    },
+                                    onFavoritePressed: () =>
+                                        context.read<HotRecipesBloc>().add(
+                                          ToggleHotRecipeFavorite(recipe.id),
+                                        ),
+                                  ),
+                                  if (recipe.isTrending)
+                                    Positioned(
+                                      top: 8,
+                                      left: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFFFF6B6B),
+                                              Color(0xFFFFAA6B),
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.local_fire_department,
+                                              color: Colors.white,
+                                              size: 12,
+                                            ),
+                                            const SizedBox(width: 2),
+                                            Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.hotBadge,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Poppins',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
               ),
               const SizedBox(height: 20),
             ],
@@ -274,6 +337,7 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
   }
 
   Widget _buildStatBadge(
+    BuildContext context,
     IconData icon,
     String value,
     String label,
@@ -317,16 +381,16 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
   }
 
   Widget _buildFilterChip(
+    BuildContext context,
     String filterKey,
     String displayLabel,
     IconData icon,
+    String selectedTag,
   ) {
-    final isSelected = _selectedFilter == filterKey;
+    final isSelected = selectedTag == filterKey;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedFilter = filterKey;
-        });
+        context.read<HotRecipesBloc>().add(FilterByTag(filterKey));
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

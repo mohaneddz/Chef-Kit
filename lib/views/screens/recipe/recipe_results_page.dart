@@ -5,7 +5,6 @@ import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/domain/models/recipe.dart';
 import 'package:chefkit/domain/repositories/recipe_repository.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
-import 'package:chefkit/views/screens/recipe/item_page.dart';
 import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
 import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
 import 'package:flutter/material.dart';

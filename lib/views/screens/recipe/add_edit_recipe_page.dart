@@ -23,7 +23,7 @@ class AddEditRecipePage extends StatefulWidget {
 
 class _AddEditRecipePageState extends State<AddEditRecipePage> {
   final _formKey = GlobalKey<FormState>();
-  
+
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _imageUrlController;
@@ -31,12 +31,12 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
   late TextEditingController _prepTimeController;
   late TextEditingController _cookTimeController;
   late TextEditingController _caloriesController;
-  
+
   final List<TextEditingController> _ingredientControllers = [];
   final List<TextEditingController> _instructionControllers = [];
   final List<String> _tags = [];
   final TextEditingController _tagController = TextEditingController();
-  
+
   bool _isUploadingImage = false;
 
   bool get isEditMode => widget.recipe != null;
@@ -45,12 +45,18 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.recipe?.name ?? '');
-    _descriptionController = TextEditingController(text: widget.recipe?.description ?? '');
-    _imageUrlController = TextEditingController(text: widget.recipe?.imageUrl ?? '');
-    _servingsController = TextEditingController(
-      text: widget.recipe != null ? widget.recipe!.servingsCount.toString() : '4',
+    _descriptionController = TextEditingController(
+      text: widget.recipe?.description ?? '',
     );
-    
+    _imageUrlController = TextEditingController(
+      text: widget.recipe?.imageUrl ?? '',
+    );
+    _servingsController = TextEditingController(
+      text: widget.recipe != null
+          ? widget.recipe!.servingsCount.toString()
+          : '4',
+    );
+
     // Parse time
     _prepTimeController = TextEditingController(
       text: widget.recipe?.prepTime.toString() ?? '15',
@@ -58,7 +64,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     _cookTimeController = TextEditingController(
       text: widget.recipe?.cookTime.toString() ?? '30',
     );
-    
+
     _caloriesController = TextEditingController(
       text: widget.recipe != null ? widget.recipe!.calories.toString() : '500',
     );
@@ -72,6 +78,10 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
         _instructionControllers.add(TextEditingController(text: instruction));
       }
       _tags.addAll(widget.recipe!.tags);
+      print(
+        '[initState] Edit mode - loaded tags from recipe: ${widget.recipe!.tags}',
+      );
+      print('[initState] _tags after loading: $_tags');
     } else {
       // Start with one ingredient and instruction field
       _ingredientControllers.add(TextEditingController());
@@ -126,11 +136,16 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
   void _addTag() {
     final tag = _tagController.text.trim();
+    print('[addTag] Attempting to add tag: "$tag"');
+    print('[addTag] Current tags before: $_tags');
     if (tag.isNotEmpty && !_tags.contains(tag)) {
       setState(() {
         _tags.add(tag);
         _tagController.clear();
       });
+      print('[addTag] Tag added! Current tags after: $_tags');
+    } else {
+      print('[addTag] Tag NOT added (empty or duplicate)');
     }
   }
 
@@ -237,8 +252,12 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
     print('[save-recipe] === SAVE RECIPE START ===');
     print('[save-recipe] Is edit mode: $isEditMode');
-    print('[save-recipe] Image URL controller text: "${_imageUrlController.text}"');
-    print('[save-recipe] Image URL controller isEmpty: ${_imageUrlController.text.isEmpty}');
+    print(
+      '[save-recipe] Image URL controller text: "${_imageUrlController.text}"',
+    );
+    print(
+      '[save-recipe] Image URL controller isEmpty: ${_imageUrlController.text.isEmpty}',
+    );
 
     // Collect ingredients and instructions
     final ingredients = _ingredientControllers
@@ -268,9 +287,11 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     final imageUrl = _imageUrlController.text.trim().isEmpty
         ? null
         : _imageUrlController.text.trim();
-    
+
     print('[save-recipe] Image URL being saved: $imageUrl');
     print('[save-recipe] Image URL is null: ${imageUrl == null}');
+    print('[save-recipe] Tags being saved: $_tags');
+    print('[save-recipe] Tags count: ${_tags.length}');
 
     final event = isEditMode
         ? UpdateRecipeEvent(
@@ -326,12 +347,16 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       ),
       body: BlocListener<MyRecipesBloc, MyRecipesState>(
         listener: (context, state) {
-          if (state.isAdding == false && state.isUpdating == false && state.error == null) {
+          if (state.isAdding == false &&
+              state.isUpdating == false &&
+              state.error == null) {
             // Successfully added/updated
             if (!state.loading) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(isEditMode ? 'Recipe updated!' : 'Recipe added!'),
+                  content: Text(
+                    isEditMode ? 'Recipe updated!' : 'Recipe added!',
+                  ),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -349,7 +374,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
         child: BlocBuilder<MyRecipesBloc, MyRecipesState>(
           builder: (context, state) {
             final isLoading = state.isAdding || state.isUpdating;
-            
+
             return Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -372,13 +397,14 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                       label: 'Description',
                       hint: 'Brief description of your recipe',
                       maxLines: 3,
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Please enter a description' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Please enter a description'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _buildImageSection(),
                     const SizedBox(height: 32),
-                    
+
                     _buildSectionTitle('Details'),
                     const SizedBox(height: 16),
                     Row(
@@ -425,7 +451,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    
+
                     _buildSectionTitle('Ingredients'),
                     const SizedBox(height: 16),
                     ..._buildIngredientFields(),
@@ -440,7 +466,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     _buildSectionTitle('Instructions'),
                     const SizedBox(height: 16),
                     ..._buildInstructionFields(),
@@ -455,7 +481,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     _buildSectionTitle('Tags'),
                     const SizedBox(height: 16),
                     Row(
@@ -491,7 +517,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                       children: _tags.map((tag) => _buildTagChip(tag)).toList(),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     ElevatedButton(
                       onPressed: isLoading ? null : _saveRecipe,
                       style: ElevatedButton.styleFrom(
@@ -532,7 +558,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
   Widget _buildImageSection() {
     final hasImage = _imageUrlController.text.isNotEmpty;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -573,7 +599,11 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: Colors.grey[200],
                   child: Center(
-                    child: Icon(Icons.broken_image, size: 48, color: Colors.grey[400]),
+                    child: Icon(
+                      Icons.broken_image,
+                      size: 48,
+                      color: Colors.grey[400],
+                    ),
                   ),
                 ),
               ),
@@ -593,7 +623,9 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.upload),
-                label: Text(_isUploadingImage ? 'Uploading...' : 'Upload Image'),
+                label: Text(
+                  _isUploadingImage ? 'Uploading...' : 'Upload Image',
+                ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.red600,
                   side: BorderSide(color: AppColors.red600),
@@ -612,7 +644,10 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   side: const BorderSide(color: Colors.red),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                 ),
                 child: const Icon(Icons.delete),
               ),
@@ -647,10 +682,11 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       maxLines: maxLines,
       keyboardType: keyboardType,
@@ -749,10 +785,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
   Widget _buildTagChip(String tag) {
     return Chip(
-      label: Text(
-        tag,
-        style: const TextStyle(fontFamily: 'Poppins'),
-      ),
+      label: Text(tag, style: const TextStyle(fontFamily: 'Poppins')),
       deleteIcon: const Icon(Icons.close, size: 18),
       onDeleted: () => _removeTag(tag),
       backgroundColor: AppColors.red600.withOpacity(0.1),

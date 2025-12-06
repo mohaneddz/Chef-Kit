@@ -93,58 +93,145 @@ class _MyRecipesContent extends StatelessWidget {
             return _buildEmptyState(context);
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: state.recipes.length,
-            itemBuilder: (context, index) {
-              final recipe = state.recipes[index];
-              return _buildRecipeItem(context, recipe, state);
-            },
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: state.recipes.length,
+                  itemBuilder: (context, index) {
+                    final recipe = state.recipes[index];
+                    return _buildRecipeItem(context, recipe, state);
+                  },
+                ),
+              ),
+              // Add Recipe Button
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: _buildAddRecipeButton(context),
+              ),
+            ],
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToAddRecipe(context),
-        backgroundColor: AppColors.red600,
-        icon: const Icon(Icons.add),
-        label: const Text(
-          "Add Recipe",
-          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.w600),
+    );
+  }
+
+  Widget _buildAddRecipeButton(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.red600, AppColors.red600.withOpacity(0.85)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.red600.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _navigateToAddRecipe(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.add_circle_outline, color: Colors.white, size: 22),
+                SizedBox(width: 10),
+                Text(
+                  "Add New Recipe",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: "Poppins",
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            "No recipes yet",
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[500],
-              fontFamily: "Poppins",
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.menu_book_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  "No recipes yet",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                    fontFamily: "Poppins",
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Share your culinary creations with the world!",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                    fontFamily: "Poppins",
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () => _navigateToAddRecipe(context),
-            child: Text(
-              "Create your first recipe",
-              style: TextStyle(
-                color: AppColors.red600,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                fontFamily: "Poppins",
+        ),
+        // Add Recipe Button
+        Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -4),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+          child: _buildAddRecipeButton(context),
+        ),
+      ],
     );
   }
 

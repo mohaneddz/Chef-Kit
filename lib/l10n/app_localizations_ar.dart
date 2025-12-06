@@ -590,4 +590,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileUpdateSuccess => 'تم تحديث المعلومات الشخصية';
+
+  @override
+  String get noRecipesFound => 'لم يتم العثور على وصفات';
+
+  @override
+  String get connectionIssue => 'مشكلة في الاتصال';
+
+  @override
+  String get connectionIssueMessage =>
+      'يرجى التحقق من اتصالك والمحاولة مرة أخرى';
 }

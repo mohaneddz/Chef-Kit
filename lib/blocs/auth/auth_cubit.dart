@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:chefkit/domain/models/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,9 +52,9 @@ class AuthState {
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({required this.baseUrl, required OfflineProvider offline})
-      : _offline = offline,
-        _tokenStorage = TokenStorage(),
-        super(AuthState());
+    : _offline = offline,
+      _tokenStorage = TokenStorage(),
+      super(AuthState());
 
   final String baseUrl;
   final OfflineProvider _offline;
@@ -78,51 +79,106 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(user: updatedUser));
   }
 
-  Future<void> signup(String name, String email, String password, String confirm) async {
-    emit(state.copyWith(loading: true, error: null, fieldErrors: {}, signedUp: false));
+  Future<void> signup(
+    String name,
+    String email,
+    String password,
+    String confirm,
+  ) async {
+    emit(
+      state.copyWith(
+        loading: true,
+        error: null,
+        fieldErrors: {},
+        signedUp: false,
+      ),
+    );
 
     if (name.trim().length < 3) {
-      emit(state.copyWith(loading: false, fieldErrors: {"name": "Full name is too short"}));
+      emit(
+        state.copyWith(
+          loading: false,
+          fieldErrors: {"name": "Full name is too short"},
+        ),
+      );
       return;
     }
     if (!_validateEmail(email)) {
-      emit(state.copyWith(loading: false, fieldErrors: {"email": "Invalid email"}));
+      emit(
+        state.copyWith(loading: false, fieldErrors: {"email": "Invalid email"}),
+      );
       return;
     }
     if (password.length < 8) {
-      emit(state.copyWith(loading: false, fieldErrors: {"password": "Password must be 8+ chars"}));
+      emit(
+        state.copyWith(
+          loading: false,
+          fieldErrors: {"password": "Password must be 8+ chars"},
+        ),
+      );
       return;
     }
     if (password != confirm) {
-      emit(state.copyWith(loading: false, fieldErrors: {"confirm": "Passwords don’t match"}));
+      emit(
+        state.copyWith(
+          loading: false,
+          fieldErrors: {"confirm": "Passwords don’t match"},
+        ),
+      );
       return;
     }
 
     try {
-      final resp = await http.post(
-        Uri.parse('$baseUrl/auth/signup'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password, 'full_name': name}),
-      );
+      final resp = await http
+          .post(
+            Uri.parse('$baseUrl/auth/signup'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'email': email,
+              'password': password,
+              'full_name': name,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
       if (resp.statusCode == 200) {
         // With OTP/email token, after signup we require verification
         emit(state.copyWith(loading: false, signedUp: true, needsOtp: true));
       } else if (resp.statusCode == 409) {
         // Email already exists
-        emit(state.copyWith(loading: false, fieldErrors: {"email": "Email already registered"}));
+        emit(
+          state.copyWith(
+            loading: false,
+            fieldErrors: {"email": "Email already registered"},
+          ),
+        );
       } else {
         String errorMessage = 'An unknown error occurred';
         try {
           final errorData = jsonDecode(resp.body) as Map<String, dynamic>;
-          errorMessage = errorData['error'] as String? ?? 'An error occurred (no details)';
+          errorMessage =
+              errorData['error'] as String? ?? 'An error occurred (no details)';
         } catch (_) {
           // If JSON decoding fails, use the raw body as the error
-          errorMessage = resp.body.isNotEmpty ? resp.body : 'Request failed with status ${resp.statusCode}';
+          errorMessage = resp.body.isNotEmpty
+              ? resp.body
+              : 'Request failed with status ${resp.statusCode}';
         }
         emit(state.copyWith(loading: false, error: resp.body));
       }
+    } on TimeoutException {
+      emit(
+        state.copyWith(
+          loading: false,
+          error: 'Connection timed out. Please check your internet connection.',
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(loading: false, error: e.toString()));
+      final errorMsg =
+          e.toString().contains('Connection') ||
+              e.toString().contains('SocketException')
+          ? 'Unable to connect to server. Please check your internet connection.'
+          : e.toString();
+      emit(state.copyWith(loading: false, error: errorMsg));
     }
   }
 
@@ -130,20 +186,32 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(loading: true, error: null, fieldErrors: {}));
 
     if (!_validateEmail(email)) {
-      emit(state.copyWith(loading: false, fieldErrors: {"email": "Invalid email format"}));
+      emit(
+        state.copyWith(
+          loading: false,
+          fieldErrors: {"email": "Invalid email format"},
+        ),
+      );
       return;
     }
     if (password.length < 6) {
-      emit(state.copyWith(loading: false, fieldErrors: {"password": "Password too short"}));
+      emit(
+        state.copyWith(
+          loading: false,
+          fieldErrors: {"password": "Password too short"},
+        ),
+      );
       return;
     }
 
     try {
-      final resp = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      );
+      final resp = await http
+          .post(
+            Uri.parse('$baseUrl/auth/login'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'email': email, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 10));
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body) as Map<String, dynamic>;
         final accessToken = data['access_token'] as String?;
@@ -153,7 +221,10 @@ class AuthCubit extends Cubit<AuthState> {
 
         // Save tokens securely
         if (userId != null && refreshToken != null) {
-          await _offline.saveRefreshToken(userId: userId, refreshToken: refreshToken);
+          await _offline.saveRefreshToken(
+            userId: userId,
+            refreshToken: refreshToken,
+          );
           await _tokenStorage.saveRefreshToken(refreshToken);
           await _tokenStorage.saveUserId(userId);
         }
@@ -161,33 +232,58 @@ class AuthCubit extends Cubit<AuthState> {
           await _tokenStorage.saveAccessToken(accessToken);
         }
 
-        emit(state.copyWith(
-          loading: false,
-          accessToken: accessToken,
-          userId: userId,
-          needsOtp: false,
-          user: user != null
-              ? UserModel(
-                  // Try multiple possible field names from backend
-                  fullName: user['full_name'] ?? user['user_full_name'] ?? user['name'] ?? 'User',
-                  email: user['email'] ?? email,
-                  phoneNumber: user['phone_number'] ?? user['phoneNumber'] ?? '',
-                  bio: user['bio'] ?? '',
-                )
-              : state.user,
-        ));
+        emit(
+          state.copyWith(
+            loading: false,
+            accessToken: accessToken,
+            userId: userId,
+            needsOtp: false,
+            user: user != null
+                ? UserModel(
+                    // Try multiple possible field names from backend
+                    fullName:
+                        user['full_name'] ??
+                        user['user_full_name'] ??
+                        user['name'] ??
+                        'User',
+                    email: user['email'] ?? email,
+                    phoneNumber:
+                        user['phone_number'] ?? user['phoneNumber'] ?? '',
+                    bio: user['bio'] ?? '',
+                  )
+                : state.user,
+          ),
+        );
       } else if (resp.statusCode == 403 && resp.body.contains('unverified')) {
         // Unverified email: set needsOtp and remember email
         pendingEmail = email;
         emit(state.copyWith(loading: false, error: null, needsOtp: true));
       } else if (resp.statusCode == 401) {
         // Wrong credentials
-        emit(state.copyWith(loading: false, fieldErrors: {"password": "Invalid email or password"}, needsOtp: false));
+        emit(
+          state.copyWith(
+            loading: false,
+            fieldErrors: {"password": "Invalid email or password"},
+            needsOtp: false,
+          ),
+        );
       } else {
         emit(state.copyWith(loading: false, error: resp.body, needsOtp: false));
       }
+    } on TimeoutException {
+      emit(
+        state.copyWith(
+          loading: false,
+          error: 'Connection timed out. Please check your internet connection.',
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(loading: false, error: e.toString()));
+      final errorMsg =
+          e.toString().contains('Connection') ||
+              e.toString().contains('SocketException')
+          ? 'Unable to connect to server. Please check your internet connection.'
+          : e.toString();
+      emit(state.copyWith(loading: false, error: errorMsg));
     }
   }
 
@@ -202,7 +298,13 @@ class AuthCubit extends Cubit<AuthState> {
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body) as Map<String, dynamic>;
         final user = data['user'] as Map<String, dynamic>?;
-        emit(state.copyWith(loading: false, needsOtp: false, userId: user?['id'] as String?));
+        emit(
+          state.copyWith(
+            loading: false,
+            needsOtp: false,
+            userId: user?['id'] as String?,
+          ),
+        );
       } else {
         emit(state.copyWith(loading: false, error: resp.body));
       }
@@ -236,18 +338,23 @@ class AuthCubit extends Cubit<AuthState> {
 
         if (newRefresh != null) {
           await _tokenStorage.saveRefreshToken(newRefresh);
-          await _offline.saveRefreshToken(userId: storedUserId, refreshToken: newRefresh);
+          await _offline.saveRefreshToken(
+            userId: storedUserId,
+            refreshToken: newRefresh,
+          );
         }
         if (newAccess != null) {
           await _tokenStorage.saveAccessToken(newAccess);
         }
 
-        emit(state.copyWith(
-          loading: false,
-          accessToken: newAccess ?? storedAccessToken,
-          userId: storedUserId,
-          needsOtp: false,
-        ));
+        emit(
+          state.copyWith(
+            loading: false,
+            accessToken: newAccess ?? storedAccessToken,
+            userId: storedUserId,
+            needsOtp: false,
+          ),
+        );
       } else {
         await _tokenStorage.clearAll();
         emit(state.copyWith(loading: false));
@@ -260,7 +367,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> logout() async {
     emit(state.copyWith(loading: true, error: null));
-    
+
     // Clear tokens immediately (optimistic)
     try {
       if (state.userId != null) {
@@ -270,7 +377,7 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       // Continue even if local cleanup fails
     }
-    
+
     // Notify backend (fire and forget)
     try {
       await http.post(
@@ -280,7 +387,7 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       // Ignore backend errors - user is logged out locally
     }
-    
+
     // Emit logged out state
     emit(AuthState(loading: false));
   }
@@ -300,7 +407,10 @@ class AuthCubit extends Cubit<AuthState> {
         final newAccess = data['access_token'] as String?;
         final newRefresh = data['refresh_token'] as String?;
         if (newRefresh != null && state.userId != null) {
-          await _offline.saveRefreshToken(userId: state.userId!, refreshToken: newRefresh);
+          await _offline.saveRefreshToken(
+            userId: state.userId!,
+            refreshToken: newRefresh,
+          );
           await _tokenStorage.saveRefreshToken(newRefresh);
         }
         if (newAccess != null) {

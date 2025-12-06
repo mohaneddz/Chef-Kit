@@ -16,9 +16,8 @@ import '../../widgets/recipe/seasonal_item_widget.dart';
 import 'all_chefs_page.dart';
 import '../profile/chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
-import 'all_seasonal_page.dart';
+import 'all_hot_recipes_page.dart';
 import '../recipe/recipe_details_page.dart';
-import '../recipe/item_page.dart';
 import '../../../common/constants.dart';
 
 class RecipeDiscoveryScreen extends StatefulWidget {
@@ -141,13 +140,64 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
           }
           if (state.error != null) {
             return Center(
-              child: Text(AppLocalizations.of(context)!.error(state.error!)),
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.wifi_off_rounded,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      AppLocalizations.of(context)!.connectionIssue,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.connectionIssueMessage,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                        fontFamily: 'Poppins',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<DiscoveryBloc>().add(LoadDiscovery());
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: Text(AppLocalizations.of(context)!.retry),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.red600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
           return RefreshIndicator(
             onRefresh: () async {
-              // Trigger reload of all discovery data
-              context.read<DiscoveryBloc>().add(LoadDiscovery());
+              // Force refresh all discovery data
+              context.read<DiscoveryBloc>().add(RefreshDiscovery());
               // Wait for the state to finish loading
               await Future.delayed(const Duration(milliseconds: 500));
             },
@@ -285,12 +335,6 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                     const SizedBox(height: 30),
                     SectionHeaderWidget(
                       title: AppLocalizations.of(context)!.seasonalDelights,
-                      onSeeAllPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AllSeasonalPage(),
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 16),
                     Column(
