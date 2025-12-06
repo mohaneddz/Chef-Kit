@@ -981,6 +981,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'recipes'**
   String get recipePlural;
+
+  /// No description provided for @loadingAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing your ingredients...'**
+  String get loadingAnalyzing;
+
+  /// No description provided for @loadingSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching recipes...'**
+  String get loadingSearching;
+
+  /// No description provided for @loadingMatching.
+  ///
+  /// In en, this message translates to:
+  /// **'Matching...'**
+  String get loadingMatching;
+
+  /// No description provided for @loadingFinding.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding perfect recipes...'**
+  String get loadingFinding;
+
+  /// No description provided for @findingRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding Recipes'**
+  String get findingRecipes;
+
+  /// No description provided for @recipeResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe Results'**
+  String get recipeResultsTitle;
+
+  /// No description provided for @recipesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No recipes found} =1{1 recipe found} other{{count} recipes found}}'**
+  String recipesFound(int count);
+
+  /// No description provided for @yourIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Ingredients:'**
+  String get yourIngredients;
+
+  /// No description provided for @recipesYouCanMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipes You Can Make'**
+  String get recipesYouCanMake;
+
+  /// No description provided for @sortedByMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorted by ingredient match'**
+  String get sortedByMatch;
 }
 
 class _AppLocalizationsDelegate

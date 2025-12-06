@@ -262,5 +262,22 @@
   "navProfile": "Profile",
   "allSaved": "All Saved",
   "recipeSingular": "recipe",
-  "recipePlural": "recipes"
+  "recipePlural": "recipes",
+  "loadingAnalyzing": "Analyzing your ingredients...",
+  "loadingSearching": "Searching recipes...",
+  "loadingMatching": "Matching...",
+  "loadingFinding": "Finding perfect recipes...",
+  "findingRecipes": "Finding Recipes",
+  "recipeResultsTitle": "Recipe Results",
+  "recipesFound": "{count, plural, =0{No recipes found} =1{1 recipe found} other{{count} recipes found}}",
+  "@recipesFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yourIngredients": "Your Ingredients:",
+  "recipesYouCanMake": "Recipes You Can Make",
+  "sortedByMatch": "Sorted by ingredient match"
 }

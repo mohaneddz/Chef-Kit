@@ -145,5 +145,15 @@
   "navProfile": "Profil",
   "allSaved": "Tous enregistrés",
   "recipeSingular": "recette",
-  "recipePlural": "recettes"
+  "recipePlural": "recettes",
+  "loadingAnalyzing": "Analyse de vos ingrédients...",
+  "loadingSearching": "Recherche de recettes...",
+  "loadingMatching": "Correspondance...",
+  "loadingFinding": "Recherche des recettes parfaites...",
+  "findingRecipes": "Recherche de recettes",
+  "recipeResultsTitle": "Résultats de recettes",
+  "recipesFound": "{count, plural, =0{Aucune recette trouvée} =1{1 recette trouvée} other{{count} recettes trouvées}}",
+  "yourIngredients": "Vos ingrédients :",
+  "recipesYouCanMake": "Recettes que vous pouvez faire",
+  "sortedByMatch": "Trié par correspondance d'ingrédients"
 }

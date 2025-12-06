@@ -145,5 +145,15 @@
   "navProfile": "الملف الشخصي",
   "allSaved": "كل المحفوظات",
   "recipeSingular": "وصفة",
-  "recipePlural": "وصفات"
+  "recipePlural": "وصفات",
+  "loadingAnalyzing": "تحليل مكوناتك...",
+  "loadingSearching": "البحث عن وصفات...",
+  "loadingMatching": "مطابقة...",
+  "loadingFinding": "إيجاد الوصفات المثالية...",
+  "findingRecipes": "البحث عن وصفات",
+  "recipeResultsTitle": "نتائج الوصفات",
+  "recipesFound": "{count, plural, =0{لم يتم العثور على وصفات} =1{تم العثور على وصفة واحدة} =2{تم العثور على وصفتين} other{تم العثور على {count} وصفات}}",
+  "yourIngredients": "مكوناتك:",
+  "recipesYouCanMake": "وصفات يمكنك صنعها",
+  "sortedByMatch": "مرتبة حسب تطابق المكونات"
 }

@@ -499,4 +499,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipePlural => 'recipes';
+
+  @override
+  String get loadingAnalyzing => 'Analyzing your ingredients...';
+
+  @override
+  String get loadingSearching => 'Searching recipes...';
+
+  @override
+  String get loadingMatching => 'Matching...';
+
+  @override
+  String get loadingFinding => 'Finding perfect recipes...';
+
+  @override
+  String get findingRecipes => 'Finding Recipes';
+
+  @override
+  String get recipeResultsTitle => 'Recipe Results';
+
+  @override
+  String recipesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recipes found',
+      one: '1 recipe found',
+      zero: 'No recipes found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get yourIngredients => 'Your Ingredients:';
+
+  @override
+  String get recipesYouCanMake => 'Recipes You Can Make';
+
+  @override
+  String get sortedByMatch => 'Sorted by ingredient match';
 }

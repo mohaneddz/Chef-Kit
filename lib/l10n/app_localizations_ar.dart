@@ -496,4 +496,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get recipePlural => 'وصفات';
+
+  @override
+  String get loadingAnalyzing => 'تحليل مكوناتك...';
+
+  @override
+  String get loadingSearching => 'البحث عن وصفات...';
+
+  @override
+  String get loadingMatching => 'مطابقة...';
+
+  @override
+  String get loadingFinding => 'إيجاد الوصفات المثالية...';
+
+  @override
+  String get findingRecipes => 'البحث عن وصفات';
+
+  @override
+  String get recipeResultsTitle => 'نتائج الوصفات';
+
+  @override
+  String recipesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تم العثور على $count وصفات',
+      two: 'تم العثور على وصفتين',
+      one: 'تم العثور على وصفة واحدة',
+      zero: 'لم يتم العثور على وصفات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get yourIngredients => 'مكوناتك:';
+
+  @override
+  String get recipesYouCanMake => 'وصفات يمكنك صنعها';
+
+  @override
+  String get sortedByMatch => 'مرتبة حسب تطابق المكونات';
 }

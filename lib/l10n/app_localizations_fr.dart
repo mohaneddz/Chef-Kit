@@ -501,4 +501,43 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get recipePlural => 'recettes';
+
+  @override
+  String get loadingAnalyzing => 'Analyse de vos ingrédients...';
+
+  @override
+  String get loadingSearching => 'Recherche de recettes...';
+
+  @override
+  String get loadingMatching => 'Correspondance...';
+
+  @override
+  String get loadingFinding => 'Recherche des recettes parfaites...';
+
+  @override
+  String get findingRecipes => 'Recherche de recettes';
+
+  @override
+  String get recipeResultsTitle => 'Résultats de recettes';
+
+  @override
+  String recipesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recettes trouvées',
+      one: '1 recette trouvée',
+      zero: 'Aucune recette trouvée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get yourIngredients => 'Vos ingrédients :';
+
+  @override
+  String get recipesYouCanMake => 'Recettes que vous pouvez faire';
+
+  @override
+  String get sortedByMatch => 'Trié par correspondance d\'ingrédients';
 }

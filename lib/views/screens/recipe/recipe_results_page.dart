@@ -3,6 +3,7 @@ import 'package:chefkit/blocs/recipe_results/recipe_results_events.dart';
 import 'package:chefkit/blocs/recipe_results/recipe_results_state.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/domain/repositories/recipe/recipe_repo.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/views/screens/recipe/item_page.dart';
 import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
 import 'package:flutter/material.dart';
@@ -32,16 +33,16 @@ class RecipeResultsPage extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Recipe Results",
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.recipeResultsTitle,
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    "${state.matchedRecipes.length} recipe${state.matchedRecipes.length != 1 ? 's' : ''} found",
+                    AppLocalizations.of(context)!.recipesFound(state.matchedRecipes.length),
                     style: const TextStyle(
                       color: Color(0xFF4A5565),
                       fontSize: 14,
@@ -61,7 +62,7 @@ class RecipeResultsPage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             if (state.error != null) {
-              return Center(child: Text('Error: ${state.error}'));
+              return Center(child: Text(AppLocalizations.of(context)!.error(state.error.toString())));
             }
 
             return SingleChildScrollView(
@@ -88,16 +89,16 @@ class RecipeResultsPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            children: const [
-                              Icon(
+                            children: [
+                              const Icon(
                                 Icons.check_circle,
                                 color: AppColors.red600,
                                 size: 20,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
-                                "Your Ingredients:",
-                                style: TextStyle(
+                                AppLocalizations.of(context)!.yourIngredients,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.red600,
@@ -137,18 +138,18 @@ class RecipeResultsPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    const Text(
-                      "Recipes You Can Make",
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.recipesYouCanMake,
+                      style: const TextStyle(
                         color: Color(0xFF0A0A0A),
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      "Sorted by ingredient match",
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.sortedByMatch,
+                      style: const TextStyle(
                         color: Color(0xFF6A7282),
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
@@ -197,11 +198,9 @@ class RecipeResultsPage extends StatelessWidget {
                                       builder: (context) => ItemPage(
                                         title: recipe.name,
                                         imagePath: recipe.imageUrl,
-                                        servings:
-                                            '${recipe.servingsCount} servings',
-                                        calories: '${recipe.calories} Kcal',
-                                        time:
-                                            '${recipe.prepTime + recipe.cookTime} min',
+                                        servings: AppLocalizations.of(context)!.servings(recipe.servingsCount.toString()),
+                                        calories: AppLocalizations.of(context)!.calories(recipe.calories.toString()),
+                                        time: AppLocalizations.of(context)!.minutes((recipe.prepTime + recipe.cookTime).toString()),
                                         ingredients: recipe.ingredients,
                                         tags: recipe.tags,
                                         recipeText: recipe.instructions.join(
