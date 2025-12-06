@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform, SocketException;
 import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:io' show Platform;
 import '../../common/token_storage.dart';
 
 class RecipeRepository {
@@ -31,12 +31,40 @@ class RecipeRepository {
     return {'Content-Type': 'application/json'};
   }
 
+  /// Helper method to perform HTTP GET with automatic retry on connection errors
+  Future<http.Response> _httpGetWithRetry(
+    Uri uri, {
+    Map<String, String>? headers,
+    int maxRetries = 3,
+  }) async {
+    int attempts = 0;
+    while (true) {
+      attempts++;
+      try {
+        return await http.get(uri, headers: headers);
+      } catch (e) {
+        // Check if it's a connection-related error
+        final isConnectionError =
+            e is SocketException ||
+            e.toString().contains('Connection closed') ||
+            e.toString().contains('ClientException');
+
+        if (isConnectionError && attempts < maxRetries) {
+          print('🔄 HTTP retry attempt $attempts/$maxRetries for $uri');
+          await Future.delayed(Duration(milliseconds: 100 * attempts));
+          continue;
+        }
+        rethrow;
+      }
+    }
+  }
+
   Future<List<String>> _getFavoriteIds() async {
     try {
       final headers = await _getHeaders();
       if (!headers.containsKey('Authorization')) return [];
 
-      final response = await http.get(
+      final response = await _httpGetWithRetry(
         Uri.parse('$baseUrl/api/favorites/ids'),
         headers: headers,
       );
@@ -111,7 +139,9 @@ class RecipeRepository {
   }
 
   Future<List<Recipe>> fetchHotRecipes() async {
-    final response = await http.get(Uri.parse('$baseUrl/api/recipes/trending'));
+    final response = await _httpGetWithRetry(
+      Uri.parse('$baseUrl/api/recipes/trending'),
+    );
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final recipes = data.map((json) => Recipe.fromJson(json)).toList();
@@ -121,9 +151,8 @@ class RecipeRepository {
   }
 
   Future<List<Recipe>> fetchSeasonalRecipes() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/recipes?tag=seasonal'),
-    );
+    // TODO: Add seasonal recipe filter to backend
+    final response = await _httpGetWithRetry(Uri.parse('$baseUrl/api/recipes'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final recipes = data.map((json) => Recipe.fromJson(json)).toList();
@@ -187,11 +216,21 @@ class RecipeRepository {
     }
   }
 
+  Future<List<Recipe>> fetchAllRecipes() async {
+    final response = await _httpGetWithRetry(Uri.parse('$baseUrl/api/recipes'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final recipes = data.map((json) => Recipe.fromJson(json)).toList();
+      return _processRecipes(recipes);
+    }
+    throw Exception('Failed to load recipes');
+  }
+
   Future<List<Recipe>> fetchFavoriteRecipes() async {
     final headers = await _getHeaders();
     if (!headers.containsKey('Authorization')) return [];
 
-    final response = await http.get(
+    final response = await _httpGetWithRetry(
       Uri.parse('$baseUrl/api/favorites'),
       headers: headers,
     );
