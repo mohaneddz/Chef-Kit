@@ -281,14 +281,13 @@ class RecipeRepository {
   }) async {
     final headers = await _getHeaders();
     final body = json.encode({
-      'lang': lang,
-      'max_time': maxTime,
+      'time': maxTime,
       'ingredients': ingredients,
     });
 
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/generate-recipes'),
+        Uri.parse('$baseUrl/api/cook'),
         headers: headers,
         body: body,
       );
