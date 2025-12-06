@@ -6,6 +6,7 @@ class FavouritesState {
   final int selectedCategoryIndex;
   final List<Recipe> displayRecipes;
   final String? error;
+  final String searchQuery;
 
   FavouritesState({
     this.loading = false,
@@ -13,6 +14,7 @@ class FavouritesState {
     this.selectedCategoryIndex = 0,
     this.displayRecipes = const [],
     this.error,
+    this.searchQuery = '',
   });
 
   FavouritesState copyWith({
@@ -21,11 +23,13 @@ class FavouritesState {
     int? selectedCategoryIndex,
     List<Recipe>? displayRecipes,
     String? error,
+    String? searchQuery,
   }) => FavouritesState(
     loading: loading ?? this.loading,
     categories: categories ?? this.categories,
     selectedCategoryIndex: selectedCategoryIndex ?? this.selectedCategoryIndex,
     displayRecipes: displayRecipes ?? this.displayRecipes,
     error: error,
+    searchQuery: searchQuery ?? this.searchQuery,
   );
 }

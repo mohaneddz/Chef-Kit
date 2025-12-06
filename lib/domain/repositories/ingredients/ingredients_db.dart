@@ -5,7 +5,7 @@ class IngredientsDB extends IngredientsRepo {
   @override
   Future<List<Map<String, dynamic>>> getAllIngredients() async {
     final db = await DBHelper.database;
-    return await db.query("ingredients", orderBy: "name ASC");
+    return await db.query("ingredients", orderBy: "name_en ASC");
   }
 
   @override

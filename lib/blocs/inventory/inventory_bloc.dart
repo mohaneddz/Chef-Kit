@@ -10,6 +10,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
             available: [], // list of the user's current available ingredients        
             browse: [],
             showMore: false,
+            searchTerm: '',
           ),
         ) {
 
@@ -43,19 +44,22 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     on<LoadInventoryEvent>((event, emit) async {
       final repo = IngredientsRepo.getInstance();
       final results = await repo.getAllIngredients();
-
       final browseList = results.map((e) => {
-        "name": e["name"].toString(),
-        "type": e["type"].toString(),
+        "name": e["name_en"].toString(), 
+        "type": e["type_en"].toString(),
         "imageUrl": e["image_path"].toString(),
       }).toList();
 
       emit(
         state.copyWith(
           browse: browseList,
-          available: [], // empty at first
+          available: state.available,
         ),
       );
+    });
+
+    on<SearchInventoryEvent>((event, emit) {
+      emit(state.copyWith(searchTerm: event.searchTerm));
     });
 
   }

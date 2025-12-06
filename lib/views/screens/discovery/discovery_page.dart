@@ -16,8 +16,19 @@ import 'all_seasonal_page.dart';
 import '../recipe/recipe_details_page.dart';
 import '../../../common/constants.dart';
 
-class RecipeDiscoveryScreen extends StatelessWidget {
+class RecipeDiscoveryScreen extends StatefulWidget {
   const RecipeDiscoveryScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RecipeDiscoveryScreen> createState() => _RecipeDiscoveryScreenState();
+}
+
+class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<DiscoveryBloc>().add(LoadDiscovery());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +44,25 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Discover Recipes', style: TextStyle(color: Color(0xFF1D1617), fontSize: 26, fontWeight: FontWeight.w800, fontFamily: 'Poppins')),
+              const Text(
+                'Discover Recipes',
+                style: TextStyle(
+                  color: Color(0xFF1D1617),
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Poppins',
+                ),
+              ),
               const SizedBox(height: 4),
-              Text('Find your next favorite meal', style: TextStyle(color: Colors.grey[500], fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'LeagueSpartan')),
+              Text(
+                'Find your next favorite meal',
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'LeagueSpartan',
+                ),
+              ),
             ],
           ),
         ),
@@ -44,14 +71,25 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 25.0, top: 10),
             child: GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => NotificationsPage(),)),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              ),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
-                child: const Icon(Icons.notifications_outlined, size: 24, color: Colors.black),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                ),
+                child: const Icon(
+                  Icons.notifications_outlined,
+                  size: 24,
+                  color: Colors.black,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: BlocBuilder<DiscoveryBloc, DiscoveryState>(
@@ -65,7 +103,10 @@ class RecipeDiscoveryScreen extends StatelessWidget {
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25),
+              padding: const EdgeInsets.symmetric(
+                vertical: 10.0,
+                horizontal: 25,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -74,7 +115,10 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
                     title: 'Chefs',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllChefsPage())),
+                    onSeeAllPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AllChefsPage()),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SingleChildScrollView(
@@ -93,7 +137,8 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ChefProfilePublicPage(chefId: chef.id),
+                                  builder: (_) =>
+                                      ChefProfilePublicPage(chefId: chef.id),
                                 ),
                               );
                             },
@@ -106,7 +151,12 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                   const SizedBox(height: 30),
                   SectionHeaderWidget(
                     title: 'Hot Recipes',
-                    onSeeAllPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllHotRecipesPage())),
+                    onSeeAllPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AllHotRecipesPage(),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   GridView.builder(
@@ -123,8 +173,8 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final recipe = state.hotRecipes[index];
                       return RecipeCardWidget(
-                        title: recipe.title,
-                        subtitle: recipe.subtitle,
+                        title: recipe.name,
+                        subtitle: recipe.description,
                         imageUrl: recipe.imageUrl,
                         isFavorite: recipe.isFavorite,
                         heroTag: 'recipe_${recipe.id}',
@@ -135,14 +185,14 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                             PageRouteBuilder(
                               pageBuilder: (context, animation, secondaryAnimation) => RecipeDetailsPage(
                                 recipeId: recipe.id,
-                                recipeName: recipe.title,
-                                recipeDescription: recipe.subtitle,
+                                recipeName: recipe.name,
+                                recipeDescription: recipe.description,
                                 recipeImageUrl: recipe.imageUrl,
-                                recipePrepTime: 15,
-                                recipeCookTime: int.tryParse(recipe.time.replaceAll(RegExp(r'[^0-9]'), '')) ?? 30,
-                                recipeCalories: 450,
-                                recipeServingsCount: 4,
-                                recipeIngredients: const [
+                                recipePrepTime: recipe.prepTime,
+                                recipeCookTime: recipe.cookTime,
+                                recipeCalories: recipe.calories,
+                                recipeServingsCount: recipe.servingsCount,
+                                recipeIngredients: recipe.ingredients.isNotEmpty ? recipe.ingredients : const [
                                   '2 cups all-purpose flour',
                                   '1 cup granulated sugar',
                                   '3 large eggs',
@@ -152,7 +202,7 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                                   '2 tsp baking powder',
                                   '1 cup milk',
                                 ],
-                                recipeInstructions: const [
+                                recipeInstructions: recipe.instructions.isNotEmpty ? recipe.instructions : const [
                                   'Preheat your oven to 350°F (175°C). Grease and flour a 9-inch baking pan.',
                                   'In a large bowl, cream together the butter and sugar until light and fluffy.',
                                   'Beat in the eggs one at a time, then stir in the vanilla extract.',
@@ -194,10 +244,27 @@ class RecipeDiscoveryScreen extends StatelessWidget {
                     children: [
                       for (final recipe in state.seasonalRecipes) ...[
                         SeasonalItemWidget(
-                          title: recipe.title,
-                          subtitle: recipe.subtitle,
+                          title: recipe.name,
+                          subtitle: recipe.description,
                           imageUrl: recipe.imageUrl,
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ItemPage(
+                                  title: recipe.name,
+                                  imagePath: recipe.imageUrl,
+                                  servings: '${recipe.servingsCount} servings',
+                                  calories: '${recipe.calories} Kcal',
+                                  time: '${recipe.prepTime + recipe.cookTime} min',
+                                  ingredients: recipe.ingredients,
+                                  tags: recipe.tags,
+                                  recipeText: recipe.instructions.join('\n'),
+                                  initialFavorite: recipe.isFavorite,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                       ],

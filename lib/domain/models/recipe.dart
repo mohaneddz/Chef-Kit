@@ -1,34 +1,38 @@
+import 'dart:convert';
+
 class Recipe {
   final String id;
-  final String title;
-  final String subtitle;
+  final String name;
+  final String description;
   final String imageUrl;
-  final String time;
-  final List<String> tags;
-  final bool isFavorite;
-  final bool isTrending;
-  final String chefId;
-  final String servings;
-  final String calories;
+  final String ownerId;
+  final int servingsCount;
+  final int prepTime;
+  final int cookTime;
+  final int calories;
   final List<String> ingredients;
   final List<String> instructions;
-  final String recipeText;
+  final List<String> tags;
+  final List<String> externalSources;
+  final bool isFavorite;
+  final bool isTrending;
 
-  Recipe({
+  const Recipe({
     required this.id,
-    required this.title,
-    required this.subtitle,
+    required this.name,
+    required this.description,
     required this.imageUrl,
-    required this.time,
-    required this.tags,
-    this.isFavorite = false,
-    this.isTrending = false,
-    required this.chefId,
-    this.servings = '4 servings',
-    this.calories = '500 Kcal',
+    required this.ownerId,
+    this.servingsCount = 1,
+    this.prepTime = 0,
+    this.cookTime = 0,
+    this.calories = 0,
     this.ingredients = const [],
     this.instructions = const [],
-    this.recipeText = 'Recipe details...',
+    this.tags = const [],
+    this.externalSources = const [],
+    this.isFavorite = false,
+    this.isTrending = false,
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
@@ -62,8 +66,7 @@ class Recipe {
         }
       }
       
-      final totalMinutes = prepMinutes + cookMinutes;
-      print('  ✅ Total time: $totalMinutes min');
+      print('  ✅ Total time: ${prepMinutes + cookMinutes} min');
       
       // Safely parse array fields
       print('  Parsing ingredients...');
@@ -151,22 +154,25 @@ class Recipe {
       
       final recipe = Recipe(
         id: json['recipe_id']?.toString() ?? '',
-        title: json['recipe_name']?.toString() ?? 'Unknown Recipe',
-        subtitle: json['recipe_description']?.toString() ?? '',
+        name: json['recipe_name']?.toString() ?? 'Unknown Recipe',
+        description: json['recipe_description']?.toString() ?? '',
         imageUrl: json['recipe_image_url']?.toString() ?? 'https://via.placeholder.com/400',
-        time: totalMinutes > 0 ? '$totalMinutes min' : 'N/A',
+        ownerId: json['recipe_owner']?.toString() ?? '',
+        servingsCount: servingsCount,
+        prepTime: prepMinutes,
+        cookTime: cookMinutes,
+        calories: caloriesCount,
         tags: tags,
-        isFavorite: false,
-        isTrending: json['recipe_is_trending'] == true,
-        chefId: json['recipe_owner']?.toString() ?? '',
-        servings: '$servingsCount servings',
-        calories: '$caloriesCount Kcal',
         ingredients: ingredients,
         instructions: instructions,
-        recipeText: instructions.isNotEmpty ? instructions.join('\n\n') : 'Recipe details...',
+        externalSources: _parseList(json['recipe_external_sources']),
+        isFavorite: (json['is_favourite'] is int)
+            ? (json['is_favourite'] == 1)
+            : (json['is_favourite'] as bool? ?? false),
+        isTrending: json['recipe_is_trending'] == true,
       );
       
-      print('  ✅ Recipe object created: ${recipe.title}');
+      print('  ✅ Recipe object created: ${recipe.name}');
       return recipe;
     } catch (e, stackTrace) {
       print('\n❌❌❌ CRITICAL ERROR parsing Recipe from JSON ❌❌❌');
@@ -182,47 +188,80 @@ class Recipe {
       // Return a default recipe to prevent crash
       return Recipe(
         id: json['recipe_id']?.toString() ?? 'error',
-        title: 'Error Loading Recipe',
-        subtitle: 'There was an error loading this recipe',
+        name: 'Error Loading Recipe',
+        description: 'There was an error loading this recipe',
         imageUrl: 'https://via.placeholder.com/400',
-        time: 'N/A',
-        tags: [],
-        chefId: json['recipe_owner']?.toString() ?? '',
+        ownerId: json['recipe_owner']?.toString() ?? '',
       );
     }
   }
 
+  static List<String> _parseList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) return value.map((e) => e.toString()).toList();
+    if (value is String) {
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is List) {
+          return decoded.map((e) => e.toString()).toList();
+        }
+      } catch (_) {}
+    }
+    return [];
+  }
+
   Recipe copyWith({
     String? id,
-    String? title,
-    String? subtitle,
+    String? name,
+    String? description,
     String? imageUrl,
-    String? time,
-    List<String>? tags,
-    bool? isFavorite,
-    bool? isTrending,
-    String? chefId,
-    String? servings,
-    String? calories,
+    String? ownerId,
+    int? servingsCount,
+    int? prepTime,
+    int? cookTime,
+    int? calories,
     List<String>? ingredients,
     List<String>? instructions,
-    String? recipeText,
+    List<String>? tags,
+    List<String>? externalSources,
+    bool? isFavorite,
+    bool? isTrending,
   }) {
     return Recipe(
       id: id ?? this.id,
-      title: title ?? this.title,
-      subtitle: subtitle ?? this.subtitle,
+      name: name ?? this.name,
+      description: description ?? this.description,
       imageUrl: imageUrl ?? this.imageUrl,
-      time: time ?? this.time,
-      tags: tags ?? this.tags,
-      isFavorite: isFavorite ?? this.isFavorite,
-      isTrending: isTrending ?? this.isTrending,
-      chefId: chefId ?? this.chefId,
-      servings: servings ?? this.servings,
+      ownerId: ownerId ?? this.ownerId,
+      servingsCount: servingsCount ?? this.servingsCount,
+      prepTime: prepTime ?? this.prepTime,
+      cookTime: cookTime ?? this.cookTime,
       calories: calories ?? this.calories,
       ingredients: ingredients ?? this.ingredients,
       instructions: instructions ?? this.instructions,
-      recipeText: recipeText ?? this.recipeText,
+      tags: tags ?? this.tags,
+      externalSources: externalSources ?? this.externalSources,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isTrending: isTrending ?? this.isTrending,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'recipe_id': id,
+      'recipe_name': name,
+      'recipe_description': description,
+      'recipe_image_url': imageUrl,
+      'recipe_owner': ownerId,
+      'recipe_servings_count': servingsCount,
+      'recipe_prep_time': prepTime,
+      'recipe_cook_time': cookTime,
+      'recipe_calories': calories,
+      'recipe_ingredients': ingredients,
+      'recipe_instructions': instructions,
+      'recipe_tags': tags,
+      'recipe_external_sources': externalSources,
+      'is_favourite': isFavorite ? 1 : 0,
+    };
   }
 }

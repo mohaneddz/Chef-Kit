@@ -22,9 +22,33 @@ class DBHelper {
         await db.execute('''
           CREATE TABLE ingredients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            type TEXT NOT NULL,
+            name_en TEXT NOT NULL,
+            name_fr TEXT NOT NULL,
+            name_ar TEXT NOT NULL,
+            type_en TEXT NOT NULL,
+            type_fr TEXT NOT NULL,
+            type_ar TEXT NOT NULL,
             image_path TEXT NOT NULL
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE recipes (
+            recipe_id TEXT PRIMARY KEY,
+            recipe_name TEXT,
+            recipe_description TEXT,
+            recipe_image_url TEXT,
+            recipe_owner TEXT,
+            recipe_servings_count INTEGER,
+            recipe_prep_time INTEGER,
+            recipe_cook_time INTEGER,
+            recipe_calories INTEGER,
+            recipe_ingredients TEXT,
+            recipe_instructions TEXT,
+            recipe_items TEXT,
+            recipe_tags TEXT,
+            recipe_external_sources TEXT,
+            is_favourite INTEGER DEFAULT 0
           )
         ''');
       },

@@ -2,6 +2,8 @@ import 'package:chefkit/views/screens/favourite/favourites_page.dart';
 import 'package:chefkit/views/screens/recipe/recipe_loading_page.dart';
 import 'package:chefkit/views/screens/inventory/inventory_page.dart';
 import 'package:chefkit/views/screens/profile/profile_page.dart';
+import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'discovery/discovery_page.dart';
 import 'package:chefkit/views/layout/custom_bottom_navbar.dart';
 import 'package:flutter/material.dart';
@@ -40,16 +42,11 @@ class _HomePageState extends State<HomePage> {
         selectedIndex: _selectedIndex,
         onItemTapped: (index) {
           if (index == 2) {
-            final List<String> availableIngredients = [
-              "Escalope",
-              "Tomato",
-              "Potato",
-              "Paprika",
-              "Chicken",
-              "Onion",
-              "Carrot",
-              "Cumin",
-            ];
+            final inventoryState = context.read<InventoryBloc>().state;
+            final List<String> availableIngredients = inventoryState.available
+                .map((e) => e['name'] ?? '')
+                .where((name) => name.isNotEmpty)
+                .toList();
 
             Navigator.push(
               context,
