@@ -30,3 +30,11 @@ class SearchFavourites extends FavouritesEvent {
   final String query;
   SearchFavourites(this.query);
 }
+
+class RefreshFavourites extends FavouritesEvent {
+  final String? allSavedText;
+  final String? recipeText;
+  final String? recipesText;
+
+  RefreshFavourites({this.allSavedText, this.recipeText, this.recipesText});
+}

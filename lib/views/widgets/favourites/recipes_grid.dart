@@ -2,6 +2,10 @@ import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
 import 'package:chefkit/domain/models/recipe.dart';
 import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
+import 'package:chefkit/blocs/favourites/favourites_events.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class RecipesGrid extends StatelessWidget {
   final List<Recipe> recipes;
@@ -57,13 +61,28 @@ class RecipesGrid extends StatelessWidget {
                   imageUrl: r.imageUrl,
                   isFavorite: r.isFavorite,
                   onFavoritePressed: () => onFavoriteToggle(r),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => RecipeDetailsPage(recipe: r),
                       ),
                     );
+                    // Refresh favourites when returning from details page
+                    // This creates a "live" feel if the user unliked the recipe inside details
+                    if (context.mounted) {
+                      context.read<FavouritesBloc>().add(
+                        RefreshFavourites(
+                          allSavedText: AppLocalizations.of(context)!.allSaved,
+                          recipeText: AppLocalizations.of(
+                            context,
+                          )!.recipeSingular,
+                          recipesText: AppLocalizations.of(
+                            context,
+                          )!.recipePlural,
+                        ),
+                      );
+                    }
                   },
                 ),
               );

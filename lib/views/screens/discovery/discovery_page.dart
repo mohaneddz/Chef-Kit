@@ -16,7 +16,6 @@ import '../../widgets/recipe/seasonal_item_widget.dart';
 import 'all_chefs_page.dart';
 import '../profile/chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
-import 'all_hot_recipes_page.dart';
 import '../recipe/recipe_details_page.dart';
 import '../../../common/constants.dart';
 

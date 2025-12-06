@@ -12,6 +12,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     on<SelectCategory>(_onSelectCategory);
     on<ToggleFavoriteRecipe>(_onToggleFavorite);
     on<SearchFavourites>(_onSearch);
+    on<RefreshFavourites>(_onRefresh);
   }
 
   void _onSearch(SearchFavourites event, Emitter<FavouritesState> emit) {
@@ -40,12 +41,38 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     Emitter<FavouritesState> emit,
   ) async {
     emit(state.copyWith(loading: true, error: null));
+    await _loadData(
+      emit,
+      event.allSavedText,
+      event.recipeText,
+      event.recipesText,
+    );
+  }
+
+  Future<void> _onRefresh(
+    RefreshFavourites event,
+    Emitter<FavouritesState> emit,
+  ) async {
+    // We don't set loading: true because RefreshIndicator shows its own spinner
+    await _loadData(
+      emit,
+      event.allSavedText,
+      event.recipeText,
+      event.recipesText,
+    );
+  }
+
+  Future<void> _loadData(
+    Emitter<FavouritesState> emit,
+    String? allSavedText,
+    String? recipeText,
+    String? recipesText,
+  ) async {
     try {
       final favoriteRecipes = await recipeRepository.fetchFavoriteRecipes();
-      final allSavedTitle = event.allSavedText ?? "All Saved";
-      final recipeSingular = event.recipeText ?? "recipe";
-      final recipePlural = event.recipesText ?? "recipes";
-      final otherTitle = event.otherText ?? "Other";
+      final allSavedTitle = allSavedText ?? "All Saved";
+      final recipeSingular = recipeText ?? "recipe";
+      final recipePlural = recipesText ?? "recipes";
 
       final Map<String, List<Recipe>> grouped = {};
       for (var recipe in favoriteRecipes) {
