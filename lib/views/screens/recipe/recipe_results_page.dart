@@ -42,7 +42,9 @@ class RecipeResultsPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    AppLocalizations.of(context)!.recipesFound(state.matchedRecipes.length),
+                    AppLocalizations.of(
+                      context,
+                    )!.recipesFound(state.matchedRecipes.length),
                     style: const TextStyle(
                       color: Color(0xFF4A5565),
                       fontSize: 14,
@@ -62,7 +64,11 @@ class RecipeResultsPage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             if (state.error != null) {
-              return Center(child: Text(AppLocalizations.of(context)!.error(state.error.toString())));
+              return Center(
+                child: Text(
+                  AppLocalizations.of(context)!.error(state.error.toString()),
+                ),
+              );
             }
 
             return SingleChildScrollView(
@@ -198,9 +204,19 @@ class RecipeResultsPage extends StatelessWidget {
                                       builder: (context) => ItemPage(
                                         title: recipe.name,
                                         imagePath: recipe.imageUrl,
-                                        servings: AppLocalizations.of(context)!.servings(recipe.servingsCount.toString()),
-                                        calories: AppLocalizations.of(context)!.calories(recipe.calories.toString()),
-                                        time: AppLocalizations.of(context)!.minutes((recipe.prepTime + recipe.cookTime).toString()),
+                                        servings: AppLocalizations.of(context)!
+                                            .servings(
+                                              recipe.servingsCount.toString(),
+                                            ),
+                                        calories: AppLocalizations.of(
+                                          context,
+                                        )!.calories(recipe.calories.toString()),
+                                        time: AppLocalizations.of(context)!
+                                            .minutes(
+                                              (recipe.prepTime +
+                                                      recipe.cookTime)
+                                                  .toString(),
+                                            ),
                                         ingredients: recipe.ingredients,
                                         tags: recipe.tags,
                                         recipeText: recipe.instructions.join(
