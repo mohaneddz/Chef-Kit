@@ -1,10 +1,11 @@
-import 'dart:io';
+// unused import removed
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/blocs/profile/profile_bloc.dart';
 import 'package:chefkit/blocs/profile/profile_events.dart';
 import 'package:chefkit/blocs/profile/profile_state.dart';
 import 'package:chefkit/blocs/locale/locale_cubit.dart';
 import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/common/config.dart';
 import 'package:chefkit/domain/repositories/profile_repository.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:flutter/foundation.dart';
@@ -50,14 +51,8 @@ class ProfilePage extends StatelessWidget {
     }
 
     // Resolve backend baseUrl depending on platform
-    final String baseUrl;
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+    // Resolve backend baseUrl
+    final String baseUrl = AppConfig.baseUrl;
 
     return BlocProvider(
       create: (context) => ProfileBloc(

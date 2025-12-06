@@ -2,20 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/chef.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:io' show Platform;
+import '../../common/config.dart';
 
 class ChefRepository {
   late final String baseUrl;
 
   ChefRepository() {
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+    baseUrl = AppConfig.baseUrl;
   }
 
   Future<List<Chef>> fetchAllChefs() async {

@@ -1,8 +1,9 @@
-import 'dart:io';
+// unused import removed
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../common/constants.dart';
+import '../../../common/config.dart';
 import '../../../blocs/auth/auth_cubit.dart';
 import '../../../blocs/my_recipes/my_recipes_bloc.dart';
 import '../../../blocs/my_recipes/my_recipes_events.dart';
@@ -27,14 +28,8 @@ class MyRecipesPage extends StatelessWidget {
     }
 
     // Determine baseUrl based on platform
-    final String baseUrl;
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+    // Determine baseUrl
+    final String baseUrl = AppConfig.baseUrl;
 
     return BlocProvider(
       create: (context) => MyRecipesBloc(

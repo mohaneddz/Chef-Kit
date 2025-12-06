@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
+// unused import removed
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import '../../../common/constants.dart';
+import '../../../common/config.dart';
 import '../../../blocs/auth/auth_cubit.dart';
 import '../../../blocs/my_recipes/my_recipes_bloc.dart';
 import '../../../blocs/my_recipes/my_recipes_events.dart';
@@ -188,14 +189,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
         throw Exception('Not authenticated');
       }
 
-      final String baseUrl;
-      if (kIsWeb) {
-        baseUrl = 'http://localhost:5000';
-      } else if (Platform.isAndroid) {
-        baseUrl = 'http://10.0.2.2:5000';
-      } else {
-        baseUrl = 'http://localhost:5000';
-      }
+      final String baseUrl = AppConfig.baseUrl; // Use centralized config
 
       print('[recipe-image] Uploading to backend...');
       final resp = await http.post(

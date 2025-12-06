@@ -3,17 +3,17 @@ import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
+import 'package:chefkit/common/config.dart';
 
 // Repositories
 import 'package:chefkit/domain/repositories/chef_repository.dart';
 import 'package:chefkit/domain/repositories/recipe_repository.dart';
-import 'package:chefkit/domain/repositories/profile_repository.dart';
+// unused profile repo removed
 
 // Blocs & events
 import 'package:chefkit/blocs/discovery/discovery_bloc.dart';
 import 'package:chefkit/blocs/discovery/discovery_events.dart';
-import 'package:chefkit/blocs/profile/profile_bloc.dart';
-import 'package:chefkit/blocs/profile/profile_events.dart';
+// unused profile blocs removed
 import 'package:chefkit/blocs/chef_profile/chef_profile_bloc.dart';
 import 'package:chefkit/blocs/chefs/chefs_bloc.dart';
 import 'package:chefkit/blocs/chefs/chefs_events.dart';
@@ -27,8 +27,6 @@ import 'package:chefkit/blocs/notifications/notifications_event.dart';
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/domain/offline_provider.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:io' show Platform;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 Future<void> main() async {
@@ -57,14 +55,7 @@ class MainApp extends StatelessWidget {
     final chefRepository = ChefRepository();
     final recipeRepository = RecipeRepository();
 
-    final String baseUrl;
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+    final String baseUrl = AppConfig.baseUrl;
 
     return MultiRepositoryProvider(
       providers: [

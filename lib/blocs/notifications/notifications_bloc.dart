@@ -1,9 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
+// unused import removed
+// unused foundation import removed
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import '../../common/token_storage.dart';
+import '../../common/config.dart';
 import 'notifications_event.dart';
 import 'notifications_state.dart';
 
@@ -12,13 +13,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   late final String baseUrl;
 
   NotificationsBloc() : super(NotificationsInitial()) {
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+    baseUrl = AppConfig.baseUrl; // Use centralized config
 
     on<LoadNotifications>(_onLoadNotifications);
     on<MarkNotificationAsRead>(_onMarkAsRead);
@@ -50,19 +45,30 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final List<Map<String, dynamic>> notifications = List<Map<String, dynamic>>.from(data);
-        
+        final List<Map<String, dynamic>> notifications =
+            List<Map<String, dynamic>>.from(data);
+
         // Sort by date descending if not already
         notifications.sort((a, b) {
-            final aDate = DateTime.tryParse(a['notification_created_at'] ?? '') ?? DateTime.now();
-            final bDate = DateTime.tryParse(b['notification_created_at'] ?? '') ?? DateTime.now();
-            return bDate.compareTo(aDate);
+          final aDate =
+              DateTime.tryParse(a['notification_created_at'] ?? '') ??
+              DateTime.now();
+          final bDate =
+              DateTime.tryParse(b['notification_created_at'] ?? '') ??
+              DateTime.now();
+          return bDate.compareTo(aDate);
         });
 
-        final int unreadCount = notifications.where((n) => n['notification_is_read'] == false).length;
+        final int unreadCount = notifications
+            .where((n) => n['notification_is_read'] == false)
+            .length;
         emit(NotificationsLoaded(notifications, unreadCount));
       } else {
-        emit(NotificationsError('Failed to load notifications: ${response.statusCode}'));
+        emit(
+          NotificationsError(
+            'Failed to load notifications: ${response.statusCode}',
+          ),
+        );
       }
     } catch (e) {
       emit(NotificationsError(e.toString()));
@@ -89,9 +95,11 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
           }
           return n;
         }).toList();
-        
-        final unreadCount = updatedNotifications.where((n) => n['notification_is_read'] == false).length;
-        
+
+        final unreadCount = updatedNotifications
+            .where((n) => n['notification_is_read'] == false)
+            .length;
+
         emit(NotificationsLoaded(updatedNotifications, unreadCount));
       } catch (e) {
         // Revert or show error? For now just keep state
@@ -116,7 +124,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         final updatedNotifications = currentState.notifications.map((n) {
           return {...n, 'notification_is_read': true};
         }).toList();
-        
+
         emit(NotificationsLoaded(updatedNotifications, 0));
       } catch (e) {
         // Revert or show error? For now just keep state

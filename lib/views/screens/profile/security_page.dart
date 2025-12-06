@@ -1,11 +1,12 @@
-import 'dart:io';
+// unused import removed
 
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/blocs/profile/profile_bloc.dart';
 import 'package:chefkit/blocs/profile/profile_events.dart';
 import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/common/config.dart';
 import 'package:chefkit/domain/repositories/security_repository.dart';
-import 'package:flutter/foundation.dart';
+// unused foundation import removed
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
@@ -47,8 +48,9 @@ class _SecurityPageState extends State<SecurityPage> {
     super.initState();
     final authState = context.read<AuthCubit>().state;
     _accessToken = authState.accessToken;
+    _accessToken = authState.accessToken;
     _userId = authState.userId;
-    _baseUrl = _resolveBaseUrl();
+    _baseUrl = AppConfig.baseUrl; // Use centralized config
     _repository = SecurityRepository(
       baseUrl: _baseUrl,
       accessToken: _accessToken,
@@ -704,13 +706,5 @@ class _SecurityPageState extends State<SecurityPage> {
     );
   }
 
-  String _resolveBaseUrl() {
-    if (kIsWeb) {
-      return 'http://localhost:5000';
-    }
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:5000';
-    }
-    return 'http://localhost:5000';
-  }
+  // _resolveBaseUrl removed in favor of AppConfig.baseUrl
 }

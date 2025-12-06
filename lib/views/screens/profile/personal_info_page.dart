@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
+// unused import removed
 
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/blocs/profile/profile_bloc.dart';
 import 'package:chefkit/blocs/profile/profile_events.dart';
 import 'package:chefkit/blocs/profile/profile_state.dart';
 import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/common/config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -482,14 +483,7 @@ Future<void> _onEditAvatarPressed(BuildContext context, String userId) async {
       print('Access token preview: $preview');
     }
 
-    final String baseUrl;
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+    final String baseUrl = AppConfig.baseUrl; // Use centralized config
     print('Upload URL: $baseUrl/api/users/$userId/avatar');
 
     print('Uploading to backend...');

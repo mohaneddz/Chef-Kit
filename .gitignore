@@ -51,8 +51,8 @@ linux/flutter/generated_plugin_registrant.h
 
 # Secrets
 backend/.env
-backend/serviceAccountKey.json
-android/app/google-services.json
+# backend/serviceAccountKey.json
+# android/app/google-services.json
 
 
 # Secrets
@@ -78,3 +78,7 @@ local_schema.dart
 /android/app/build.gradle.kts
 IMPLEMENTATION_STATUS.txt
 SETUP_NOW.txt
+
+backend.zip
+wake-render-backend.zip
+wake-render-backend/

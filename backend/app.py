@@ -608,6 +608,12 @@ def health():
     return jsonify({"status": "ok", "message": "Chef-Kit backend is running"}), 200
 
 
+@app.route("/wake-up", methods=["GET"])
+def wake_up():
+    """Useless route to keep Render backend awake."""
+    return jsonify({"status": "awake", "message": "I am awake!"}), 200
+
+
 @app.route("/api/users", methods=["GET"])
 @optional_token
 def get_users(token_claims, token):

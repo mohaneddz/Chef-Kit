@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform, SocketException;
+import 'dart:io' show SocketException;
 import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
-import 'package:flutter/foundation.dart';
+// unused foundation import removed
+import '../../common/config.dart';
 import '../../common/token_storage.dart';
 
 class RecipeRepository {
@@ -11,13 +12,7 @@ class RecipeRepository {
   final TokenStorage _tokenStorage = TokenStorage();
 
   RecipeRepository() {
-    if (kIsWeb) {
-      baseUrl = 'http://localhost:5000';
-    } else if (Platform.isAndroid) {
-      baseUrl = 'http://10.0.2.2:5000';
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
+    baseUrl = AppConfig.baseUrl;
   }
 
   Future<Map<String, String>> _getHeaders() async {
