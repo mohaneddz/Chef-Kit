@@ -429,41 +429,45 @@ def get_trending_recipes() -> List[Dict[str, Any]]:
 # -----------------------------
 def check_if_following(follower_id: str, following_id: str) -> bool:
     """Check if follower_id is following following_id."""
-    # For now, we'll use a simple approach without a separate follows table
-    # In production, you'd want a proper follows table with (follower_id, following_id) pairs
-    # This is a placeholder that always returns False
-    # TODO: Implement proper follow tracking with a follows table
-    return False
+    try:
+        resp = supabase.table("follows").select("id").eq("follower_id", follower_id).eq("following_id", following_id).execute()
+        data = _extract_response_data(resp)
+        return len(data) > 0 if data else False
+    except Exception as e:
+        print(f"Error checking follow status: {e}")
+        return False
 
 
 def toggle_follow(follower_id: str, chef_id: str) -> Dict[str, Any]:
-    """Toggle follow status for a chef."""
-    # For now, just increment/decrement the followers count
-    # In production, you'd maintain a follows table
-    chef = supabase.table("users").select("user_followers_count").eq("user_id", chef_id).single().execute()
-    current_count = chef.data.get("user_followers_count", 0) if chef.data else 0
+    """Toggle follow status for a chef.
     
-    # Check if already following (placeholder - always toggle for now)
-    is_following = False  # TODO: Check actual follow status
+    Uses the follows table to track relationships.
+    Counts are automatically updated by database triggers.
+    """
+    # Check if already following
+    is_following = check_if_following(follower_id, chef_id)
     
-    if is_following:
-        # Unfollow
-        new_count = max(0, current_count - 1)
-    else:
-        # Follow
-        new_count = current_count + 1
-    
-    # Update chef's followers count
-    resp = supabase.table("users").update({"user_followers_count": new_count}).eq("user_id", chef_id).execute()
-    data = _extract_response_data(resp)
-    
-    # Update follower's following count
-    follower = supabase.table("users").select("user_following_count").eq("user_id", follower_id).single().execute()
-    follower_count = follower.data.get("user_following_count", 0) if follower.data else 0
-    new_follower_count = max(0, follower_count - 1) if is_following else follower_count + 1
-    supabase.table("users").update({"user_following_count": new_follower_count}).eq("user_id", follower_id).execute()
-    
-    return {
-        "is_following": not is_following,
-        "followers_count": new_count
-    }
+    try:
+        if is_following:
+            # Unfollow: Delete the follow relationship
+            supabase.table("follows").delete().eq("follower_id", follower_id).eq("following_id", chef_id).execute()
+            print(f"User {follower_id} unfollowed chef {chef_id}")
+        else:
+            # Follow: Insert a new follow relationship
+            supabase.table("follows").insert({
+                "follower_id": follower_id,
+                "following_id": chef_id
+            }).execute()
+            print(f"User {follower_id} followed chef {chef_id}")
+        
+        # Get updated follower count for the chef (trigger should have updated it)
+        chef_resp = supabase.table("users").select("user_followers_count").eq("user_id", chef_id).single().execute()
+        new_count = chef_resp.data.get("user_followers_count", 0) if chef_resp.data else 0
+        
+        return {
+            "is_following": not is_following,
+            "followers_count": new_count
+        }
+    except Exception as e:
+        print(f"Error toggling follow: {e}")
+        raise Exception(f"Failed to toggle follow status: {str(e)}")

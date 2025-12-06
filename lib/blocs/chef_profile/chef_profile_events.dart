@@ -2,7 +2,8 @@ abstract class ChefProfileEvents {}
 
 class LoadChefProfileEvent extends ChefProfileEvents {
   final String chefId;
-  LoadChefProfileEvent(this.chefId);
+  final String? accessToken;
+  LoadChefProfileEvent(this.chefId, {this.accessToken});
 }
 
 class ToggleChefFollowEvent extends ChefProfileEvents {

@@ -602,10 +602,26 @@ def health():
 
 
 @app.route("/api/users", methods=["GET"])
-def get_users():
-    """Fetch all users. RLS allows public read."""
+@optional_token
+def get_users(token_claims, token):
+    """Fetch all users. RLS allows public read. Optional auth for follow status."""
     try:
         users = get_all_users()
+        
+        # If user is authenticated, check follow status for each user
+        if token_claims:
+            from services import check_if_following
+            current_user_id = token_claims.get("sub")
+            if current_user_id:
+                for user in users:
+                    user["is_followed"] = check_if_following(current_user_id, user["user_id"])
+            else:
+                for user in users:
+                    user["is_followed"] = False
+        else:
+            for user in users:
+                user["is_followed"] = False
+        
         return jsonify(users), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -949,20 +965,50 @@ def mark_notification_read_route(notification_id, token_claims, token):
 
 # Chefs & Trending
 @app.route("/api/chefs/on-fire", methods=["GET"])
-def get_chefs_on_fire_route():
-    """Get all chefs marked as 'on fire'. Public endpoint."""
+@optional_token
+def get_chefs_on_fire_route(token_claims, token):
+    """Get all chefs marked as 'on fire'. Public endpoint with optional auth."""
     try:
         chefs = get_chefs_on_fire()
+        
+        # If user is authenticated, check follow status for each chef
+        if token_claims:
+            from services import check_if_following
+            current_user_id = token_claims.get("sub")
+            if current_user_id:
+                for chef in chefs:
+                    chef["is_followed"] = check_if_following(current_user_id, chef["user_id"])
+            else:
+                for chef in chefs:
+                    chef["is_followed"] = False
+        else:
+            for chef in chefs:
+                chef["is_followed"] = False
+        
         return jsonify(chefs), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/chefs/<chef_id>", methods=["GET"])
-def get_chef_route(chef_id):
-    """Get a specific chef by ID. Public endpoint."""
+@optional_token
+def get_chef_route(chef_id, token_claims, token):
+    """Get a specific chef by ID. Public endpoint with optional auth."""
     try:
         chef = get_chef_by_id(chef_id)
+        
+        # If user is authenticated, check if they're following this chef
+        if token_claims:
+            from services import check_if_following
+            current_user_id = token_claims.get("sub")
+            if current_user_id:
+                is_following = check_if_following(current_user_id, chef_id)
+                chef["is_followed"] = is_following
+            else:
+                chef["is_followed"] = False
+        else:
+            chef["is_followed"] = False
+        
         return jsonify(chef), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 404

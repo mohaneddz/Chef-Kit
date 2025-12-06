@@ -296,24 +296,23 @@ class _ProfilePageContent extends StatelessWidget {
 
                       _buildSectionTitle(AppLocalizations.of(context)!.general),
                       const SizedBox(height: 16),
-                      if (profile.isChef)
-                        _buildMenuItem(
-                          context,
-                          icon: Icons.person_outline_rounded,
-                          title: AppLocalizations.of(context)!.personalInfo,
-                          onTap: () {
-                            final profileBloc = context.read<ProfileBloc>();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BlocProvider.value(
-                                  value: profileBloc,
-                                  child: const PersonalInfoPage(),
-                                ),
+                      _buildMenuItem(
+                        context,
+                        icon: Icons.person_outline_rounded,
+                        title: "Personal Info",
+                        onTap: () {
+                          final profileBloc = context.read<ProfileBloc>();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: profileBloc,
+                                child: const PersonalInfoPage(),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
+                      ),
                       _buildMenuItem(
                         context,
                         icon: Icons.notifications_outlined,

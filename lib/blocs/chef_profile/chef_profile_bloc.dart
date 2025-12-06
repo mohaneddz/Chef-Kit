@@ -16,12 +16,13 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
   Future<void> _onLoad(LoadChefProfileEvent event, Emitter<ChefProfileState> emit) async {
     print('\n🔵 ChefProfileBloc._onLoad START');
     print('Chef ID: ${event.chefId}');
+    print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
     emit(state.copyWith(loading: true, error: null));
     
     try {
-      print('Fetching chef data...');
-      final chef = await chefRepository.getChefById(event.chefId);
-      print('✅ Chef loaded: ${chef?.name ?? "null"}');
+      print('Fetching chef data with auth...');
+      final chef = await chefRepository.getChefById(event.chefId, accessToken: event.accessToken);
+      print('✅ Chef loaded: ${chef?.name ?? "null"}, isFollowed: ${chef?.isFollowed}');
       
       print('Fetching recipes...');
       final recipes = await recipeRepository.fetchRecipesByChef(event.chefId);
@@ -40,11 +41,25 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
   }
 
   Future<void> _onToggleFollow(ToggleChefFollowEvent event, Emitter<ChefProfileState> emit) async {
+    print('\n🟡 ChefProfileBloc._onToggleFollow START');
+    print('Chef ID: ${event.chefId}');
+    print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
+    
     try {
+      print('Calling chefRepository.toggleFollow...');
       final updated = await chefRepository.toggleFollow(event.chefId, accessToken: event.accessToken);
+      print('✅ Toggle follow successful');
+      print('New follow status: ${updated.isFollowed}');
+      print('New follower count: ${updated.followersCount}');
+      
       emit(state.copyWith(chef: updated));
-    } catch (e) {
+      print('✅ State updated with new chef data');
+      print('🟡 ChefProfileBloc._onToggleFollow END\n');
+    } catch (e, stackTrace) {
+      print('\n❌ ERROR in ChefProfileBloc._onToggleFollow: $e');
+      print('Stack trace: $stackTrace');
       emit(state.copyWith(error: e.toString()));
+      print('🟡 ChefProfileBloc._onToggleFollow END (ERROR)\n');
     }
   }
 
