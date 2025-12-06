@@ -356,23 +356,18 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ItemPage(
-                                    title: recipe.name,
-                                    imagePath: recipe.imageUrl,
-                                    servings: AppLocalizations.of(context)!
-                                        .servings(
-                                          recipe.servingsCount.toString(),
-                                        ),
-                                    calories: AppLocalizations.of(
-                                      context,
-                                    )!.calories(recipe.calories.toString()),
-                                    time: AppLocalizations.of(context)!.minutes(
-                                      (recipe.prepTime + recipe.cookTime)
-                                          .toString(),
-                                    ),
-                                    ingredients: recipe.ingredients,
-                                    tags: recipe.tags,
-                                    recipeText: recipe.instructions.join('\n'),
+                                  builder: (_) => RecipeDetailsPage(
+                                    recipeId: recipe.id,
+                                    recipeName: recipe.name,
+                                    recipeDescription: recipe.description,
+                                    recipeImageUrl: recipe.imageUrl,
+                                    recipePrepTime: recipe.prepTime,
+                                    recipeCookTime: recipe.cookTime,
+                                    recipeCalories: recipe.calories,
+                                    recipeServingsCount: recipe.servingsCount,
+                                    recipeIngredients: recipe.ingredients,
+                                    recipeInstructions: recipe.instructions,
+                                    recipeTags: recipe.tags,
                                     initialFavorite: recipe.isFavorite,
                                   ),
                                 ),

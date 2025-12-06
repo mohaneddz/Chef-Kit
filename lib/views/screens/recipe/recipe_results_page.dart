@@ -2,9 +2,10 @@ import 'package:chefkit/blocs/recipe_results/recipe_results_bloc.dart';
 import 'package:chefkit/blocs/recipe_results/recipe_results_events.dart';
 import 'package:chefkit/blocs/recipe_results/recipe_results_state.dart';
 import 'package:chefkit/common/constants.dart';
-import 'package:chefkit/domain/repositories/recipe/recipe_repo.dart';
+import 'package:chefkit/domain/repositories/recipe_repository.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/views/screens/recipe/item_page.dart';
+import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
 import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -201,27 +202,19 @@ class RecipeResultsPage extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ItemPage(
-                                        title: recipe.name,
-                                        imagePath: recipe.imageUrl,
-                                        servings: AppLocalizations.of(context)!
-                                            .servings(
-                                              recipe.servingsCount.toString(),
-                                            ),
-                                        calories: AppLocalizations.of(
-                                          context,
-                                        )!.calories(recipe.calories.toString()),
-                                        time: AppLocalizations.of(context)!
-                                            .minutes(
-                                              (recipe.prepTime +
-                                                      recipe.cookTime)
-                                                  .toString(),
-                                            ),
-                                        ingredients: recipe.ingredients,
-                                        tags: recipe.tags,
-                                        recipeText: recipe.instructions.join(
-                                          '\n',
-                                        ),
+                                      builder: (context) => RecipeDetailsPage(
+                                        recipeId: recipe.id,
+                                        recipeName: recipe.name,
+                                        recipeDescription: recipe.description,
+                                        recipeImageUrl: recipe.imageUrl,
+                                        recipePrepTime: recipe.prepTime,
+                                        recipeCookTime: recipe.cookTime,
+                                        recipeCalories: recipe.calories,
+                                        recipeServingsCount:
+                                            recipe.servingsCount,
+                                        recipeIngredients: recipe.ingredients,
+                                        recipeInstructions: recipe.instructions,
+                                        recipeTags: recipe.tags,
                                         initialFavorite: recipe.isFavorite,
                                       ),
                                     ),

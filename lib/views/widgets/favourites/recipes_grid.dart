@@ -1,6 +1,7 @@
 import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
 import 'package:chefkit/domain/models/recipe.dart';
 import 'package:chefkit/views/screens/recipe/item_page.dart';
+import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
 import 'package:flutter/material.dart';
 
 class RecipesGrid extends StatelessWidget {
@@ -51,15 +52,18 @@ class RecipesGrid extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ItemPage(
-                          title: r.name,
-                          imagePath: r.imageUrl,
-                          servings: '${r.servingsCount} servings',
-                          calories: '${r.calories} Kcal',
-                          time: '${r.prepTime + r.cookTime} min',
-                          ingredients: r.ingredients,
-                          tags: r.tags,
-                          recipeText: r.instructions.join('\n'),
+                        builder: (context) => RecipeDetailsPage(
+                          recipeId: r.id,
+                          recipeName: r.name,
+                          recipeDescription: r.description,
+                          recipeImageUrl: r.imageUrl,
+                          recipePrepTime: r.prepTime,
+                          recipeCookTime: r.cookTime,
+                          recipeCalories: r.calories,
+                          recipeServingsCount: r.servingsCount,
+                          recipeIngredients: r.ingredients,
+                          recipeInstructions: r.instructions,
+                          recipeTags: r.tags,
                           initialFavorite: r.isFavorite,
                         ),
                       ),

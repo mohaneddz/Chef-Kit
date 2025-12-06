@@ -137,6 +137,30 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     ToggleDiscoveryRecipeFavorite event,
     Emitter<DiscoveryState> emit,
   ) async {
+    final previousState = state;
+
+    // Optimistic update
+    final updatedHotRecipes = state.hotRecipes.map((r) {
+      if (r.id == event.recipeId) {
+        return r.copyWith(isFavorite: !r.isFavorite);
+      }
+      return r;
+    }).toList();
+
+    final updatedSeasonalRecipes = state.seasonalRecipes.map((r) {
+      if (r.id == event.recipeId) {
+        return r.copyWith(isFavorite: !r.isFavorite);
+      }
+      return r;
+    }).toList();
+
+    emit(
+      state.copyWith(
+        hotRecipes: updatedHotRecipes,
+        seasonalRecipes: updatedSeasonalRecipes,
+      ),
+    );
+
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
       emit(
@@ -150,7 +174,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(previousState.copyWith(error: e.toString()));
     }
   }
 }
