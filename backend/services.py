@@ -4,7 +4,7 @@ Contains functions that wrap Supabase client operations.
 Keeping database logic here makes `app.py` simple and easy to test.
 """
 from typing import Any, Dict, List, Optional
-from supabase_client import supabase
+from supabase_client import supabase, supabase_admin
 from supabase_client import set_postgrest_token
 
 
@@ -471,3 +471,83 @@ def toggle_follow(follower_id: str, chef_id: str) -> Dict[str, Any]:
     except Exception as e:
         print(f"Error toggling follow: {e}")
         raise Exception(f"Failed to toggle follow status: {str(e)}")
+
+
+def get_user_favorites(user_id: str) -> List[Dict[str, Any]]:
+    """Get all favorite recipes for a user."""
+    try:
+        client = supabase_admin if supabase_admin else supabase
+        # First get the list of favorite IDs
+        user_resp = client.table("users").select("user_favourite_recipees").eq("user_id", user_id).single().execute()
+        user_data = _extract_response_data(user_resp)
+        
+        fav_ids = user_data.get("user_favourite_recipees") or []
+        if not fav_ids:
+            return []
+            
+        # Then fetch the recipes
+        recipes_resp = client.table("recipe").select("*").in_("recipe_id", fav_ids).execute()
+        recipes = _extract_response_data(recipes_resp)
+        
+        # Mark them as favorites
+        for r in recipes:
+            r["isFavorite"] = True
+            
+        return recipes
+    except Exception as e:
+        print(f"Error fetching favorites: {e}")
+        return []
+
+
+def toggle_user_favorite(user_id: str, recipe_id: str) -> bool:
+    """Toggle a recipe in user's favorites. Returns True if added, False if removed."""
+    try:
+        # Use admin client if available to bypass RLS, otherwise use standard client
+        client = supabase_admin if supabase_admin else supabase
+        
+        print(f"[toggle_user_favorite] Toggling {recipe_id} for user {user_id}")
+        
+        user_resp = client.table("users").select("user_favourite_recipees").eq("user_id", user_id).single().execute()
+        user_data = _extract_response_data(user_resp)
+        
+        # Handle potential None or non-list values
+        fav_ids = user_data.get("user_favourite_recipees")
+        if fav_ids is None:
+            fav_ids = []
+        elif not isinstance(fav_ids, list):
+            # If it's not a list, it might be a string representation or something else
+            print(f"[toggle_user_favorite] Warning: user_favourite_recipees is not a list: {type(fav_ids)}")
+            fav_ids = []
+            
+        print(f"[toggle_user_favorite] Current favorites: {fav_ids}")
+        
+        is_fav = recipe_id in fav_ids
+        
+        if is_fav:
+            fav_ids.remove(recipe_id)
+            print(f"[toggle_user_favorite] Removing {recipe_id}")
+        else:
+            fav_ids.append(recipe_id)
+            print(f"[toggle_user_favorite] Adding {recipe_id}")
+            
+        update_resp = client.table("users").update({"user_favourite_recipees": fav_ids}).eq("user_id", user_id).execute()
+        _extract_response_data(update_resp)
+        
+        print(f"[toggle_user_favorite] Update successful")
+        return not is_fav
+    except Exception as e:
+        print(f"[toggle_user_favorite] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise e
+
+
+def get_user_favorite_ids(user_id: str) -> List[str]:
+    """Get just the IDs of favorite recipes."""
+    try:
+        client = supabase_admin if supabase_admin else supabase
+        user_resp = client.table("users").select("user_favourite_recipees").eq("user_id", user_id).single().execute()
+        user_data = _extract_response_data(user_resp)
+        return user_data.get("user_favourite_recipees") or []
+    except Exception:
+        return []
