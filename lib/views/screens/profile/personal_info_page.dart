@@ -203,78 +203,81 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 ),
                 const SizedBox(height: 20),
 
-                _buildLabeledField(
-                  label: 'Bio',
-                  controller: _bioController,
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 20),
-
-                _buildLabeledField(
-                  label: 'Story',
-                  controller: _storyController,
-                  maxLines: 4,
-                ),
-                const SizedBox(height: 24),
-
-                const Text(
-                  'Specialities',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Poppins',
+                // Only show chef-specific fields if user is a chef
+                if (state.profile?.isChef ?? false) ...[
+                  _buildLabeledField(
+                    label: 'Bio',
+                    controller: _bioController,
+                    maxLines: 3,
                   ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final item in _specialties)
-                      Chip(
-                        label: Text(item),
-                        deleteIcon: const Icon(Icons.close, size: 16),
-                        onDeleted: () {
-                          setState(() {
-                            _specialties = List<String>.from(_specialties)..remove(item);
-                          });
-                        },
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _specialtyInputController,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _addSpecialty(),
-                        decoration: InputDecoration(
-                          hintText: 'Add speciality',
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                  const SizedBox(height: 20),
+
+                  _buildLabeledField(
+                    label: 'Story',
+                    controller: _storyController,
+                    maxLines: 4,
+                  ),
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    'Specialities',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final item in _specialties)
+                        Chip(
+                          label: Text(item),
+                          deleteIcon: const Icon(Icons.close, size: 16),
+                          onDeleted: () {
+                            setState(() {
+                              _specialties = List<String>.from(_specialties)..remove(item);
+                            });
+                          },
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _specialtyInputController,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _addSpecialty(),
+                          decoration: InputDecoration(
+                            hintText: 'Add speciality',
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      onPressed: _addSpecialty,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.red600,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: _addSpecialty,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red600,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white),
                       ),
-                      child: const Icon(Icons.add, color: Colors.white),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
 
                 const SizedBox(height: 40),
                 SizedBox(

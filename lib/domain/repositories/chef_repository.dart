@@ -27,8 +27,17 @@ class ChefRepository {
     throw Exception('Failed to load chefs');
   }
 
-  Future<Chef?> getChefById(String id) async {
-    final response = await http.get(Uri.parse('$baseUrl/api/chefs/$id'));
+  Future<Chef?> getChefById(String id, {String? accessToken}) async {
+    final headers = <String, String>{};
+    if (accessToken != null) {
+      headers['Authorization'] = 'Bearer $accessToken';
+    }
+    
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/chefs/$id'),
+      headers: headers.isNotEmpty ? headers : null,
+    );
+    
     if (response.statusCode == 200) {
       return Chef.fromJson(json.decode(response.body));
     }
@@ -36,29 +45,57 @@ class ChefRepository {
   }
 
   Future<Chef> toggleFollow(String id, {String? accessToken}) async {
+    print('\n🔶 ChefRepository.toggleFollow START');
+    print('Chef ID: $id');
+    print('Access Token: ${accessToken != null ? "PROVIDED (${accessToken.substring(0, 20)}...)" : "NULL"}');
+    
     if (accessToken == null) {
+      print('❌ ERROR: No access token provided');
       throw Exception('Authentication required to follow chefs');
     }
     
+    final url = '$baseUrl/api/chefs/$id/follow';
+    print('Making POST request to: $url');
+    
     final response = await http.post(
-      Uri.parse('$baseUrl/api/chefs/$id/follow'),
+      Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
       },
     );
     
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      print('✅ Follow toggle successful');
+      print('New follow status: ${data['is_following']}');
+      print('New followers count: ${data['followers_count']}');
+      
       // Fetch updated chef data
-      final chef = await getChefById(id);
-      if (chef == null) throw Exception('Chef not found');
-      return chef.copyWith(
+      print('Fetching updated chef data...');
+      final chef = await getChefById(id, accessToken: accessToken);
+      if (chef == null) {
+        print('❌ ERROR: Chef not found after toggle');
+        throw Exception('Chef not found');
+      }
+      
+      print('Chef fetched, creating updated copy...');
+      final updatedChef = chef.copyWith(
         isFollowed: data['is_following'] ?? !chef.isFollowed,
         followersCount: data['followers_count'] ?? chef.followersCount,
       );
+      print('✅ Updated chef created: isFollowed=${updatedChef.isFollowed}, followers=${updatedChef.followersCount}');
+      print('🔶 ChefRepository.toggleFollow END\n');
+      return updatedChef;
     }
-    throw Exception('Failed to toggle follow');
+    
+    print('❌ ERROR: Failed to toggle follow - Status ${response.statusCode}');
+    print('Response: ${response.body}');
+    print('🔶 ChefRepository.toggleFollow END (ERROR)\n');
+    throw Exception('Failed to toggle follow: ${response.statusCode} - ${response.body}');
   }
 
   Future<List<Chef>> fetchChefsOnFire() async {

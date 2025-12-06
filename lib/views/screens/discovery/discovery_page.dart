@@ -101,9 +101,17 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
           if (state.error != null) {
             return Center(child: Text('Error: ${state.error}'));
           }
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Trigger reload of all discovery data
+              context.read<DiscoveryBloc>().add(LoadDiscovery());
+              // Wait for the state to finish loading
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
+            color: AppColors.red600,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: 10.0,
                 horizontal: 25,
@@ -274,6 +282,7 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                   const SizedBox(height: 30),
                 ],
               ),
+            ),
             ),
           );
         },

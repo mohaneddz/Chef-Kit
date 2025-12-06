@@ -86,7 +86,7 @@ class Chef {
         specialties: specialties,
         isOnFire: json['user_is_on_fire'] == true,
         isChef: json['user_is_chef'] == true,
-        isFollowed: false,
+        isFollowed: json['is_followed'] == true,
         followersCount: followersCount,
         followingCount: followingCount,
         recipesCount: recipesCount,

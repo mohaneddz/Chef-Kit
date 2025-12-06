@@ -24,7 +24,10 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    context.read<ChefProfileBloc>().add(LoadChefProfileEvent(widget.chefId));
+    
+    // Get access token from AuthCubit and load chef profile
+    final accessToken = context.read<AuthCubit>().state.accessToken;
+    context.read<ChefProfileBloc>().add(LoadChefProfileEvent(widget.chefId, accessToken: accessToken));
   }
 
   @override
@@ -197,11 +200,13 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                             Expanded(
                               child: Builder(
                                 builder: (context) {
-                                  final currentUserId = context.watch<AuthCubit>().state.userId;
+                                  final authState = context.watch<AuthCubit>().state;
+                                  final currentUserId = authState.userId;
+                                  final accessToken = authState.accessToken;
                                   final isOwnProfile = currentUserId == chef.id;
                                   
                                   return ElevatedButton(
-                                    onPressed: isOwnProfile ? null : () => context.read<ChefProfileBloc>().add(ToggleChefFollowEvent(chef.id)),
+                                    onPressed: isOwnProfile ? null : () => context.read<ChefProfileBloc>().add(ToggleChefFollowEvent(chef.id, accessToken: accessToken)),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: isOwnProfile 
                                           ? Colors.grey[300]
