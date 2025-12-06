@@ -24,17 +24,18 @@ class SectionHeaderWidget extends StatelessWidget {
             fontFamily: 'Poppins',
           ),
         ),
-        GestureDetector(
-          onTap: onSeeAllPressed,
-          child: Text(
-            AppLocalizations.of(context)!.seeAll,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFFFF5D69),
-              fontFamily: 'Poppins',
+        if (onSeeAllPressed != null)
+          GestureDetector(
+            onTap: onSeeAllPressed,
+            child: Text(
+              AppLocalizations.of(context)!.seeAll,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFFFF5D69),
+                fontFamily: 'Poppins',
+              ),
             ),
           ),
-        ),
       ],
     );
   }

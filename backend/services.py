@@ -309,7 +309,7 @@ update_user_service = update_user
 _RECIPE_COLUMNS = (
     "recipe_id, recipe_name, recipe_description, recipe_image_url, recipe_owner, "
     "recipe_servings_count, recipe_prep_time, recipe_cook_time, recipe_calories, "
-    "recipe_ingredients, recipe_instructions, recipe_tags, recipe_is_trending"
+    "recipe_ingredients, recipe_instructions, recipe_tags, recipe_is_trending, recipe_is_seasonal"
 )
 
 def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -317,6 +317,17 @@ def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:
     if tag:
         query = query.contains("recipe_tags", [tag])
     # Limit to 20 to prevent huge payloads for now
+    resp = query.limit(20).execute()
+    data = _extract_response_data(resp)
+    return data or []
+
+
+def get_seasonal_recipes() -> List[Dict[str, Any]]:
+    """
+    Get all recipes marked as seasonal.
+    """
+    query = supabase.table("recipe").select(_RECIPE_COLUMNS).eq("recipe_is_seasonal", True)
+    # Limit to 20 for now
     resp = query.limit(20).execute()
     data = _extract_response_data(resp)
     return data or []

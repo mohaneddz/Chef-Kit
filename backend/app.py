@@ -1062,6 +1062,19 @@ def get_trending_recipes_route():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/recipes/seasonal", methods=["GET"])
+def get_seasonal_recipes_route():
+    """Get all seasonal recipes. Public endpoint."""
+    try:
+        from services import get_seasonal_recipes
+        recipes = get_seasonal_recipes()
+        response = jsonify(recipes)
+        response.headers["Connection"] = "close"
+        return response, 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/chefs/<chef_id>/follow", methods=["POST"])
 @token_required
 def toggle_follow_route(chef_id, token_claims, token):

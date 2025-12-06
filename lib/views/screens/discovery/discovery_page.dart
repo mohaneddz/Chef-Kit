@@ -15,9 +15,8 @@ import '../../widgets/recipe/seasonal_item_widget.dart';
 import 'all_chefs_page.dart';
 import '../profile/chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
-import 'all_seasonal_page.dart';
+import 'all_hot_recipes_page.dart';
 import '../recipe/recipe_details_page.dart';
-import '../recipe/item_page.dart';
 import '../../../common/constants.dart';
 
 class RecipeDiscoveryScreen extends StatefulWidget {
@@ -337,12 +336,6 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                     const SizedBox(height: 30),
                     SectionHeaderWidget(
                       title: AppLocalizations.of(context)!.seasonalDelights,
-                      onSeeAllPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AllSeasonalPage(),
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 16),
                     Column(

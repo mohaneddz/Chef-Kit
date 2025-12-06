@@ -161,14 +161,19 @@ class RecipeRepository {
   }
 
   Future<List<Recipe>> fetchSeasonalRecipes() async {
-    // TODO: Add seasonal recipe filter to backend
-    final response = await _httpGetWithRetry(Uri.parse('$baseUrl/api/recipes'));
+    print('Fetching seasonal recipes from $baseUrl/api/recipes/seasonal');
+    final response = await _httpGetWithRetry(
+      Uri.parse('$baseUrl/api/recipes/seasonal'),
+    );
+    print('Seasonal response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final recipes = data.map((json) => Recipe.fromJson(json)).toList();
       return _processRecipes(recipes);
     }
-    throw Exception('Failed to load seasonal recipes');
+    print('❌ Seasonal recipes failed with status ${response.statusCode}');
+    print('Response body: ${response.body}');
+    throw Exception('Failed to load seasonal recipes: ${response.statusCode}');
   }
 
   Future<List<Recipe>> fetchRecipesByChef(String chefId) async {
