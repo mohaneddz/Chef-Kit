@@ -536,4 +536,26 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sortedByMatch => 'مرتبة حسب تطابق المكونات';
+
+  @override
+  String get caloriesLabel => 'سعرات';
+
+  @override
+  String get servingsLabel => 'حصص';
+
+  @override
+  String get ingredients => 'المكونات';
+
+  @override
+  String itemsCount(int count) {
+    return '$count عناصر';
+  }
+
+  @override
+  String get instructions => 'التعليمات';
+
+  @override
+  String stepsCount(int count) {
+    return '$count خطوات';
+  }
 }

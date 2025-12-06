@@ -155,5 +155,11 @@
   "recipesFound": "{count, plural, =0{Aucune recette trouvée} =1{1 recette trouvée} other{{count} recettes trouvées}}",
   "yourIngredients": "Vos ingrédients :",
   "recipesYouCanMake": "Recettes que vous pouvez faire",
-  "sortedByMatch": "Trié par correspondance d'ingrédients"
+  "sortedByMatch": "Trié par correspondance d'ingrédients",
+  "caloriesLabel": "Calories",
+  "servingsLabel": "Portions",
+  "ingredients": "Ingrédients",
+  "itemsCount": "{count} articles",
+  "instructions": "Instructions",
+  "stepsCount": "{count} étapes"
 }

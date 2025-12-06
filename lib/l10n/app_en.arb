@@ -279,5 +279,25 @@
   },
   "yourIngredients": "Your Ingredients:",
   "recipesYouCanMake": "Recipes You Can Make",
-  "sortedByMatch": "Sorted by ingredient match"
+  "sortedByMatch": "Sorted by ingredient match",
+  "caloriesLabel": "Calories",
+  "servingsLabel": "Servings",
+  "ingredients": "Ingredients",
+  "itemsCount": "{count} items",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "instructions": "Instructions",
+  "stepsCount": "{count} steps",
+  "@stepsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

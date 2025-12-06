@@ -155,5 +155,11 @@
   "recipesFound": "{count, plural, =0{لم يتم العثور على وصفات} =1{تم العثور على وصفة واحدة} =2{تم العثور على وصفتين} other{تم العثور على {count} وصفات}}",
   "yourIngredients": "مكوناتك:",
   "recipesYouCanMake": "وصفات يمكنك صنعها",
-  "sortedByMatch": "مرتبة حسب تطابق المكونات"
+  "sortedByMatch": "مرتبة حسب تطابق المكونات",
+  "caloriesLabel": "سعرات",
+  "servingsLabel": "حصص",
+  "ingredients": "المكونات",
+  "itemsCount": "{count} عناصر",
+  "instructions": "التعليمات",
+  "stepsCount": "{count} خطوات"
 }

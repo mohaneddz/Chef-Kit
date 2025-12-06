@@ -538,4 +538,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sortedByMatch => 'Sorted by ingredient match';
+
+  @override
+  String get caloriesLabel => 'Calories';
+
+  @override
+  String get servingsLabel => 'Servings';
+
+  @override
+  String get ingredients => 'Ingredients';
+
+  @override
+  String itemsCount(int count) {
+    return '$count items';
+  }
+
+  @override
+  String get instructions => 'Instructions';
+
+  @override
+  String stepsCount(int count) {
+    return '$count steps';
+  }
 }

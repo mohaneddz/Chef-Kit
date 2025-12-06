@@ -186,56 +186,61 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                         imageUrl: recipe.imageUrl,
                         isFavorite: recipe.isFavorite,
                         heroTag: 'recipe_${recipe.id}',
-                        onFavoritePressed: () => context.read<DiscoveryBloc>().add(ToggleDiscoveryRecipeFavorite(recipe.id)),
+                        onFavoritePressed: () => context
+                            .read<DiscoveryBloc>()
+                            .add(ToggleDiscoveryRecipeFavorite(recipe.id)),
                         onTap: () {
                           Navigator.push(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => RecipeDetailsPage(
-                                recipeId: recipe.id,
-                                recipeName: recipe.name,
-                                recipeDescription: recipe.description,
-                                recipeImageUrl: recipe.imageUrl,
-                                recipePrepTime: recipe.prepTime,
-                                recipeCookTime: recipe.cookTime,
-                                recipeCalories: recipe.calories,
-                                recipeServingsCount: recipe.servingsCount,
-                                recipeIngredients: recipe.ingredients.isNotEmpty ? recipe.ingredients : const [
-                                  '2 cups all-purpose flour',
-                                  '1 cup granulated sugar',
-                                  '3 large eggs',
-                                  '1/2 cup unsalted butter, softened',
-                                  '1 tsp vanilla extract',
-                                  '1/2 tsp salt',
-                                  '2 tsp baking powder',
-                                  '1 cup milk',
-                                ],
-                                recipeInstructions: recipe.instructions.isNotEmpty ? recipe.instructions : const [
-                                  'Preheat your oven to 350°F (175°C). Grease and flour a 9-inch baking pan.',
-                                  'In a large bowl, cream together the butter and sugar until light and fluffy.',
-                                  'Beat in the eggs one at a time, then stir in the vanilla extract.',
-                                  'Combine the flour, baking powder, and salt; add to the creamed mixture alternately with milk.',
-                                  'Pour batter into the prepared pan and bake for 30-35 minutes.',
-                                  'Allow to cool in the pan for 10 minutes, then turn out onto a wire rack to cool completely.',
-                                ],
-                                recipeTags: recipe.tags,
-                                initialFavorite: recipe.isFavorite,
-                              ),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                const begin = Offset(0.8, 0.0);
-                                const end = Offset.zero;
-                                final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutQuart);
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      RecipeDetailsPage(
+                                        recipeId: recipe.id,
+                                        recipeName: recipe.name,
+                                        recipeDescription: recipe.description,
+                                        recipeImageUrl: recipe.imageUrl,
+                                        recipePrepTime: recipe.prepTime,
+                                        recipeCookTime: recipe.cookTime,
+                                        recipeCalories: recipe.calories,
+                                        recipeServingsCount:
+                                            recipe.servingsCount,
+                                        recipeIngredients: recipe.ingredients,
+                                        recipeInstructions: recipe.instructions,
+                                        recipeTags: recipe.tags,
+                                        initialFavorite: recipe.isFavorite,
+                                      ),
+                              transitionsBuilder:
+                                  (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) {
+                                    const begin = Offset(0.8, 0.0);
+                                    const end = Offset.zero;
+                                    final curved = CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeOutQuart,
+                                    );
 
-                                return FadeTransition(
-                                  opacity: curved,
-                                  child: SlideTransition(
-                                    position: Tween(begin: begin, end: end).animate(curved),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              transitionDuration: const Duration(milliseconds: 350),
-                              reverseTransitionDuration: const Duration(milliseconds: 300),
+                                    return FadeTransition(
+                                      opacity: curved,
+                                      child: SlideTransition(
+                                        position: Tween(
+                                          begin: begin,
+                                          end: end,
+                                        ).animate(curved),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                              transitionDuration: const Duration(
+                                milliseconds: 350,
+                              ),
+                              reverseTransitionDuration: const Duration(
+                                milliseconds: 300,
+                              ),
                             ),
                           );
                         },
