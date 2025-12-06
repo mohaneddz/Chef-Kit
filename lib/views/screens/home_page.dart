@@ -7,6 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'discovery/discovery_page.dart';
 import 'package:chefkit/views/layout/custom_bottom_navbar.dart';
 import 'package:flutter/material.dart';
+import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
+import 'package:chefkit/blocs/favourites/favourites_events.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   final int initialIndex;
@@ -57,6 +60,16 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           } else {
+            if (index == 3) {
+              // Refresh favourites when switching to favorites tab
+              context.read<FavouritesBloc>().add(
+                RefreshFavourites(
+                  allSavedText: AppLocalizations.of(context)!.allSaved,
+                  recipeText: AppLocalizations.of(context)!.recipeSingular,
+                  recipesText: AppLocalizations.of(context)!.recipePlural,
+                ),
+              );
+            }
             setState(() {
               _selectedIndex = index;
             });
