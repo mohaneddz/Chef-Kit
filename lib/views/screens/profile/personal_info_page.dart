@@ -281,7 +281,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                               context,
                             )!.addSpecialtyHint,
                             filled: true,
-                            fillColor: Colors.grey[50],
+                            fillColor: Colors.grey[100],
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
@@ -426,7 +426,7 @@ Widget _buildLabeledField({
         ),
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.grey[50],
+          fillColor: Colors.grey[100],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
