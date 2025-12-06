@@ -25,6 +25,19 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
     _recipesFuture = _recipeRepository.fetchHotRecipes();
   }
 
+  String _getLocalizedTitle(Recipe recipe) {
+    final locale = Localizations.localeOf(context).languageCode;
+    return locale == 'ar' &&
+            recipe.titleAr != null &&
+            recipe.titleAr!.isNotEmpty
+        ? recipe.titleAr!
+        : (locale == 'fr' &&
+                  recipe.titleFr != null &&
+                  recipe.titleFr!.isNotEmpty
+              ? recipe.titleFr!
+              : recipe.name);
+  }
+
   List<Recipe> _filterRecipes(List<Recipe> recipes) {
     if (_selectedFilter == 'All') return recipes;
     if (_selectedFilter == 'Trending') {
@@ -176,6 +189,7 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
                     itemCount: filteredRecipes.length,
                     itemBuilder: (context, index) {
                       final recipe = filteredRecipes[index];
+                      final title = _getLocalizedTitle(recipe);
                       return TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0.0, end: 1.0),
                         duration: Duration(milliseconds: 300 + (index * 50)),
@@ -189,28 +203,16 @@ class _AllHotRecipesPageState extends State<AllHotRecipesPage> {
                         child: Stack(
                           children: [
                             RecipeCardWidget(
-                              title: recipe.name,
-                              subtitle: recipe.description,
+                              title: title,
+                              subtitle: title,
                               imageUrl: recipe.imageUrl,
                               isFavorite: recipe.isFavorite,
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => RecipeDetailsPage(
-                                      recipeId: recipe.id,
-                                      recipeName: recipe.name,
-                                      recipeDescription: recipe.description,
-                                      recipeImageUrl: recipe.imageUrl,
-                                      recipePrepTime: recipe.prepTime,
-                                      recipeCookTime: recipe.cookTime,
-                                      recipeCalories: recipe.calories,
-                                      recipeServingsCount: recipe.servingsCount,
-                                      recipeIngredients: recipe.ingredients,
-                                      recipeInstructions: recipe.instructions,
-                                      recipeTags: recipe.tags,
-                                      initialFavorite: recipe.isFavorite,
-                                    ),
+                                    builder: (context) =>
+                                        RecipeDetailsPage(recipe: recipe),
                                   ),
                                 );
                               },

@@ -45,16 +45,28 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
       final allSavedTitle = event.allSavedText ?? "All Saved";
       final recipeSingular = event.recipeText ?? "recipe";
       final recipePlural = event.recipesText ?? "recipes";
+      final otherTitle = event.otherText ?? "Other";
 
       final Map<String, List<Recipe>> grouped = {};
       for (var recipe in favoriteRecipes) {
-        if (recipe.tags.isEmpty) {
-          grouped.putIfAbsent('Other', () => []).add(recipe);
+        List<String> tagsToUse = recipe.tags;
+        if (event.locale == 'ar' &&
+            recipe.tagsAr != null &&
+            recipe.tagsAr!.isNotEmpty) {
+          tagsToUse = recipe.tagsAr!;
+        } else if (event.locale == 'fr' &&
+            recipe.tagsFr != null &&
+            recipe.tagsFr!.isNotEmpty) {
+          tagsToUse = recipe.tagsFr!;
+        }
+
+        if (tagsToUse.isEmpty) {
+          grouped.putIfAbsent(otherTitle, () => []).add(recipe);
         } else {
-          for (var tag in recipe.tags) {
+          for (var tag in tagsToUse) {
             final key = tag.isNotEmpty
                 ? tag[0].toUpperCase() + tag.substring(1)
-                : 'Other';
+                : otherTitle;
             grouped.putIfAbsent(key, () => []).add(recipe);
           }
         }

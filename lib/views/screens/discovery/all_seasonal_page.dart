@@ -25,6 +25,19 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
     _recipesFuture = _recipeRepository.fetchSeasonalRecipes();
   }
 
+  String _getLocalizedTitle(Recipe recipe) {
+    final locale = Localizations.localeOf(context).languageCode;
+    return locale == 'ar' &&
+            recipe.titleAr != null &&
+            recipe.titleAr!.isNotEmpty
+        ? recipe.titleAr!
+        : (locale == 'fr' &&
+                  recipe.titleFr != null &&
+                  recipe.titleFr!.isNotEmpty
+              ? recipe.titleFr!
+              : recipe.name);
+  }
+
   Color _getSeasonColor(String season) {
     switch (season) {
       case 'Spring':
@@ -277,6 +290,7 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                     itemBuilder: (context, index) {
                       final recipe = filteredRecipes[index];
                       final season = _getSeasonFromTags(recipe.tags);
+                      final title = _getLocalizedTitle(recipe);
                       return TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0.0, end: 1.0),
                         duration: Duration(milliseconds: 300 + (index * 50)),
@@ -290,27 +304,15 @@ class _AllSeasonalPageState extends State<AllSeasonalPage> {
                         child: Stack(
                           children: [
                             SeasonalItemWidget(
-                              title: recipe.name,
-                              subtitle: recipe.description,
+                              title: title,
+                              subtitle: title,
                               imageUrl: recipe.imageUrl,
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => RecipeDetailsPage(
-                                      recipeId: recipe.id,
-                                      recipeName: recipe.name,
-                                      recipeDescription: recipe.description,
-                                      recipeImageUrl: recipe.imageUrl,
-                                      recipePrepTime: recipe.prepTime,
-                                      recipeCookTime: recipe.cookTime,
-                                      recipeCalories: recipe.calories,
-                                      recipeServingsCount: recipe.servingsCount,
-                                      recipeIngredients: recipe.ingredients,
-                                      recipeInstructions: recipe.instructions,
-                                      recipeTags: recipe.tags,
-                                      initialFavorite: recipe.isFavorite,
-                                    ),
+                                    builder: (context) =>
+                                        RecipeDetailsPage(recipe: recipe),
                                   ),
                                 );
                               },

@@ -211,7 +211,11 @@ class _MyRecipesContent extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: Colors.grey[500],
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${recipe.prepTime + recipe.cookTime} min',
@@ -222,7 +226,11 @@ class _MyRecipesContent extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Icon(Icons.restaurant, size: 14, color: Colors.grey[500]),
+                        Icon(
+                          Icons.restaurant,
+                          size: 14,
+                          color: Colors.grey[500],
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${recipe.servingsCount} servings',
@@ -286,11 +294,7 @@ class _MyRecipesContent extends StatelessWidget {
     return Container(
       color: Colors.grey[200],
       child: Center(
-        child: Icon(
-          Icons.restaurant_menu,
-          size: 40,
-          color: Colors.grey[400],
-        ),
+        child: Icon(Icons.restaurant_menu, size: 40, color: Colors.grey[400]),
       ),
     );
   }
@@ -300,10 +304,8 @@ class _MyRecipesContent extends StatelessWidget {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (newContext) => BlocProvider.value(
-          value: bloc,
-          child: const AddEditRecipePage(),
-        ),
+        builder: (newContext) =>
+            BlocProvider.value(value: bloc, child: const AddEditRecipePage()),
       ),
     );
 
@@ -333,26 +335,16 @@ class _MyRecipesContent extends StatelessWidget {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => RecipeDetailsPage(
-          recipeId: recipe.id,
-          recipeName: recipe.name,
-          recipeDescription: recipe.description,
-          recipeImageUrl: recipe.imageUrl,
-          recipePrepTime: recipe.prepTime,
-          recipeCookTime: recipe.cookTime,
-          recipeCalories: recipe.calories,
-          recipeServingsCount: recipe.servingsCount,
-          recipeIngredients: recipe.ingredients,
-          recipeInstructions: recipe.instructions,
-          recipeTags: recipe.tags,
-          initialFavorite: recipe.isFavorite,
-          recipeOwner: recipe.ownerId,
-        ),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            RecipeDetailsPage(recipe: recipe),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
           const curve = Curves.easeInOut;
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
           return SlideTransition(position: offsetAnimation, child: child);
         },
@@ -360,7 +352,11 @@ class _MyRecipesContent extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, String recipeId, String recipeName) {
+  void _confirmDelete(
+    BuildContext context,
+    String recipeId,
+    String recipeName,
+  ) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -375,7 +371,10 @@ class _MyRecipesContent extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins')),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontFamily: 'Poppins'),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -384,7 +383,11 @@ class _MyRecipesContent extends StatelessWidget {
             },
             child: Text(
               'Delete',
-              style: TextStyle(color: Colors.red, fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: Colors.red,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

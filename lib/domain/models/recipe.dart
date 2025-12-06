@@ -16,6 +16,15 @@ class Recipe {
   final List<String> externalSources;
   final bool isFavorite;
   final bool isTrending;
+  final List<String> basicIngredients;
+
+  // Localized fields
+  final String? titleAr;
+  final String? titleFr;
+  final List<String>? tagsAr;
+  final List<String>? tagsFr;
+  final List<String>? instructionsAr;
+  final List<String>? instructionsFr;
 
   const Recipe({
     required this.id,
@@ -33,23 +42,30 @@ class Recipe {
     this.externalSources = const [],
     this.isFavorite = false,
     this.isTrending = false,
+    this.basicIngredients = const [],
+    this.titleAr,
+    this.titleFr,
+    this.tagsAr,
+    this.tagsFr,
+    this.instructionsAr,
+    this.instructionsFr,
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     print('  📦 Recipe.fromJson called');
     print('  JSON keys: ${json.keys.toList()}');
-    
+
     try {
       print('  Parsing time fields...');
       final prepTime = json['recipe_prep_time'];
       final cookTime = json['recipe_cook_time'];
       print('  prep_time: $prepTime (${prepTime.runtimeType})');
       print('  cook_time: $cookTime (${cookTime.runtimeType})');
-      
+
       // Safely parse time values
       int prepMinutes = 0;
       int cookMinutes = 0;
-      
+
       if (prepTime != null) {
         if (prepTime is int) {
           prepMinutes = prepTime;
@@ -57,7 +73,7 @@ class Recipe {
           prepMinutes = int.tryParse(prepTime) ?? 0;
         }
       }
-      
+
       if (cookTime != null) {
         if (cookTime is int) {
           cookMinutes = cookTime;
@@ -65,14 +81,16 @@ class Recipe {
           cookMinutes = int.tryParse(cookTime) ?? 0;
         }
       }
-      
+
       print('  ✅ Total time: ${prepMinutes + cookMinutes} min');
-      
+
       // Safely parse array fields
       print('  Parsing ingredients...');
       final List<String> ingredients = [];
       if (json['recipe_ingredients'] != null) {
-        print('  recipe_ingredients type: ${json['recipe_ingredients'].runtimeType}');
+        print(
+          '  recipe_ingredients type: ${json['recipe_ingredients'].runtimeType}',
+        );
         try {
           final rawIngredients = json['recipe_ingredients'];
           if (rawIngredients is List) {
@@ -86,13 +104,15 @@ class Recipe {
           print('Error parsing ingredients: $e');
         }
       }
-      
+
       print('  ✅ Ingredients parsed: ${ingredients.length} items');
-      
+
       print('  Parsing instructions...');
       final List<String> instructions = [];
       if (json['recipe_instructions'] != null) {
-        print('  recipe_instructions type: ${json['recipe_instructions'].runtimeType}');
+        print(
+          '  recipe_instructions type: ${json['recipe_instructions'].runtimeType}',
+        );
         try {
           final rawInstructions = json['recipe_instructions'];
           if (rawInstructions is List) {
@@ -106,9 +126,9 @@ class Recipe {
           print('Error parsing instructions: $e');
         }
       }
-      
+
       print('  ✅ Instructions parsed: ${instructions.length} items');
-      
+
       print('  Parsing tags...');
       final List<String> tags = [];
       if (json['recipe_tags'] != null) {
@@ -126,7 +146,7 @@ class Recipe {
           print('Error parsing tags: $e');
         }
       }
-      
+
       // Safely parse servings count
       int servingsCount = 4;
       final rawServings = json['recipe_servings_count'];
@@ -137,7 +157,7 @@ class Recipe {
           servingsCount = int.tryParse(rawServings) ?? 4;
         }
       }
-      
+
       // Safely parse calories
       int caloriesCount = 0;
       final rawCalories = json['recipe_calories'];
@@ -148,15 +168,17 @@ class Recipe {
           caloriesCount = int.tryParse(rawCalories) ?? 0;
         }
       }
-      
+
       print('  ✅ Tags parsed: ${tags.length} items');
       print('  Constructing Recipe object...');
-      
+
       final recipe = Recipe(
         id: json['recipe_id']?.toString() ?? '',
         name: json['recipe_name']?.toString() ?? 'Unknown Recipe',
         description: json['recipe_description']?.toString() ?? '',
-        imageUrl: json['recipe_image_url']?.toString() ?? 'https://via.placeholder.com/400',
+        imageUrl:
+            json['recipe_image_url']?.toString() ??
+            'https://via.placeholder.com/400',
         ownerId: json['recipe_owner']?.toString() ?? '',
         servingsCount: servingsCount,
         prepTime: prepMinutes,
@@ -170,8 +192,15 @@ class Recipe {
             ? (json['is_favourite'] == 1)
             : (json['is_favourite'] as bool? ?? false),
         isTrending: json['recipe_is_trending'] == true,
+        basicIngredients: _parseList(json['basic_ingredients']),
+        titleAr: json['title_ar']?.toString(),
+        titleFr: json['title_fr']?.toString(),
+        tagsAr: _parseList(json['tags_ar']),
+        tagsFr: _parseList(json['tags_fr']),
+        instructionsAr: _parseList(json['steps_ar']),
+        instructionsFr: _parseList(json['steps_fr']),
       );
-      
+
       print('  ✅ Recipe object created: ${recipe.name}');
       return recipe;
     } catch (e, stackTrace) {
@@ -184,7 +213,7 @@ class Recipe {
       });
       print('\nStack trace:');
       print(stackTrace);
-      
+
       // Return a default recipe to prevent crash
       return Recipe(
         id: json['recipe_id']?.toString() ?? 'error',
@@ -226,6 +255,13 @@ class Recipe {
     List<String>? externalSources,
     bool? isFavorite,
     bool? isTrending,
+    List<String>? basicIngredients,
+    String? titleAr,
+    String? titleFr,
+    List<String>? tagsAr,
+    List<String>? tagsFr,
+    List<String>? instructionsAr,
+    List<String>? instructionsFr,
   }) {
     return Recipe(
       id: id ?? this.id,
@@ -243,6 +279,13 @@ class Recipe {
       externalSources: externalSources ?? this.externalSources,
       isFavorite: isFavorite ?? this.isFavorite,
       isTrending: isTrending ?? this.isTrending,
+      basicIngredients: basicIngredients ?? this.basicIngredients,
+      titleAr: titleAr ?? this.titleAr,
+      titleFr: titleFr ?? this.titleFr,
+      tagsAr: tagsAr ?? this.tagsAr,
+      tagsFr: tagsFr ?? this.tagsFr,
+      instructionsAr: instructionsAr ?? this.instructionsAr,
+      instructionsFr: instructionsFr ?? this.instructionsFr,
     );
   }
 

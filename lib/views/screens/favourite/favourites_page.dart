@@ -19,24 +19,29 @@ class FavouritesPage extends StatefulWidget {
 
 class _FavouritesPageState extends State<FavouritesPage> {
   PageController? _pageController;
+  Locale? _currentLocale;
 
   @override
   void initState() {
     super.initState();
-    // We defer the event adding to build or use a post-frame callback if we need context
-    // But initState has context. However, AppLocalizations might not be ready if it depends on inherited widget
-    // usually it is fine.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<FavouritesBloc>().add(
-          LoadFavourites(
-            allSavedText: AppLocalizations.of(context)!.allSaved,
-            recipeText: AppLocalizations.of(context)!.recipeSingular,
-            recipesText: AppLocalizations.of(context)!.recipePlural,
-          ),
-        );
-      }
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newLocale = Localizations.localeOf(context);
+    if (_currentLocale != newLocale) {
+      _currentLocale = newLocale;
+      context.read<FavouritesBloc>().add(
+        LoadFavourites(
+          allSavedText: AppLocalizations.of(context)!.allSaved,
+          recipeText: AppLocalizations.of(context)!.recipeSingular,
+          recipesText: AppLocalizations.of(context)!.recipePlural,
+          locale: newLocale.languageCode,
+          otherText: "Other",
+        ),
+      );
+    }
   }
 
   @override

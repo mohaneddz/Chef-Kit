@@ -1,4 +1,5 @@
 import 'package:chefkit/views/screens/notifications_page.dart';
+import 'package:chefkit/domain/models/recipe.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
@@ -32,6 +33,19 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
   void initState() {
     super.initState();
     context.read<DiscoveryBloc>().add(LoadDiscovery());
+  }
+
+  String _getLocalizedTitle(Recipe recipe) {
+    final locale = Localizations.localeOf(context).languageCode;
+    return locale == 'ar' &&
+            recipe.titleAr != null &&
+            recipe.titleAr!.isNotEmpty
+        ? recipe.titleAr!
+        : (locale == 'fr' &&
+                  recipe.titleFr != null &&
+                  recipe.titleFr!.isNotEmpty
+              ? recipe.titleFr!
+              : recipe.name);
   }
 
   @override
@@ -214,9 +228,10 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                       itemCount: state.hotRecipes.length.clamp(0, 4),
                       itemBuilder: (context, index) {
                         final recipe = state.hotRecipes[index];
+                        final title = _getLocalizedTitle(recipe);
                         return RecipeCardWidget(
-                          title: recipe.name,
-                          subtitle: recipe.description,
+                          title: title,
+                          subtitle: title,
                           imageUrl: recipe.imageUrl,
                           isFavorite: recipe.isFavorite,
                           heroTag: 'recipe_${recipe.id}',
@@ -228,24 +243,8 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                               context,
                               PageRouteBuilder(
                                 pageBuilder:
-                                    (
-                                      context,
-                                      animation,
-                                      secondaryAnimation,
-                                    ) => RecipeDetailsPage(
-                                      recipeId: recipe.id,
-                                      recipeName: recipe.name,
-                                      recipeDescription: recipe.description,
-                                      recipeImageUrl: recipe.imageUrl,
-                                      recipePrepTime: recipe.prepTime,
-                                      recipeCookTime: recipe.cookTime,
-                                      recipeCalories: recipe.calories,
-                                      recipeServingsCount: recipe.servingsCount,
-                                      recipeIngredients: recipe.ingredients,
-                                      recipeInstructions: recipe.instructions,
-                                      recipeTags: recipe.tags,
-                                      initialFavorite: recipe.isFavorite,
-                                    ),
+                                    (context, animation, secondaryAnimation) =>
+                                        RecipeDetailsPage(recipe: recipe),
                                 transitionsBuilder:
                                     (
                                       context,
@@ -298,27 +297,15 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                       children: [
                         for (final recipe in state.seasonalRecipes) ...[
                           SeasonalItemWidget(
-                            title: recipe.name,
-                            subtitle: recipe.description,
+                            title: _getLocalizedTitle(recipe),
+                            subtitle: _getLocalizedTitle(recipe),
                             imageUrl: recipe.imageUrl,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => RecipeDetailsPage(
-                                    recipeId: recipe.id,
-                                    recipeName: recipe.name,
-                                    recipeDescription: recipe.description,
-                                    recipeImageUrl: recipe.imageUrl,
-                                    recipePrepTime: recipe.prepTime,
-                                    recipeCookTime: recipe.cookTime,
-                                    recipeCalories: recipe.calories,
-                                    recipeServingsCount: recipe.servingsCount,
-                                    recipeIngredients: recipe.ingredients,
-                                    recipeInstructions: recipe.instructions,
-                                    recipeTags: recipe.tags,
-                                    initialFavorite: recipe.isFavorite,
-                                  ),
+                                  builder: (_) =>
+                                      RecipeDetailsPage(recipe: recipe),
                                 ),
                               );
                             },
