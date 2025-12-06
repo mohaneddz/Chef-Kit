@@ -14,6 +14,7 @@ from services import (
     create_user as service_create_user,
     update_user as service_update_user,
     get_all_recipes,
+    get_recipes_result,
     get_recipe,
     create_recipe,
     update_recipe,
@@ -751,10 +752,39 @@ def upload_avatar(user_id, token_claims, token):
 @app.route("/api/recipes", methods=["GET"])
 def get_recipes():
     """Fetch all recipes. RLS allows public read."""
+    tag = request.args.get('tag')
     try:
-        recipes = get_all_recipes()
-        return jsonify(recipes), 200
+        recipes = get_all_recipes(tag=tag)
+        response = jsonify(recipes)
+        response.headers["Connection"] = "close"
+        return response, 200
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# TODO: Implement actual logic for recipe results
+@app.route("/api/recipes/result", methods=["POST"])
+def get_recipes_result_route():
+    """Fetch 10 recipes for the results page based on ingredients."""
+    try:
+        payload = request.get_json() or {}
+        ingredients = payload.get("ingredients", [])
+        
+        print(f"Fetching recipes result for ingredients: {ingredients}")
+        recipes = get_recipes_result(ingredients)
+        print(f"Fetched {len(recipes)} recipes.")
+        
+        # Debug: Check for circular references or non-serializable data
+        # by dumping to string first
+        import json
+        json_str = json.dumps(recipes, default=str)
+        print(f"JSON response size: {len(json_str)} bytes")
+        
+        response = jsonify(recipes)
+        response.headers["Connection"] = "close" # Force close to avoid keep-alive issues
+        return response, 200
+    except Exception as e:
+        print(f"Error in get_recipes_result_route: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -1025,7 +1055,9 @@ def get_trending_recipes_route():
     """Get all trending recipes. Public endpoint."""
     try:
         recipes = get_trending_recipes()
-        return jsonify(recipes), 200
+        response = jsonify(recipes)
+        response.headers["Connection"] = "close"
+        return response, 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

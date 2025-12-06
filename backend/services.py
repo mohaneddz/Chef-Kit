@@ -306,8 +306,28 @@ update_user_service = update_user
 # -----------------------------
 # Recipes
 # -----------------------------
-def get_all_recipes() -> List[Dict[str, Any]]:
-    resp = supabase.table("recipe").select("*").execute()
+_RECIPE_COLUMNS = (
+    "recipe_id, recipe_name, recipe_description, recipe_image_url, recipe_owner, "
+    "recipe_servings_count, recipe_prep_time, recipe_cook_time, recipe_calories, "
+    "recipe_ingredients, recipe_instructions, recipe_tags, recipe_is_trending"
+)
+
+def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:
+    query = supabase.table("recipe").select(_RECIPE_COLUMNS)
+    if tag:
+        query = query.contains("recipe_tags", [tag])
+    # Limit to 20 to prevent huge payloads for now
+    resp = query.limit(20).execute()
+    data = _extract_response_data(resp)
+    return data or []
+
+
+def get_recipes_result(ingredients: List[str] = None) -> List[Dict[str, Any]]:
+    """
+    Get a fixed list of 10 recipes for the results page.
+    TODO: Implement actual logic for recipe results based on ingredients/preferences.
+    """
+    resp = supabase.table("recipe").select(_RECIPE_COLUMNS).limit(10).execute()
     data = _extract_response_data(resp)
     return data or []
 
@@ -584,7 +604,7 @@ def get_recipes_by_chef(chef_id: str) -> List[Dict[str, Any]]:
 
 def get_trending_recipes() -> List[Dict[str, Any]]:
     """Get all recipes marked as trending."""
-    resp = supabase.table("recipe").select("*").eq("recipe_is_trending", True).execute()
+    resp = supabase.table("recipe").select(_RECIPE_COLUMNS).eq("recipe_is_trending", True).limit(10).execute()
     data = _extract_response_data(resp)
     return data or []
 

@@ -134,6 +134,43 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     ToggleFavoriteRecipe event,
     Emitter<FavouritesState> emit,
   ) async {
+    final previousState = state;
+
+    // Optimistic update
+    List<Recipe> updateListOptimistic(List<Recipe> list) {
+      return list.map((r) {
+        if (r.id == event.recipeId) {
+          return r.copyWith(isFavorite: !r.isFavorite);
+        }
+        return r;
+      }).toList();
+    }
+
+    final optimisticCategories = state.categories.map((cat) {
+      final recipes = cat['recipes'] as List<Recipe>;
+      return {...cat, 'recipes': updateListOptimistic(recipes)};
+    }).toList();
+
+    final optimisticCurrentCategoryRecipes =
+        optimisticCategories[state.selectedCategoryIndex]['recipes']
+            as List<Recipe>;
+    final optimisticFilteredRecipes = state.searchQuery.isEmpty
+        ? optimisticCurrentCategoryRecipes
+        : optimisticCurrentCategoryRecipes
+              .where(
+                (recipe) => recipe.name.toLowerCase().contains(
+                  state.searchQuery.toLowerCase(),
+                ),
+              )
+              .toList();
+
+    emit(
+      state.copyWith(
+        categories: optimisticCategories,
+        displayRecipes: optimisticFilteredRecipes,
+      ),
+    );
+
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
 
@@ -166,7 +203,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(previousState.copyWith(error: e.toString()));
     }
   }
 

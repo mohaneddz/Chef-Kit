@@ -23,7 +23,7 @@ class SeasonalItemWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          
+
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.03),
@@ -35,25 +35,36 @@ class SeasonalItemWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            
             Container(
               height: 70,
               width: 70,
-              decoration: BoxDecoration(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                image: imageUrl != null
-                    ? DecorationImage(
-                        image: AssetImage(imageUrl!),
-                        fit: BoxFit.cover,
-                      )
-                    : const DecorationImage(
-                        image: AssetImage('assets/images/food.png'),
-                        fit: BoxFit.cover,
-                      ),
+                child: imageUrl != null
+                    ? (imageUrl!.startsWith('http')
+                          ? Image.network(
+                              imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(
+                                    'assets/images/food.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                            )
+                          : Image.asset(
+                              imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(
+                                    'assets/images/food.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                            ))
+                    : Image.asset('assets/images/food.png', fit: BoxFit.cover),
               ),
             ),
             const SizedBox(width: 16),
-            
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +90,7 @@ class SeasonalItemWidget extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
