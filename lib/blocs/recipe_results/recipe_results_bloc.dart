@@ -9,7 +9,12 @@ class RecipeResultsBloc extends Bloc<RecipeResultsEvent, RecipeResultsState> {
   RecipeResultsBloc({required this.recipeRepository})
     : super(const RecipeResultsState()) {
     on<LoadRecipeResults>(_onLoad);
+    on<SetRecipeResults>(_onSetResults);
     on<ToggleRecipeResultFavorite>(_onToggleFavorite);
+  }
+
+  void _onSetResults(SetRecipeResults event, Emitter<RecipeResultsState> emit) {
+    emit(state.copyWith(loading: false, matchedRecipes: event.recipes));
   }
 
   Future<void> _onLoad(

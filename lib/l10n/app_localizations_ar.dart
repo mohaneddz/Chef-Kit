@@ -600,4 +600,19 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get connectionIssueMessage =>
       'يرجى التحقق من اتصالك والمحاولة مرة أخرى';
+
+  @override
+  String get generateRecipe => 'إنشاء وصفة';
+
+  @override
+  String get cookingDuration => 'مدة الطهي';
+
+  @override
+  String get availableIngredients => 'المكونات المتاحة';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get proceed => 'متابعة';
 }

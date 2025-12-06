@@ -789,3 +789,159 @@ def get_user_favorite_ids(user_id: str) -> List[str]:
         return user_data.get("user_favourite_recipees") or []
     except Exception:
         return []
+
+
+def generate_recipes(lang: str, max_time: str, ingredients: List[str]) -> Dict[str, Any]:
+    """
+    Placeholder function for recipe generation.
+    Returns mock data based on the provided format.
+    """
+    # In a real implementation, this would use the inputs to filter/generate recipes.
+    # For now, we return the static mock data as requested.
+    
+    return {
+      "recipes": [
+        {
+          "recipe_id": "2255040a-c9d0-421a-afc8-0af33dd96a4e",
+          "recipe_owner": "3366050b-d0e1-432b-bgd9-1bf44ee07b5f",
+          "recipe_name": "Apple Funnel Cake",
+          "recipe_description": "Applesauce in the batter makes these apple funnel cakes extra tender. To keep the oil from splashing when frying funnel cakes, be sure to hold the tip of the funnel close to the oil.",
+          "recipe_image_url": "https://tse2.mm.bing.net/th/id/OIP.uwtaMHs561s9UzW9aCtT1wHaFj?cb=ucfimg2&pid=Api&ucfimg=1",
+          "recipe_servings_count": 4,
+          "recipe_prep_time": 27,
+          "recipe_cook_time": 63,
+          "recipe_calories": 320,
+          "recipe_ingredients": [
+            "2 1/2 cups all-purpose flour",
+            "2 teaspoons baking powder",
+            "1 teaspoon apple pie spice",
+            "1/2 teaspoon salt",
+            "1 3/4 cups milk",
+            "1 cup applesauce",
+            "3 large eggs",
+            "1/4 cup white sugar",
+            "1/4 teaspoon almond extract"
+          ],
+          "recipe_items": [],
+          "recipe_instructions": [
+            "Stir together flour, baking powder, apple pie spice, and salt.",
+            "Whisk together milk, applesauce, eggs, sugar, and almond extract. Add flour mixture.",
+            "Cook apple topping with butter, apples, brown sugar, and spice.",
+            "Heat oil to 375°F (190°C).",
+            "Fry batter in circular motion until golden.",
+            "Top with apple mixture and serve."
+          ],
+          "recipe_tags": [
+            "French",
+            "American",
+            "Vegetarian",
+            "Kosher",
+            "Medium"
+          ],
+          "recipe_external_source": [
+            "https://www.allrecipes.com/recipe/apple-funnel-cake"
+          ],
+          "recipe_is_trending": True,
+          "title_ar": "كعكة قمع التفاح",
+          "title_fr": "Gâteau Entonnoir aux Pommes",
+          "tags_ar": [
+            "فرنسي",
+            "أمريكي",
+            "نباتي",
+            "كوشير",
+            "متوسط"
+          ],
+          "tags_fr": [
+            "Français",
+            "Américain",
+            "Végétarien",
+            "Casher",
+            "Moyen"
+          ],
+          "steps_ar": [
+            "اخلطي الدقيق مع البيكنج بودر وتوابل فطيرة التفاح والملح.",
+            "اخفقي الحليب وعصير التفاح والبيض والسكر ومستخلص اللوز معًا. أضيفي خليط الدقيق.",
+            "اطهي طبقة التفاح مع الزبدة والتفاح والسكر البني والتوابل.",
+            "سخني الزيت إلى 375 درجة فهرنهايت (190 درجة مئوية).",
+            "اقلي العجين بحركة دائرية حتى يصبح ذهبي اللون.",
+            "ضعي خليط التفاح فوقها وقدميها."
+          ],
+          "steps_fr": [
+            "Mélanger la farine, la levure chimique, les épices pour tarte aux pommes et le sel.",
+            "Fouetter ensemble le lait, la compote de pommes, les œufs, le sucre et l'extrait d'amande. Ajouter le mélange de farine.",
+            "Cuire la garniture aux pommes avec le beurre, les pommes, la cassonade et les épices.",
+            "Chauffer l'huile à 190°C (375°F).",
+            "Frire la pâte en mouvement circulaire jusqu'à ce qu'elle soit dorée.",
+            "Garnir du mélange de pommes et servir."
+          ],
+          "basic_ingredients": "Flour, Applesauce, Milk, Eggs, Sugar",
+          "recipe_is_seasonal": True
+        },
+        {
+          "recipe_id": "550e8400-e29b-41d4-a716-446655440000",
+          "recipe_owner": "8899050b-a1c2-432b-bgd9-2cf55ee08c6g",
+          "recipe_name": "Healthy Green Smoothie Bowl",
+          "recipe_description": "A refreshing and nutrient-packed smoothie bowl topped with fresh fruits, seeds, and granola. Perfect for a quick breakfast or post-workout meal.",
+          "recipe_image_url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+          "recipe_servings_count": 2,
+          "recipe_prep_time": 10,
+          "recipe_cook_time": 0,
+          "recipe_calories": 450,
+          "recipe_ingredients": [
+            "2 cups fresh spinach",
+            "1 frozen banana",
+            "1/2 cup frozen mango chunks",
+            "1/2 cup almond milk",
+            "1 kiwi, sliced",
+            "1 tbsp chia seeds",
+            "1/4 cup granola"
+          ],
+          "recipe_items": [],
+          "recipe_instructions": [
+            "Combine spinach, banana, mango, and almond milk in a blender.",
+            "Blend on high speed until smooth and creamy.",
+            "Pour into bowls.",
+            "Top with sliced kiwi, chia seeds, and granola immediately before serving."
+          ],
+          "recipe_tags": [
+            "Healthy",
+            "Vegan",
+            "Breakfast",
+            "Gluten-Free",
+            "Easy"
+          ],
+          "recipe_external_source": [],
+          "recipe_is_trending": False,
+          "title_ar": "وعاء السموذي الأخضر الصحي",
+          "title_fr": "Bol de Smoothie Vert Sain",
+          "tags_ar": [
+            "صحي",
+            "نباتي صرف",
+            "فطور",
+            "خالي من الجلوتين",
+            "سهل"
+          ],
+          "tags_fr": [
+            "Sain",
+            "Végétalien",
+            "Petit-déjeuner",
+            "Sans Gluten",
+            "Facile"
+          ],
+          "steps_ar": [
+            "اخلطي السبانخ والموز والمانجو وحليب اللوز في الخلاط.",
+            "اخلطي بسرعة عالية حتى يصبح الخليط ناعماً وكريمياً.",
+            "اسكبي الخليط في أوعية.",
+            "زيّني بشرائح الكيوي وبذور الشيا والجرانولا قبل التقديم مباشرة."
+          ],
+          "steps_fr": [
+            "Combiner les épinards, la banane, la mangue et le lait d'amande dans un mélangeur.",
+            "Mélanger à haute vitesse jusqu'à consistance lisse et crémeuse.",
+            "Verser dans des bols.",
+            "Garnir de tranches de kiwi, de graines de chia et de granola juste avant de servir."
+          ],
+          "basic_ingredients": "Spinach, Banana, Mango, Almond Milk",
+          "recipe_is_seasonal": False
+        }
+      ]
+    }

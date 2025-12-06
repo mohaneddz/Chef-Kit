@@ -602,4 +602,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get connectionIssueMessage =>
       'Please check your connection and try again';
+
+  @override
+  String get generateRecipe => 'Generate Recipe';
+
+  @override
+  String get cookingDuration => 'Cooking Duration';
+
+  @override
+  String get availableIngredients => 'Available Ingredients';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get proceed => 'Proceed';
 }

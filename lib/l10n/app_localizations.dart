@@ -1155,6 +1155,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check your connection and try again'**
   String get connectionIssueMessage;
+
+  /// No description provided for @generateRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Recipe'**
+  String get generateRecipe;
+
+  /// No description provided for @cookingDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking Duration'**
+  String get cookingDuration;
+
+  /// No description provided for @availableIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Ingredients'**
+  String get availableIngredients;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @proceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed'**
+  String get proceed;
 }
 
 class _AppLocalizationsDelegate

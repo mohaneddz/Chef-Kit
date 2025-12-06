@@ -174,5 +174,10 @@
   "profileUpdateSuccess": "تم تحديث المعلومات الشخصية",
   "noRecipesFound": "لم يتم العثور على وصفات",
   "connectionIssue": "مشكلة في الاتصال",
-  "connectionIssueMessage": "يرجى التحقق من اتصالك والمحاولة مرة أخرى"
+  "connectionIssueMessage": "يرجى التحقق من اتصالك والمحاولة مرة أخرى",
+  "generateRecipe": "إنشاء وصفة",
+  "cookingDuration": "مدة الطهي",
+  "availableIngredients": "المكونات المتاحة",
+  "cancel": "إلغاء",
+  "proceed": "متابعة"
 }

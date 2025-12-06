@@ -12,8 +12,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RecipeResultsPage extends StatelessWidget {
   final List<String> selectedIngredients;
+  final List<Recipe>? initialRecipes;
 
-  const RecipeResultsPage({super.key, required this.selectedIngredients});
+  const RecipeResultsPage({
+    super.key,
+    required this.selectedIngredients,
+    this.initialRecipes,
+  });
 
   String _getLocalizedTitle(BuildContext context, Recipe recipe) {
     final locale = Localizations.localeOf(context).languageCode;
@@ -31,9 +36,17 @@ class RecipeResultsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          RecipeResultsBloc(recipeRepository: context.read<RecipeRepository>())
-            ..add(LoadRecipeResults(selectedIngredients)),
+      create: (context) {
+        final bloc = RecipeResultsBloc(
+          recipeRepository: context.read<RecipeRepository>(),
+        );
+        if (initialRecipes != null) {
+          bloc.add(SetRecipeResults(initialRecipes!));
+        } else {
+          bloc.add(LoadRecipeResults(selectedIngredients));
+        }
+        return bloc;
+      },
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
