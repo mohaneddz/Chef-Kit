@@ -280,10 +280,7 @@ class RecipeRepository {
     required List<String> ingredients,
   }) async {
     final headers = await _getHeaders();
-    final body = json.encode({
-      'time': maxTime,
-      'ingredients': ingredients,
-    });
+    final body = json.encode({'time': maxTime, 'ingredients': ingredients});
 
     try {
       final response = await http.post(
