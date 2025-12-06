@@ -30,6 +30,11 @@ from services import (
     auth_logout,
     auth_verify_email_otp,
     update_user_service,
+    get_chefs_on_fire,
+    get_chef_by_id,
+    get_recipes_by_chef,
+    get_trending_recipes,
+    toggle_follow,
 )
 from auth import token_required, optional_token
 from supabase_client import set_postgrest_token
@@ -733,7 +738,7 @@ def get_recipes():
 
 
 @app.route("/api/recipes/<recipe_id>", methods=["GET"])
-def get_recipe(recipe_id):
+def get_recipe_route(recipe_id):
     """Fetch a single recipe by ID."""
     try:
         recipe = get_recipe(recipe_id)
@@ -742,9 +747,87 @@ def get_recipe(recipe_id):
         return jsonify({"error": str(e)}), 404
 
 
+@app.route("/api/user/recipes", methods=["GET"])
+@token_required
+def get_current_user_recipes(token_claims, token):
+    """Get all recipes for the authenticated user/chef. Requires valid JWT token."""
+    try:
+        user_id = token_claims["sub"]
+        set_postgrest_token(token)
+        recipes = get_recipes_by_chef(user_id)
+        return jsonify(recipes), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recipes/upload-image", methods=["POST"])
+@token_required
+def upload_recipe_image(token_claims, token):
+    """Upload recipe image to Cloudinary.
+
+    Expects JSON: { "image_base64": "data:image/...;base64,XXX" or pure base64 }
+    Returns: { "image_url": "https://..." }
+    """
+    try:
+        print("[recipe-image] Upload requested")
+        print(f"[recipe-image] Token claims: {token_claims}")
+
+        payload = request.get_json() or {}
+        image_b64 = payload.get("image_base64") or ""
+        if not image_b64:
+            print("[recipe-image] Missing image_base64 in payload")
+            return jsonify({"error": "image_base64 is required"}), 400
+
+        # Strip data URL prefix if present
+        if "," in image_b64:
+            image_b64 = image_b64.split(",", 1)[1]
+        print(f"[recipe-image] Base64 payload length: {len(image_b64)}")
+
+        cloud_name, api_key, api_secret = get_cloudinary_config()
+        print(f"[recipe-image] Using Cloudinary cloud={cloud_name}")
+
+        timestamp = int(time.time())
+        folder = "chef-kit/recipes"
+        params_to_sign = {
+            "folder": folder,
+            "timestamp": str(timestamp),
+        }
+
+        to_sign = "&".join(f"{k}={v}" for k, v in sorted(params_to_sign.items()))
+        signature = hashlib.sha1((to_sign + api_secret).encode("utf-8")).hexdigest()
+        print(f"[recipe-image] Signature string: {to_sign}")
+
+        data = {
+            "file": f"data:image/jpeg;base64,{image_b64}",
+            "folder": folder,
+            "timestamp": timestamp,
+            "api_key": api_key,
+            "signature": signature,
+        }
+
+        upload_url = f"https://api.cloudinary.com/v1_1/{cloud_name}/image/upload"
+        print(f"[recipe-image] Uploading to Cloudinary endpoint: {upload_url}")
+        resp = requests.post(upload_url, data=data)
+        if resp.status_code != 200:
+            print(f"[recipe-image] Cloudinary upload failed: {resp.status_code} {resp.text}")
+            return jsonify({"error": "cloudinary_upload_failed", "details": resp.text}), 502
+
+        upload_json = resp.json()
+        secure_url = upload_json.get("secure_url")
+        if not secure_url:
+            print("[recipe-image] Cloudinary response missing secure_url")
+            return jsonify({"error": "cloudinary_no_url"}), 502
+
+        print(f"[recipe-image] Cloudinary upload succeeded. URL={secure_url}")
+        return jsonify({"image_url": secure_url}), 200
+    except Exception as e:
+        print(f"[recipe-image] Unexpected error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/recipes", methods=["POST"])
 @token_required
-def create_recipe(token_claims, token):
+def create_recipe_route(token_claims, token):
     """Create a new recipe. Requires valid JWT token."""
     try:
         data = request.get_json()
@@ -759,20 +842,29 @@ def create_recipe(token_claims, token):
 
 @app.route("/api/recipes/<recipe_id>", methods=["PUT"])
 @token_required
-def update_recipe(recipe_id, token_claims, token):
+def update_recipe_route(recipe_id, token_claims, token):
     """Update a recipe. Requires valid JWT token (must be the recipe owner)."""
     try:
         data = request.get_json()
+        print(f"[update-recipe] Recipe ID: {recipe_id}")
+        print(f"[update-recipe] Request data: {data}")
+        print(f"[update-recipe] recipe_image_url in request: {data.get('recipe_image_url')}")
+        
         set_postgrest_token(token)
         updated = update_recipe(recipe_id, data)
+        
+        print(f"[update-recipe] Updated recipe: {updated}")
+        print(f"[update-recipe] recipe_image_url in response: {updated.get('recipe_image_url')}")
+        
         return jsonify(updated), 200
     except Exception as e:
+        print(f"[update-recipe] Error: {e}")
         return jsonify({"error": str(e)}), 400
 
 
 @app.route("/api/recipes/<recipe_id>", methods=["DELETE"])
 @token_required
-def delete_recipe(recipe_id, token_claims, token):
+def delete_recipe_route(recipe_id, token_claims, token):
     """Delete a recipe. Requires valid JWT token (must be the recipe owner)."""
     try:
         set_postgrest_token(token)
@@ -845,7 +937,7 @@ def create_notification(token_claims, token):
 
 @app.route("/api/notifications/<notification_id>/read", methods=["PUT"])
 @token_required
-def mark_notification_read(notification_id, token_claims, token):
+def mark_notification_read_route(notification_id, token_claims, token):
     """Mark a notification as read. Requires valid JWT token."""
     try:
         set_postgrest_token(token)
@@ -853,6 +945,64 @@ def mark_notification_read(notification_id, token_claims, token):
         return jsonify(updated), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+# Chefs & Trending
+@app.route("/api/chefs/on-fire", methods=["GET"])
+def get_chefs_on_fire_route():
+    """Get all chefs marked as 'on fire'. Public endpoint."""
+    try:
+        chefs = get_chefs_on_fire()
+        return jsonify(chefs), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/chefs/<chef_id>", methods=["GET"])
+def get_chef_route(chef_id):
+    """Get a specific chef by ID. Public endpoint."""
+    try:
+        chef = get_chef_by_id(chef_id)
+        return jsonify(chef), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
+
+
+@app.route("/api/chefs/<chef_id>/recipes", methods=["GET"])
+def get_chef_recipes_route(chef_id):
+    """Get all recipes by a specific chef. Public endpoint."""
+    try:
+        recipes = get_recipes_by_chef(chef_id)
+        return jsonify(recipes), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recipes/trending", methods=["GET"])
+def get_trending_recipes_route():
+    """Get all trending recipes. Public endpoint."""
+    try:
+        recipes = get_trending_recipes()
+        return jsonify(recipes), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/chefs/<chef_id>/follow", methods=["POST"])
+@token_required
+def toggle_follow_route(chef_id, token_claims, token):
+    """Toggle follow status for a chef. Requires authentication."""
+    try:
+        follower_id = token_claims["sub"]
+        
+        # Prevent following yourself
+        if follower_id == chef_id:
+            return jsonify({"error": "Cannot follow yourself"}), 400
+        
+        result = toggle_follow(follower_id, chef_id)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # Error Handlers

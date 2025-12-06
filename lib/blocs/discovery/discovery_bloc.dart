@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/repositories/chef_repository.dart';
-import '../../domain/repositories/recipe/recipe_repo.dart';
+import '../../domain/repositories/recipe_repository.dart';
 import 'discovery_events.dart';
 import 'discovery_state.dart';
 

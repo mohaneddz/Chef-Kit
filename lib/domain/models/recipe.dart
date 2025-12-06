@@ -15,6 +15,7 @@ class Recipe {
   final List<String> tags;
   final List<String> externalSources;
   final bool isFavorite;
+  final bool isTrending;
 
   const Recipe({
     required this.id,
@@ -31,7 +32,183 @@ class Recipe {
     this.tags = const [],
     this.externalSources = const [],
     this.isFavorite = false,
+    this.isTrending = false,
   });
+
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    print('  📦 Recipe.fromJson called');
+    print('  JSON keys: ${json.keys.toList()}');
+    
+    try {
+      print('  Parsing time fields...');
+      final prepTime = json['recipe_prep_time'];
+      final cookTime = json['recipe_cook_time'];
+      print('  prep_time: $prepTime (${prepTime.runtimeType})');
+      print('  cook_time: $cookTime (${cookTime.runtimeType})');
+      
+      // Safely parse time values
+      int prepMinutes = 0;
+      int cookMinutes = 0;
+      
+      if (prepTime != null) {
+        if (prepTime is int) {
+          prepMinutes = prepTime;
+        } else if (prepTime is String) {
+          prepMinutes = int.tryParse(prepTime) ?? 0;
+        }
+      }
+      
+      if (cookTime != null) {
+        if (cookTime is int) {
+          cookMinutes = cookTime;
+        } else if (cookTime is String) {
+          cookMinutes = int.tryParse(cookTime) ?? 0;
+        }
+      }
+      
+      print('  ✅ Total time: ${prepMinutes + cookMinutes} min');
+      
+      // Safely parse array fields
+      print('  Parsing ingredients...');
+      final List<String> ingredients = [];
+      if (json['recipe_ingredients'] != null) {
+        print('  recipe_ingredients type: ${json['recipe_ingredients'].runtimeType}');
+        try {
+          final rawIngredients = json['recipe_ingredients'];
+          if (rawIngredients is List) {
+            for (var item in rawIngredients) {
+              if (item != null) {
+                ingredients.add(item.toString());
+              }
+            }
+          }
+        } catch (e) {
+          print('Error parsing ingredients: $e');
+        }
+      }
+      
+      print('  ✅ Ingredients parsed: ${ingredients.length} items');
+      
+      print('  Parsing instructions...');
+      final List<String> instructions = [];
+      if (json['recipe_instructions'] != null) {
+        print('  recipe_instructions type: ${json['recipe_instructions'].runtimeType}');
+        try {
+          final rawInstructions = json['recipe_instructions'];
+          if (rawInstructions is List) {
+            for (var item in rawInstructions) {
+              if (item != null) {
+                instructions.add(item.toString());
+              }
+            }
+          }
+        } catch (e) {
+          print('Error parsing instructions: $e');
+        }
+      }
+      
+      print('  ✅ Instructions parsed: ${instructions.length} items');
+      
+      print('  Parsing tags...');
+      final List<String> tags = [];
+      if (json['recipe_tags'] != null) {
+        print('  recipe_tags type: ${json['recipe_tags'].runtimeType}');
+        try {
+          final rawTags = json['recipe_tags'];
+          if (rawTags is List) {
+            for (var item in rawTags) {
+              if (item != null) {
+                tags.add(item.toString());
+              }
+            }
+          }
+        } catch (e) {
+          print('Error parsing tags: $e');
+        }
+      }
+      
+      // Safely parse servings count
+      int servingsCount = 4;
+      final rawServings = json['recipe_servings_count'];
+      if (rawServings != null) {
+        if (rawServings is int) {
+          servingsCount = rawServings;
+        } else if (rawServings is String) {
+          servingsCount = int.tryParse(rawServings) ?? 4;
+        }
+      }
+      
+      // Safely parse calories
+      int caloriesCount = 0;
+      final rawCalories = json['recipe_calories'];
+      if (rawCalories != null) {
+        if (rawCalories is int) {
+          caloriesCount = rawCalories;
+        } else if (rawCalories is String) {
+          caloriesCount = int.tryParse(rawCalories) ?? 0;
+        }
+      }
+      
+      print('  ✅ Tags parsed: ${tags.length} items');
+      print('  Constructing Recipe object...');
+      
+      final recipe = Recipe(
+        id: json['recipe_id']?.toString() ?? '',
+        name: json['recipe_name']?.toString() ?? 'Unknown Recipe',
+        description: json['recipe_description']?.toString() ?? '',
+        imageUrl: json['recipe_image_url']?.toString() ?? 'https://via.placeholder.com/400',
+        ownerId: json['recipe_owner']?.toString() ?? '',
+        servingsCount: servingsCount,
+        prepTime: prepMinutes,
+        cookTime: cookMinutes,
+        calories: caloriesCount,
+        tags: tags,
+        ingredients: ingredients,
+        instructions: instructions,
+        externalSources: _parseList(json['recipe_external_sources']),
+        isFavorite: (json['is_favourite'] is int)
+            ? (json['is_favourite'] == 1)
+            : (json['is_favourite'] as bool? ?? false),
+        isTrending: json['recipe_is_trending'] == true,
+      );
+      
+      print('  ✅ Recipe object created: ${recipe.name}');
+      return recipe;
+    } catch (e, stackTrace) {
+      print('\n❌❌❌ CRITICAL ERROR parsing Recipe from JSON ❌❌❌');
+      print('Error: $e');
+      print('Error type: ${e.runtimeType}');
+      print('\nFull JSON data:');
+      json.forEach((key, value) {
+        print('  $key: $value (${value.runtimeType})');
+      });
+      print('\nStack trace:');
+      print(stackTrace);
+      
+      // Return a default recipe to prevent crash
+      return Recipe(
+        id: json['recipe_id']?.toString() ?? 'error',
+        name: 'Error Loading Recipe',
+        description: 'There was an error loading this recipe',
+        imageUrl: 'https://via.placeholder.com/400',
+        ownerId: json['recipe_owner']?.toString() ?? '',
+      );
+    }
+  }
+
+  static List<String> _parseList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) return value.map((e) => e.toString()).toList();
+    if (value is String) {
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is List) {
+          return decoded.map((e) => e.toString()).toList();
+        }
+      } catch (_) {}
+    }
+    return [];
+  }
 
   Recipe copyWith({
     String? id,
@@ -48,6 +225,7 @@ class Recipe {
     List<String>? tags,
     List<String>? externalSources,
     bool? isFavorite,
+    bool? isTrending,
   }) {
     return Recipe(
       id: id ?? this.id,
@@ -64,42 +242,8 @@ class Recipe {
       tags: tags ?? this.tags,
       externalSources: externalSources ?? this.externalSources,
       isFavorite: isFavorite ?? this.isFavorite,
+      isTrending: isTrending ?? this.isTrending,
     );
-  }
-
-  factory Recipe.fromJson(Map<String, dynamic> json) {
-    return Recipe(
-      id: json['recipe_id'] as String,
-      name: json['recipe_name'] as String,
-      description: json['recipe_description'] as String? ?? '',
-      imageUrl: json['recipe_image_url'] as String? ?? '',
-      ownerId: json['recipe_owner'] as String? ?? '',
-      servingsCount: json['recipe_servings_count'] as int? ?? 1,
-      prepTime: json['recipe_prep_time'] as int? ?? 0,
-      cookTime: json['recipe_cook_time'] as int? ?? 0,
-      calories: json['recipe_calories'] as int? ?? 0,
-      ingredients: _parseList(json['recipe_ingredients']),
-      instructions: _parseList(json['recipe_instructions']),
-      tags: _parseList(json['recipe_tags']),
-      externalSources: _parseList(json['recipe_external_sources']),
-      isFavorite: (json['is_favourite'] is int)
-          ? (json['is_favourite'] == 1)
-          : (json['is_favourite'] as bool? ?? false),
-    );
-  }
-
-  static List<String> _parseList(dynamic value) {
-    if (value == null) return [];
-    if (value is List) return value.map((e) => e.toString()).toList();
-    if (value is String) {
-      try {
-        final decoded = jsonDecode(value);
-        if (decoded is List) {
-          return decoded.map((e) => e.toString()).toList();
-        }
-      } catch (_) {}
-    }
-    return [];
   }
 
   Map<String, dynamic> toJson() {

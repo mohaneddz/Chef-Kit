@@ -7,7 +7,8 @@ class LoadChefProfileEvent extends ChefProfileEvents {
 
 class ToggleChefFollowEvent extends ChefProfileEvents {
   final String chefId;
-  ToggleChefFollowEvent(this.chefId);
+  final String? accessToken;
+  ToggleChefFollowEvent(this.chefId, {this.accessToken});
 }
 
 class ToggleChefRecipeFavoriteEvent extends ChefProfileEvents {

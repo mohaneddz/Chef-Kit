@@ -6,7 +6,7 @@ import 'package:chefkit/l10n/app_localizations.dart';
 
 // Repositories
 import 'package:chefkit/domain/repositories/chef_repository.dart';
-import 'package:chefkit/domain/repositories/recipe/recipe_repo.dart';
+import 'package:chefkit/domain/repositories/recipe_repository.dart';
 import 'package:chefkit/domain/repositories/profile_repository.dart';
 
 // Blocs & events

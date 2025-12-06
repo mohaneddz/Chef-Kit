@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/chef_profile/chef_profile_bloc.dart';
 import '../../../blocs/chef_profile/chef_profile_state.dart';
 import '../../../blocs/chef_profile/chef_profile_events.dart';
+import '../../../blocs/auth/auth_cubit.dart';
+import '../recipe/recipe_details_page.dart';
 
 class ChefProfilePublicPage extends StatefulWidget {
   final String chefId;
@@ -166,7 +168,9 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Michelin Star Chef • Fusion Cuisine • Food Artist",
+                          chef.specialties.isNotEmpty 
+                              ? chef.specialties.join(' • ')
+                              : "Professional Chef",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -178,62 +182,52 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildStatItem(
-                              "Recipes",
-                              state.recipes.length.toString(),
-                            ),
+                            _buildStatItem("Recipes", state.recipes.length.toString()),
                             Container(
-                              height: 24,
+                              height: 40,
                               width: 1,
-                              color: Colors.grey[300],
+                              color: Colors.grey.withOpacity(0.3),
                             ),
-                            _buildStatItem(
-                              "Followers",
-                              chef.isFollowed ? "12.5k" : "12.4k",
-                            ),
-                            Container(
-                              height: 24,
-                              width: 1,
-                              color: Colors.grey[300],
-                            ),
-                            _buildStatItem("Rating", "4.9"),
+                            _buildStatItem("Followers", _formatCount(chef.followersCount)),
                           ],
                         ),
                         const SizedBox(height: 24),
                         Row(
                           children: [
                             Expanded(
-                              child: ElevatedButton(
-                                onPressed: () => context
-                                    .read<ChefProfileBloc>()
-                                    .add(ToggleChefFollowEvent(chef.id)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: chef.isFollowed
-                                      ? Colors.white
-                                      : const Color(0xFFFF6B6B),
-                                  foregroundColor: chef.isFollowed
-                                      ? Colors.black
-                                      : Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    side: chef.isFollowed
-                                        ? BorderSide(
-                                            color: Colors.grey.withOpacity(0.3),
-                                          )
-                                        : BorderSide.none,
-                                  ),
-                                ),
-                                child: Text(
-                                  chef.isFollowed ? "Following" : "Follow",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Poppins',
-                                  ),
-                                ),
+                              child: Builder(
+                                builder: (context) {
+                                  final currentUserId = context.watch<AuthCubit>().state.userId;
+                                  final isOwnProfile = currentUserId == chef.id;
+                                  
+                                  return ElevatedButton(
+                                    onPressed: isOwnProfile ? null : () => context.read<ChefProfileBloc>().add(ToggleChefFollowEvent(chef.id)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: isOwnProfile 
+                                          ? Colors.grey[300]
+                                          : (chef.isFollowed ? Colors.white : const Color(0xFFFF6B6B)),
+                                      foregroundColor: isOwnProfile
+                                          ? Colors.grey[600]
+                                          : (chef.isFollowed ? Colors.black : Colors.white),
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                        side: isOwnProfile
+                                            ? BorderSide.none
+                                            : (chef.isFollowed
+                                                ? BorderSide(color: Colors.grey.withOpacity(0.3))
+                                                : BorderSide.none),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      isOwnProfile 
+                                          ? "Your Profile" 
+                                          : (chef.isFollowed ? "Following" : "Follow"),
+                                      style: const TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -312,44 +306,41 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Story",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
+                      if (state.chef?.story != null && state.chef!.story!.isNotEmpty) ...[
+                        const Text(
+                          "Story",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        "Passionate about bold flavors and elevated comfort food. I started cooking when I was 10 years old in my grandmother's kitchen in Algiers. Now, I bring those traditional flavors to modern cuisine.",
-                        style: TextStyle(
-                          fontSize: 14,
-                          height: 1.6,
-                          color: Colors.grey[700],
-                          fontFamily: 'Poppins',
+                        const SizedBox(height: 12),
+                        Text(
+                          state.chef!.story!,
+                          style: TextStyle(fontSize: 14, height: 1.6, color: Colors.grey[700], fontFamily: 'Poppins'),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        "Specialties",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
+                        const SizedBox(height: 24),
+                      ],
+                      if (state.chef?.specialties != null && state.chef!.specialties.isNotEmpty) ...[
+                        const Text(
+                          "Specialties",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildChip("Mediterranean"),
-                          _buildChip("Healthy"),
-                          _buildChip("Pastry"),
-                          _buildChip("Fusion"),
-                        ],
-                      ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: state.chef!.specialties.map((specialty) => _buildChip(specialty)).toList(),
+                        ),
+                      ],
+                      if ((state.chef?.story == null || state.chef!.story!.isEmpty) &&
+                          (state.chef?.specialties == null || state.chef!.specialties.isEmpty))
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(32.0),
+                            child: Text(
+                              "No additional information available",
+                              style: TextStyle(fontSize: 14, color: Colors.grey[500], fontFamily: 'Poppins'),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -405,18 +396,39 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
 
   Widget _buildPremiumRecipeCard(dynamic recipe) {
     // recipe expected to be a Recipe model with fields
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => RecipeDetailsPage(
+              recipeId: recipe.id,
+              recipeName: recipe.name,
+              recipeDescription: recipe.description,
+              recipeImageUrl: recipe.imageUrl,
+              recipePrepTime: recipe.prepTime,
+              recipeCookTime: recipe.cookTime,
+              recipeCalories: recipe.calories,
+              recipeServingsCount: recipe.servingsCount,
+              recipeIngredients: recipe.ingredients,
+              recipeInstructions: recipe.instructions,
+              recipeTags: recipe.tags,
+              initialFavorite: recipe.isFavorite,
+            ),
           ),
-        ],
-      ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -425,11 +437,11 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                     image: DecorationImage(
-                      image: AssetImage(recipe.imageUrl),
+                      image: recipe.imageUrl.startsWith('http')
+                          ? NetworkImage(recipe.imageUrl) as ImageProvider
+                          : AssetImage(recipe.imageUrl),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -438,9 +450,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                   top: 8,
                   right: 8,
                   child: GestureDetector(
-                    onTap: () => context.read<ChefProfileBloc>().add(
-                      ToggleChefRecipeFavoriteEvent(recipe.id),
-                    ),
+                    onTap: () => context.read<ChefProfileBloc>().add(ToggleChefRecipeFavoriteEvent(recipe.id)),
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
@@ -448,17 +458,13 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        recipe.isFavorite
-                            ? Icons.favorite
-                            : Icons.favorite_border,
+                        recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
                         size: 16,
-                        color: recipe.isFavorite
-                            ? const Color(0xFFFF6B6B)
-                            : Colors.black,
+                        color: recipe.isFavorite ? const Color(0xFFFF6B6B) : Colors.black,
                       ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
@@ -492,11 +498,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                       ),
                     ),
                     const Spacer(),
-                    Icon(
-                      Icons.access_time_filled,
-                      size: 14,
-                      color: Colors.grey[400],
-                    ),
+                    Icon(Icons.access_time_filled, size: 14, color: Colors.grey[400]),
                     const SizedBox(width: 4),
                     Text(
                       '${recipe.prepTime + recipe.cookTime} min',
@@ -513,7 +515,17 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
           ),
         ],
       ),
+      ),
     );
+  }
+
+  String _formatCount(int count) {
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    } else if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}k';
+    }
+    return count.toString();
   }
 }
 

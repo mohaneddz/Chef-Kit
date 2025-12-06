@@ -1,67 +1,55 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../common/constants.dart';
+import '../../../blocs/auth/auth_cubit.dart';
+import '../../../blocs/my_recipes/my_recipes_bloc.dart';
+import '../../../blocs/my_recipes/my_recipes_events.dart';
+import '../../../blocs/my_recipes/my_recipes_state.dart';
+import '../../../domain/repositories/my_recipes_repository.dart';
+import 'add_edit_recipe_page.dart';
+import 'recipe_details_page.dart';
 
-class MyRecipesPage extends StatefulWidget {
+class MyRecipesPage extends StatelessWidget {
   const MyRecipesPage({Key? key}) : super(key: key);
 
   @override
-  State<MyRecipesPage> createState() => _MyRecipesPageState();
+  Widget build(BuildContext context) {
+    final authState = context.watch<AuthCubit>().state;
+    final accessToken = authState.accessToken;
+
+    if (accessToken == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('My Recipes')),
+        body: const Center(child: Text('Please log in to manage your recipes')),
+      );
+    }
+
+    // Determine baseUrl based on platform
+    final String baseUrl;
+    if (kIsWeb) {
+      baseUrl = 'http://localhost:5000';
+    } else if (Platform.isAndroid) {
+      baseUrl = 'http://10.0.2.2:5000';
+    } else {
+      baseUrl = 'http://localhost:5000';
+    }
+
+    return BlocProvider(
+      create: (context) => MyRecipesBloc(
+        repository: MyRecipesRepository(
+          baseUrl: baseUrl,
+          accessToken: accessToken,
+        ),
+      )..add(const LoadMyRecipesEvent()),
+      child: const _MyRecipesContent(),
+    );
+  }
 }
 
-class _MyRecipesPageState extends State<MyRecipesPage> {
-  final List<Map<String, dynamic>> _myRecipes = [
-    {
-      'id': '1',
-      'title': 'Spicy Ramen Bowl',
-      'image': 'assets/images/recipes/recipe_1.png',
-      'time': '45 min',
-      'rating': 4.8,
-      'ingredients': ['Noodles', 'Broth', 'Egg', 'Green Onion'],
-    },
-    {
-      'id': '2',
-      'title': 'Avocado Toast',
-      'image': 'assets/images/recipes/recipe_2.png',
-      'time': '15 min',
-      'rating': 4.5,
-      'ingredients': ['Bread', 'Avocado', 'Salt', 'Pepper'],
-    },
-    {
-      'id': '3',
-      'title': 'Grilled Salmon',
-      'image': 'assets/images/recipes/recipe_3.png',
-      'time': '30 min',
-      'rating': 4.9,
-      'ingredients': ['Salmon', 'Lemon', 'Asparagus'],
-    },
-  ];
-
-  String? _newRecipeImage;
-
-  void _addNewRecipe() {
-    // Show dialog or bottom sheet to add recipe
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _buildAddRecipeSheet(),
-    );
-  }
-
-  void _editRecipe(String id) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Edit recipe $id')),
-    );
-  }
-
-  void _deleteRecipe(String id) {
-    setState(() {
-      _myRecipes.removeWhere((r) => r['id'] == id);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Recipe deleted')),
-    );
-  }
+class _MyRecipesContent extends StatelessWidget {
+  const _MyRecipesContent();
 
   @override
   Widget build(BuildContext context) {
@@ -85,47 +73,38 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
         ),
         centerTitle: true,
       ),
-      body: _myRecipes.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey[300]),
-                  const SizedBox(height: 16),
-                  Text(
-                    "No recipes yet",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey[500],
-                      fontFamily: "Poppins",
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: _addNewRecipe,
-                    child: Text(
-                      "Create your first recipe",
-                      style: TextStyle(
-                        color: AppColors.red600,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: "Poppins",
-                      ),
-                    ),
-                  ),
-                ],
+      body: BlocConsumer<MyRecipesBloc, MyRecipesState>(
+        listener: (context, state) {
+          if (state.error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error!),
+                backgroundColor: Colors.red,
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: _myRecipes.length,
-              itemBuilder: (context, index) {
-                final recipe = _myRecipes[index];
-                return _buildRecipeItem(recipe);
-              },
-            ),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.recipes.isEmpty) {
+            return _buildEmptyState(context);
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: state.recipes.length,
+            itemBuilder: (context, index) {
+              final recipe = state.recipes[index];
+              return _buildRecipeItem(context, recipe, state);
+            },
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addNewRecipe,
+        onPressed: () => _navigateToAddRecipe(context),
         backgroundColor: AppColors.red600,
         icon: const Icon(Icons.add),
         label: const Text(
@@ -136,7 +115,40 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
     );
   }
 
-  Widget _buildRecipeItem(Map<String, dynamic> recipe) {
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Text(
+            "No recipes yet",
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[500],
+              fontFamily: "Poppins",
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () => _navigateToAddRecipe(context),
+            child: Text(
+              "Create your first recipe",
+              style: TextStyle(
+                color: AppColors.red600,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontFamily: "Poppins",
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecipeItem(BuildContext context, recipe, MyRecipesState state) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -150,338 +162,233 @@ class _MyRecipesPageState extends State<MyRecipesPage> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
+      child: InkWell(
+        onTap: () => _navigateToRecipeDetails(context, recipe),
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          children: [
+            // Recipe Image
+            ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 bottomLeft: Radius.circular(16),
               ),
-              image: DecorationImage(
-                image: AssetImage(recipe['image']),
-                fit: BoxFit.cover,
-                onError: (_, __) {}, // Handle error gracefully
+              child: Container(
+                width: 100,
+                height: 120,
+                color: Colors.grey[200],
+                child: _buildRecipeImage(recipe.imageUrl),
               ),
-              color: Colors.grey[200],
             ),
-            child: recipe['image'] == null 
-                ? const Icon(Icons.image_not_supported, color: Colors.grey) 
-                : null,
-          ),
-          
-          
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          recipe['title'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Poppins",
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+            // Recipe Info
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      recipe.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "Poppins",
                       ),
-                      PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
-                        onSelected: (value) {
-                          if (value == 'edit') _editRecipe(recipe['id']);
-                          if (value == 'delete') _deleteRecipe(recipe['id']);
-                        },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit, size: 18),
-                                SizedBox(width: 8),
-                                Text("Edit"),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete, size: 18, color: Colors.red),
-                                SizedBox(width: 8),
-                                Text("Delete", style: TextStyle(color: Colors.red)),
-                              ],
-                            ),
-                          ),
-                        ],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      recipe.description,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                        fontFamily: "Poppins",
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
-                      const SizedBox(width: 4),
-                      Text(
-                        recipe['time'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                          fontFamily: "Poppins",
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Icon(Icons.star, size: 14, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(
-                        "${recipe['rating']}",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                          fontFamily: "Poppins",
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 4,
-                    children: (recipe['ingredients'] as List<String>).take(3).map((ing) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          ing,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${recipe.prepTime + recipe.cookTime} min',
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: Colors.grey[600],
                             fontFamily: "Poppins",
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAddRecipeSheet() {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Add New Recipe",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Poppins",
-                ),
-              ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: ListView(
-              children: [
-                
-                GestureDetector(
-                  onTap: () {
-                    // Dummy logic: toggle between null and a sample image
-                    setState(() {
-                      _newRecipeImage = _newRecipeImage == null
-                          ? 'assets/images/recipes/recipe_1.png'
-                          : null;
-                    });
-                  },
-                  child: Container(
-                    height: 140,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 16),
-                        Container(
-                          width: 90,
-                          height: 90,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.grey[100],
-                            image: _newRecipeImage != null
-                                ? DecorationImage(
-                                    image: AssetImage(_newRecipeImage!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child: _newRecipeImage == null
-                              ? Icon(Icons.camera_alt,
-                                  color: Colors.grey[400], size: 28)
-                              : null,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Recipe Cover Image",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Poppins",
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _newRecipeImage == null
-                                    ? "Tap to upload from gallery"
-                                    : "Tap to change image (dummy)",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[500],
-                                  fontFamily: "Poppins",
-                                ),
-                              ),
-                            ],
+                        const SizedBox(width: 12),
+                        Icon(Icons.restaurant, size: 14, color: Colors.grey[500]),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${recipe.servingsCount} servings',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontFamily: "Poppins",
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildTextField("Recipe Name", "e.g. Spicy Ramen"),
-                const SizedBox(height: 16),
-                _buildTextField("Description", "Tell us about your recipe...", maxLines: 3),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(child: _buildTextField("Time", "e.g. 45 min")),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildTextField("Servings", "e.g. 2 people")),
                   ],
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  "Ingredients",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: "Poppins",
-                  ),
+              ),
+            ),
+            // Action Buttons
+            Column(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, size: 20),
+                  onPressed: state.isDeleting || state.isUpdating
+                      ? null
+                      : () => _navigateToEditRecipe(context, recipe),
+                  color: AppColors.red600,
                 ),
-                const SizedBox(height: 8),
-                _buildTextField("Add Ingredient", "e.g. 2 eggs"),
-                const SizedBox(height: 24),
-                const Text(
-                  "Steps",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: "Poppins",
-                  ),
+                IconButton(
+                  icon: state.isDeleting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.delete, size: 20),
+                  onPressed: state.isDeleting || state.isUpdating
+                      ? null
+                      : () => _confirmDelete(context, recipe.id, recipe.name),
+                  color: Colors.red,
                 ),
-                const SizedBox(height: 8),
-                _buildTextField("Step 1", "Describe the first step...", maxLines: 2),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Recipe Added (Dummy)')),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.red600,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: const Text(
-                "Post Recipe",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Poppins",
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, String hint, {int maxLines = 1}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-            fontWeight: FontWeight.w500,
-            fontFamily: "Poppins",
-          ),
+  Widget _buildRecipeImage(String url) {
+    if (url.startsWith('http')) {
+      return Image.network(
+        url,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+    return _buildPlaceholder();
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      color: Colors.grey[200],
+      child: Center(
+        child: Icon(
+          Icons.restaurant_menu,
+          size: 40,
+          color: Colors.grey[400],
         ),
-        const SizedBox(height: 8),
-        TextField(
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey[400], fontFamily: "Poppins"),
-            filled: true,
-            fillColor: Colors.grey[50],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+      ),
+    );
+  }
+
+  void _navigateToAddRecipe(BuildContext context) async {
+    final bloc = context.read<MyRecipesBloc>();
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (newContext) => BlocProvider.value(
+          value: bloc,
+          child: const AddEditRecipePage(),
+        ),
+      ),
+    );
+
+    if (result == true) {
+      bloc.add(const LoadMyRecipesEvent());
+    }
+  }
+
+  void _navigateToEditRecipe(BuildContext context, recipe) async {
+    final bloc = context.read<MyRecipesBloc>();
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (newContext) => BlocProvider.value(
+          value: bloc,
+          child: AddEditRecipePage(recipe: recipe),
+        ),
+      ),
+    );
+
+    if (result == true) {
+      bloc.add(const LoadMyRecipesEvent());
+    }
+  }
+
+  void _navigateToRecipeDetails(BuildContext context, recipe) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => RecipeDetailsPage(
+          recipeId: recipe.id,
+          recipeName: recipe.name,
+          recipeDescription: recipe.description,
+          recipeImageUrl: recipe.imageUrl,
+          recipePrepTime: recipe.prepTime,
+          recipeCookTime: recipe.cookTime,
+          recipeCalories: recipe.calories,
+          recipeServingsCount: recipe.servingsCount,
+          recipeIngredients: recipe.ingredients,
+          recipeInstructions: recipe.instructions,
+          recipeTags: recipe.tags,
+          initialFavorite: recipe.isFavorite,
+          recipeOwner: recipe.ownerId,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, String recipeId, String recipeName) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text(
+          'Delete Recipe',
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          'Are you sure you want to delete "$recipeName"? This action cannot be undone.',
+          style: const TextStyle(fontFamily: 'Poppins'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins')),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<MyRecipesBloc>().add(DeleteRecipeEvent(recipeId));
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.red, fontFamily: 'Poppins', fontWeight: FontWeight.w600),
             ),
-            contentPadding: const EdgeInsets.all(16),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
