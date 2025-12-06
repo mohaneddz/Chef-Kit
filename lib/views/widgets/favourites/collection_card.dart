@@ -91,12 +91,7 @@ class CollectionCard extends StatelessWidget {
                   left: leftOffset,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      imagePaths[index],
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                    ),
+                    child: _buildImage(imagePaths[index]),
                   ),
                 );
               }),
@@ -104,6 +99,39 @@ class CollectionCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildImage(String path) {
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        width: 40,
+        height: 40,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: 40,
+            height: 40,
+            color: Colors.grey[300],
+            child: const Icon(Icons.broken_image, size: 20, color: Colors.grey),
+          );
+        },
+      );
+    }
+    return Image.asset(
+      path,
+      width: 40,
+      height: 40,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: 40,
+          height: 40,
+          color: Colors.grey[300],
+          child: const Icon(Icons.broken_image, size: 20, color: Colors.grey),
+        );
+      },
     );
   }
 }

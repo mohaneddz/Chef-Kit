@@ -35,6 +35,9 @@ from services import (
     get_recipes_by_chef,
     get_trending_recipes,
     toggle_follow,
+    get_user_favorites,
+    toggle_user_favorite,
+    get_user_favorite_ids,
 )
 from auth import token_required, optional_token
 from supabase_client import set_postgrest_token
@@ -1049,6 +1052,44 @@ def toggle_follow_route(chef_id, token_claims, token):
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# Favorites
+@app.route("/api/favorites", methods=["GET"])
+@token_required
+def get_favorites(token_claims, token=None):
+    try:
+        user_id = token_claims.get("sub")
+        favorites = get_user_favorites(user_id)
+        return jsonify(favorites), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/favorites/<recipe_id>/toggle", methods=["POST"])
+@token_required
+def toggle_favorite_route(token_claims, recipe_id, token=None):
+    try:
+        user_id = token_claims.get("sub")
+        print(f"[toggle_favorite_route] User {user_id} toggling recipe {recipe_id}")
+        is_fav = toggle_user_favorite(user_id, recipe_id)
+        return jsonify({"is_favorite": is_fav}), 200
+    except Exception as e:
+        print(f"[toggle_favorite_route] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/favorites/ids", methods=["GET"])
+@token_required
+def get_favorite_ids(token_claims, token=None):
+    try:
+        user_id = token_claims.get("sub")
+        ids = get_user_favorite_ids(user_id)
+        return jsonify(ids), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 # Error Handlers
