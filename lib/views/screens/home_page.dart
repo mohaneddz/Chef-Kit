@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
+import 'package:chefkit/views/widgets/recipe_generation_modal.dart';
 
 class HomePage extends StatefulWidget {
   final int initialIndex;
@@ -51,12 +52,24 @@ class _HomePageState extends State<HomePage> {
                 .where((name) => name.isNotEmpty)
                 .toList();
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RecipeLoadingPage(
-                  selectedIngredients: availableIngredients,
-                ),
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (modalContext) => RecipeGenerationModal(
+                availableIngredients: availableIngredients,
+                onProceed: (duration, selectedIngredients) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecipeLoadingPage(
+                        selectedIngredients: selectedIngredients,
+                        duration: duration,
+                        language: Localizations.localeOf(context).languageCode,
+                      ),
+                    ),
+                  );
+                },
               ),
             );
           } else {

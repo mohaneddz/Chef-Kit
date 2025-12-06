@@ -2,11 +2,22 @@ import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/recipe/recipe_results_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
+import 'package:chefkit/domain/models/recipe.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/domain/repositories/recipe_repository.dart';
+import 'dart:convert';
 
 class RecipeLoadingPage extends StatefulWidget {
   final List<String> selectedIngredients;
+  final int? duration;
+  final String? language;
 
-  const RecipeLoadingPage({super.key, required this.selectedIngredients});
+  const RecipeLoadingPage({
+    super.key,
+    required this.selectedIngredients,
+    this.duration,
+    this.language,
+  });
 
   @override
   State<RecipeLoadingPage> createState() => _RecipeLoadingPageState();
@@ -37,7 +48,36 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
-    _simulateLoading();
+    _fetchRecipes();
+  }
+
+  Future<void> _fetchRecipes() async {
+    try {
+      final recipes = await context.read<RecipeRepository>().generateRecipes(
+        lang: widget.language ?? 'en',
+        maxTime: "${widget.duration ?? 30}:00",
+        ingredients: widget.selectedIngredients,
+      );
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RecipeResultsPage(
+              selectedIngredients: widget.selectedIngredients,
+              initialRecipes: recipes,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error generating recipes: $e')));
+        Navigator.pop(context);
+      }
+    }
   }
 
   void _simulateLoading() async {
@@ -48,17 +88,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
           _currentStep = i;
         });
       }
-    }
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RecipeResultsPage(
-            selectedIngredients: widget.selectedIngredients,
-          ),
-        ),
-      );
     }
   }
 

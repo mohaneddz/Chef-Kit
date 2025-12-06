@@ -604,4 +604,19 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get connectionIssueMessage =>
       'Veuillez vérifier votre connexion et réessayer';
+
+  @override
+  String get generateRecipe => 'Générer une recette';
+
+  @override
+  String get cookingDuration => 'Temps de cuisson';
+
+  @override
+  String get availableIngredients => 'Ingrédients disponibles';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get proceed => 'Continuer';
 }

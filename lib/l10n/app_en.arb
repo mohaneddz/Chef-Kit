@@ -319,5 +319,10 @@
   "profileUpdateSuccess": "Personal info updated",
   "noRecipesFound": "No recipes found",
   "connectionIssue": "Connection issue",
-  "connectionIssueMessage": "Please check your connection and try again"
+  "connectionIssueMessage": "Please check your connection and try again",
+  "generateRecipe": "Generate Recipe",
+  "cookingDuration": "Cooking Duration",
+  "availableIngredients": "Available Ingredients",
+  "cancel": "Cancel",
+  "proceed": "Proceed"
 }
