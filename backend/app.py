@@ -57,6 +57,7 @@ import hashlib
 import requests
 import re
 from cloudinary_utils import get_cloudinary_config
+from cooking import generate_cooking_instructions
 from typing import Any, Dict
 
 _SUPABASE_PASSWORD_RESET_REDIRECT = os.getenv("SUPABASE_PASSWORD_RESET_REDIRECT")
@@ -1179,6 +1180,18 @@ def update_fcm_token_route(token_claims, token=None):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# cooking functionality
+@app.route("/api/cook", methods=["POST"])
+def cook_recipe():
+    """Find best matching recipes based on provided ingredients and optional time constraint."""
+    try:
+        payload = request.get_json() or {}
+        ingredients = payload.get("ingredients", [])
+        time = payload.get("time")  # Optional time constraint in 'mm:ss' format
+        recipe_instructions = generate_cooking_instructions(ingredients, time)
+        return jsonify({"recipes": recipe_instructions}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Error Handlers
 @app.errorhandler(404)
