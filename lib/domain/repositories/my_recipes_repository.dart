@@ -100,7 +100,11 @@ class MyRecipesRepository {
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
         print('✅ Recipe created successfully');
-        return Recipe.fromJson(data);
+        // Handle both List and Map responses from backend
+        if (data is List && data.isNotEmpty) {
+          return Recipe.fromJson(data[0] as Map<String, dynamic>);
+        }
+        return Recipe.fromJson(data as Map<String, dynamic>);
       } else {
         throw Exception(
           'Failed to create recipe: ${response.statusCode} - ${response.body}',
@@ -163,7 +167,11 @@ class MyRecipesRepository {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print('✅ Recipe updated successfully');
-        return Recipe.fromJson(data);
+        // Handle both List and Map responses from backend
+        if (data is List && data.isNotEmpty) {
+          return Recipe.fromJson(data[0] as Map<String, dynamic>);
+        }
+        return Recipe.fromJson(data as Map<String, dynamic>);
       } else {
         throw Exception(
           'Failed to update recipe: ${response.statusCode} - ${response.body}',
