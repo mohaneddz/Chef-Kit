@@ -265,7 +265,10 @@ class _MyRecipesContent extends StatelessWidget {
             // Recipe Info
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -299,27 +302,33 @@ class _MyRecipesContent extends StatelessWidget {
                           color: Colors.grey[500],
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          '${recipe.prepTime + recipe.cookTime} min',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: "Poppins",
+                        Flexible(
+                          child: Text(
+                            '${recipe.prepTime + recipe.cookTime} min',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontFamily: "Poppins",
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Icon(
                           Icons.restaurant,
                           size: 14,
                           color: Colors.grey[500],
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          '${recipe.servingsCount} servings',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: "Poppins",
+                        Flexible(
+                          child: Text(
+                            '${recipe.servingsCount} servings',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontFamily: "Poppins",
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -328,30 +337,39 @@ class _MyRecipesContent extends StatelessWidget {
                 ),
               ),
             ),
-            // Action Buttons
-            Column(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
-                  onPressed: state.isDeleting || state.isUpdating
-                      ? null
-                      : () => _navigateToEditRecipe(context, recipe),
-                  color: AppColors.red600,
-                ),
-                IconButton(
-                  icon: state.isDeleting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.delete, size: 20),
-                  onPressed: state.isDeleting || state.isUpdating
-                      ? null
-                      : () => _confirmDelete(context, recipe.id, recipe.name),
-                  color: Colors.red,
-                ),
-              ],
+            // Action Buttons - fixed width to prevent overflow
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, size: 20),
+                    onPressed: state.isDeleting || state.isUpdating
+                        ? null
+                        : () => _navigateToEditRecipe(context, recipe),
+                    color: AppColors.red600,
+                    padding: const EdgeInsets.all(8),
+                    constraints: const BoxConstraints(),
+                  ),
+                  const SizedBox(height: 8),
+                  IconButton(
+                    icon: state.isDeleting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.delete, size: 20),
+                    onPressed: state.isDeleting || state.isUpdating
+                        ? null
+                        : () => _confirmDelete(context, recipe.id, recipe.name),
+                    color: Colors.red,
+                    padding: const EdgeInsets.all(8),
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
