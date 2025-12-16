@@ -625,8 +625,12 @@ def _send_push_notification(data: Dict[str, Any]) -> None:
 
 def create_notification(data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"[create_notification] Attempting to create notification: {data}")
+    print(f"[create_notification] supabase_admin available: {supabase_admin is not None}")
+    
     # Insert into DB using admin client to bypass RLS (since users create notifications for others)
     client = supabase_admin if supabase_admin else supabase
+    print(f"[create_notification] Using client: {'ADMIN' if client == supabase_admin else 'REGULAR'}")
+    
     try:
         resp = client.table("notifications").insert(data).execute()
         result = _extract_response_data(resp)
