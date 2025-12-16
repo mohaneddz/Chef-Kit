@@ -38,11 +38,7 @@ def _extract_response_data(resp):
 # -----------------------------
 def auth_signup(email: str, password: str, full_name: Optional[str] = None) -> Dict[str, Any]:
     """Sign up a user via Supabase Auth and create user profile."""
-    # Clear any existing session state to ensure stateless operation
-    try:
-        supabase.auth.sign_out()
-    except Exception:
-        pass  # Ignore errors, just ensuring clean state
+    # NOTE: Do NOT call sign_out() here - it invalidates sessions server-side!
     
     # Check if email already exists in public.users (or attempt login to detect existing auth user)
     try:
@@ -106,11 +102,7 @@ def auth_login(email: str, password: str, device_token: Optional[str] = None) ->
     print(f"[auth_login] Starting login for {email}")
     print(f"[auth_login] Device token provided: {bool(device_token)}")
     
-    # Clear any existing session state to ensure stateless operation
-    try:
-        supabase.auth.sign_out()
-    except Exception:
-        pass  # Ignore errors, just ensuring clean state
+    # NOTE: Do NOT call sign_out() here - it invalidates sessions server-side!
     
     user_id = None  # Initialize user_id at function scope
     access_token = None
@@ -603,30 +595,48 @@ def _send_push_notification(data: Dict[str, Any]) -> None:
                     pass
                     
                 if tokens and isinstance(tokens, list):
-                    print(f"[_send_push_notification] Found {len(tokens)} tokens. Sending...")
-                    # Send to all tokens
-                    message = messaging.MulticastMessage(
-                        notification=messaging.Notification(
-                            title=title,
-                            body=body,
-                        ),
-                        data={k: str(v) for k, v in data.get("notification_data", {}).items()},
-                        tokens=tokens,
-                    )
-                    response = messaging.send_multicast(message)
-                    print(f"[_send_push_notification] Sent {response.success_count} messages; {response.failure_count} failed.")
+                    print(f"[_send_push_notification] Found {len(tokens)} tokens. Sending individually...")
+                    
+                    success_count = 0
+                    failure_count = 0
+                    
+                    # Send to each token individually (avoids deprecated /batch endpoint)
+                    for token in tokens:
+                        try:
+                            message = messaging.Message(
+                                notification=messaging.Notification(
+                                    title=title,
+                                    body=body,
+                                ),
+                                data={k: str(v) for k, v in data.get("notification_data", {}).items()},
+                                token=token,
+                            )
+                            response = messaging.send(message)
+                            print(f"[_send_push_notification] Sent to token {token[:20]}...: {response}")
+                            success_count += 1
+                        except Exception as token_error:
+                            print(f"[_send_push_notification] Failed to send to token {token[:20]}...: {token_error}")
+                            failure_count += 1
+                    
+                    print(f"[_send_push_notification] Sent {success_count} messages; {failure_count} failed.")
                 else:
                     print(f"[_send_push_notification] No valid tokens found in list.")
             else:
                 print(f"[_send_push_notification] No devices registered for user.")
     except Exception as e:
         print(f"[_send_push_notification] Error sending push notification: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 def create_notification(data: Dict[str, Any]) -> Dict[str, Any]:
     print(f"[create_notification] Attempting to create notification: {data}")
+    print(f"[create_notification] supabase_admin available: {supabase_admin is not None}")
+    
     # Insert into DB using admin client to bypass RLS (since users create notifications for others)
     client = supabase_admin if supabase_admin else supabase
+    print(f"[create_notification] Using client: {'ADMIN' if client == supabase_admin else 'REGULAR'}")
+    
     try:
         resp = client.table("notifications").insert(data).execute()
         result = _extract_response_data(resp)

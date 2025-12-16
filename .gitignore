@@ -73,6 +73,7 @@ BLOC_MIGRATION_REPORT.md
 
 .env
 *.md
+!FIREBASE_FCM_DOCUMENTATION.md
 *.sql
 local_schema.dart
 IMPLEMENTATION_STATUS.txt
