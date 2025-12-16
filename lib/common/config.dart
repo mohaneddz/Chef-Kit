@@ -1,9 +1,20 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AppConfig {
-  // Production:
-  // static const String baseUrl = 'https://chefkit-backend-ss6c.onrender.com';
+  // `String.fromEnvironment` reads compile-time Dart defines (e.g. `--dart-define`).
+  // `dotenv.env[...]` reads from the runtime-loaded `.env` file (via flutter_dotenv).
+  static String get baseUrl {
+    const fromDefine = String.fromEnvironment('BASE_URL');
+    final defineValue = fromDefine.trim();
+    if (defineValue.isNotEmpty) return defineValue;
 
-  // Local development (Android emulator uses 10.0.2.2 for host machine):
-  static const String baseUrl = 'http://10.0.2.2:8000';
+    final dotenvValue = (dotenv.env['BASE_URL'] ?? '').trim();
+    if (dotenvValue.isNotEmpty) return dotenvValue;
 
-  // For physical device, use your computer's IP (e.g., 'http://192.168.1.100:8000')
+    throw StateError(
+      'BASE_URL is not configured.\n'
+      '- Option A: flutter run --dart-define=BASE_URL=https://<your-backend>\n'
+      '- Option B: create a .env file with BASE_URL=... (kept out of git)\n',
+    );
+  }
 }

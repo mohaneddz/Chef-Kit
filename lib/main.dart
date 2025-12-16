@@ -9,6 +9,7 @@ import 'package:chefkit/common/config.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:chefkit/common/firebase_messaging_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Repositories
 import 'package:chefkit/domain/repositories/chef_repository.dart';
@@ -46,6 +47,16 @@ bool get isFirebaseSupported {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load local .env (gitignored) so runtime config like BASE_URL works in dev.
+  // For CI/production you can still prefer `--dart-define=BASE_URL=...`.
+  try {
+    await dotenv.load(fileName: '.env');
+    print('[Main] .env loaded');
+  } catch (e) {
+    // Don't crash if missing; AppConfig will throw a clear error if BASE_URL is required.
+    print('[Main] .env not loaded: $e');
+  }
 
   // Initialize Firebase only on supported platforms (Android, iOS, Web)
   if (isFirebaseSupported) {

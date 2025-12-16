@@ -130,9 +130,11 @@ class AuthCubit extends Cubit<AuthState> {
     }
 
     try {
+      final signupUrl = Uri.parse('$baseUrl/auth/signup');
+      print('[AuthCubit] signup POST $signupUrl');
       final resp = await http
           .post(
-            Uri.parse('$baseUrl/auth/signup'),
+            signupUrl,
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({
               'email': email,
@@ -164,7 +166,7 @@ class AuthCubit extends Cubit<AuthState> {
               ? resp.body
               : 'Request failed with status ${resp.statusCode}';
         }
-        emit(state.copyWith(loading: false, error: resp.body));
+        emit(state.copyWith(loading: false, error: errorMessage));
       }
     } on TimeoutException {
       emit(
