@@ -33,6 +33,8 @@ import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:chefkit/views/screens/onboarding/onboarding_screen.dart';
 
 /// Check if Firebase is supported on current platform
 bool get isFirebaseSupported {
@@ -156,14 +158,36 @@ class AuthInitializer extends StatefulWidget {
 }
 
 class _AuthInitializerState extends State<AuthInitializer> {
+  bool? _hasSeenOnboarding;
+
   @override
   void initState() {
     super.initState();
+    _checkOnboarding();
     context.read<AuthCubit>().restoreSessionOnStart();
+  }
+
+  Future<void> _checkOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Wait for onboarding check
+    if (_hasSeenOnboarding == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // Show onboarding for first-time users
+    if (!_hasSeenOnboarding!) {
+      return const OnboardingScreen();
+    }
+
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         if (state.loading) {
@@ -173,7 +197,6 @@ class _AuthInitializerState extends State<AuthInitializer> {
         }
 
         if (state.userId != null && state.accessToken != null) {
-          // User is authenticated, show main app
           return const HomePage();
         }
 
