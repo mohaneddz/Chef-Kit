@@ -13,13 +13,41 @@ from supabase_client import set_postgrest_token
 
 # Initialize Firebase Admin
 try:
-    cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-    if cred_path and os.path.exists(cred_path):
-        cred = credentials.Certificate(cred_path)
+    firebase_initialized = False
+    
+    # Option 1: JSON string from environment variable (for cloud deployments like Render)
+    firebase_json = os.getenv('FIREBASE_CREDENTIALS_JSON')
+    if firebase_json:
+        import json as _json
+        cred_dict = _json.loads(firebase_json)
+        cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
-        print("Firebase Admin initialized successfully")
-    else:
-        print("Warning: GOOGLE_APPLICATION_CREDENTIALS not found or invalid. Push notifications will not work.")
+        firebase_initialized = True
+        print("Firebase Admin initialized from FIREBASE_CREDENTIALS_JSON")
+    
+    # Option 2: File path from environment variable
+    if not firebase_initialized:
+        cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+        if cred_path and os.path.exists(cred_path):
+            cred = credentials.Certificate(cred_path)
+            firebase_admin.initialize_app(cred)
+            firebase_initialized = True
+            print("Firebase Admin initialized from GOOGLE_APPLICATION_CREDENTIALS")
+    
+    # Option 3: Auto-detect serviceAccountKey.json in same directory (local dev fallback)
+    if not firebase_initialized:
+        local_key = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
+        if os.path.exists(local_key):
+            cred = credentials.Certificate(local_key)
+            firebase_admin.initialize_app(cred)
+            firebase_initialized = True
+            print(f"Firebase Admin initialized from local file: {local_key}")
+    
+    if not firebase_initialized:
+        print("Warning: No Firebase credentials found. Push notifications will not work.")
+        print("  Set FIREBASE_CREDENTIALS_JSON env var with JSON content, or")
+        print("  Set GOOGLE_APPLICATION_CREDENTIALS env var with file path, or")
+        print("  Place serviceAccountKey.json in the backend directory")
 except Exception as e:
     print(f"Error initializing Firebase Admin: {e}")
 
