@@ -1129,10 +1129,10 @@ def send_scheduled_recipe_notification():
             try:
                 create_notification({
                     "user_id": user_id,
-                    "notification_title": "🍳 Recipe of the Day",
-                    "notification_type": "daily_recipe",
-                    "notification_message": f"Try today's trending recipe: {recipe_name}",
-                    "notification_data": {"recipe_id": recipe_id}
+                    "notification_title": "Check the Hot Recipes 🔥",
+                    "notification_type": "hot_recipes",
+                    "notification_message": "Discover today's trending and most popular recipes!",
+                    "notification_data": {}
                 })
                 notifications_sent += 1
             except Exception as e:

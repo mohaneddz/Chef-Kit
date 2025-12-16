@@ -7,6 +7,7 @@ import 'package:chefkit/domain/models/recipe.dart';
 import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
 import 'package:chefkit/views/screens/profile/chef_profile_public_page.dart';
 import 'package:chefkit/views/screens/notifications_page.dart';
+import 'package:chefkit/views/screens/discovery/all_hot_recipes_page.dart';
 
 /// Navigation service for handling navigation from push notifications.
 /// Uses a global navigator key to navigate outside the widget tree.
@@ -67,6 +68,14 @@ class NavigationService {
     );
   }
 
+  /// Navigate to the all hot recipes page.
+  static void navigateToHotRecipes() {
+    print('[NavigationService] Navigating to hot recipes page');
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => const AllHotRecipesPage()),
+    );
+  }
+
   /// Handle navigation from notification data.
   /// Called by FirebaseMessagingService when a notification is tapped.
   static Future<void> handleNotificationNavigation(
@@ -119,6 +128,11 @@ class NavigationService {
         } else {
           navigateToNotifications();
         }
+        break;
+
+      case 'hot_recipes':
+        // Navigate to the all hot recipes page
+        navigateToHotRecipes();
         break;
 
       default:
