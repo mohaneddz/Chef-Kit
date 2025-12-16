@@ -1,0 +1,45 @@
+{
+  "info": {
+    "name": "Chef-Kit Scheduled Notifications",
+    "_postman_id": "chef-kit-notifications-collection",
+    "description": "Test endpoints for scheduled notification features",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://chef-kit-backend.onrender.com",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Trigger Daily Recipe Notification",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/trigger-daily",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "trigger-daily"]
+        },
+        "description": "Manually trigger the daily recipe notification to all users with device tokens. Use this for testing/demo purposes."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Schedule Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/schedule-status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "schedule-status"]
+        },
+        "description": "Check the status of scheduled notification jobs and see when the next run is scheduled."
+      },
+      "response": []
+    }
+  ]
+}

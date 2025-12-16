@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:chefkit/common/config.dart';
 import 'package:chefkit/common/token_storage.dart';
+import 'package:chefkit/common/navigation_service.dart';
 
 /// Check if Firebase is supported on current platform
 bool get isFirebaseSupported {
@@ -266,27 +267,28 @@ class FirebaseMessagingService {
     );
   }
 
-  /// Handle notification tap from FirebaseMessaging
+  /// Handle notification tap from FirebaseMessaging (background/terminated)
   void _handleNotificationTap(RemoteMessage message) {
     print('[FCM] Notification tapped: ${message.data}');
-    // TODO: Navigate to appropriate screen based on message.data
-    // For example:
-    // if (message.data['type'] == 'new_recipe') {
-    //   Navigate to recipe details
-    // }
+    NavigationService.handleNotificationNavigation(message.data);
   }
 
-  /// Handle local notification tap
+  /// Handle local notification tap (foreground)
   void _onLocalNotificationTap(NotificationResponse response) {
     print('[FCM] Local notification tapped: ${response.payload}');
     if (response.payload != null) {
       try {
         final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-        // TODO: Navigate based on data
         print('[FCM] Notification data: $data');
+        NavigationService.handleNotificationNavigation(data);
       } catch (e) {
         print('[FCM] Error parsing notification payload: $e');
+        // Fallback to notifications page
+        NavigationService.navigateToNotifications();
       }
+    } else {
+      // No payload, go to notifications
+      NavigationService.navigateToNotifications();
     }
   }
 

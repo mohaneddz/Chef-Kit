@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Chef-Kit Scheduled Notifications",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

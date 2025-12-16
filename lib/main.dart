@@ -38,6 +38,7 @@ import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chefkit/views/screens/onboarding/onboarding_screen.dart';
+import 'package:chefkit/common/navigation_service.dart';
 
 /// Check if Firebase is supported on current platform
 bool get isFirebaseSupported {
@@ -157,6 +158,7 @@ class MainApp extends StatelessWidget {
               builder: (context, themeMode) {
                 return MaterialApp(
                   debugShowCheckedModeBanner: false,
+                  navigatorKey: NavigationService.navigatorKey,
                   theme: lightTheme,
                   darkTheme: darkTheme,
                   themeMode: themeMode,

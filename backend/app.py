@@ -42,6 +42,7 @@ from services import (
     get_user_favorite_ids,
     update_fcm_token,
     generate_recipes,
+    send_scheduled_recipe_notification,
 )
 from auth import token_required, optional_token
 from supabase_client import set_postgrest_token
@@ -140,6 +141,31 @@ def _verify_current_password(email: str, password: str) -> bool:
 
 app = Flask(__name__)
 CORS(app)
+
+# -----------------------------
+# Scheduled Notifications (APScheduler)
+# -----------------------------
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler
+    from apscheduler.triggers.cron import CronTrigger
+    
+    scheduler = BackgroundScheduler()
+    # Schedule daily recipe notification at 9:00 AM
+    scheduler.add_job(
+        send_scheduled_recipe_notification,
+        CronTrigger(hour=9, minute=0),
+        id='daily_recipe_notification',
+        name='Daily Recipe Notification',
+        replace_existing=True
+    )
+    scheduler.start()
+    print("[Scheduler] APScheduler started - daily notifications at 9:00 AM")
+except ImportError:
+    print("[Scheduler] APScheduler not installed - scheduled notifications disabled")
+    print("[Scheduler] Install with: pip install APScheduler")
+except Exception as e:
+    print(f"[Scheduler] Failed to start scheduler: {e}")
+
 # Auth
 @app.route("/auth/signup", methods=["POST"])
 def signup():
@@ -1209,6 +1235,40 @@ def cook_recipe():
         return jsonify({"error": str(e)}), 500
 
 # Error Handlers
+
+# -----------------------------
+# Scheduled Notification Test Endpoints
+# -----------------------------
+@app.route("/api/notifications/trigger-daily", methods=["POST"])
+def trigger_daily_notification():
+    """Manually trigger the daily recipe notification (for testing)."""
+    try:
+        result = send_scheduled_recipe_notification()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/notifications/schedule-status", methods=["GET"])
+def get_schedule_status():
+    """Get the status of scheduled notification jobs."""
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        jobs = []
+        if 'scheduler' in globals():
+            for job in scheduler.get_jobs():
+                jobs.append({
+                    "id": job.id,
+                    "name": job.name,
+                    "next_run": str(job.next_run_time) if job.next_run_time else None
+                })
+        return jsonify({"jobs": jobs, "scheduler_running": len(jobs) > 0}), 200
+    except ImportError:
+        return jsonify({"error": "APScheduler not installed", "scheduler_running": False}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({"error": "Endpoint not found"}), 404

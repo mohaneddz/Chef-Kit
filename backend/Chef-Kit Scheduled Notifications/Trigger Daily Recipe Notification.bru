@@ -1,0 +1,19 @@
+meta {
+  name: Trigger Daily Recipe Notification
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/notifications/trigger-daily
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Manually trigger the daily recipe notification to all users with device tokens. Use this for testing/demo purposes.
+}

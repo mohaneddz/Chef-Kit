@@ -1075,3 +1075,75 @@ def generate_recipes(lang: str, max_time: str, ingredients: List[str]) -> Dict[s
         }
       ]
     }
+
+
+# -----------------------------
+# Scheduled Notifications
+# -----------------------------
+def send_scheduled_recipe_notification():
+    """Send daily trending/recommended recipe notification to all users with devices.
+    
+    This function is called by APScheduler to send periodic notifications.
+    """
+    print("[scheduled_notification] Starting daily recipe notification job...")
+    
+    try:
+        # Get a trending recipe to recommend
+        trending = get_trending_recipes()
+        if not trending:
+            print("[scheduled_notification] No trending recipes available")
+            return {"success": False, "reason": "No trending recipes"}
+        
+        recipe = trending[0]
+        recipe_name = recipe.get("recipe_name", "a delicious recipe")
+        recipe_id = recipe.get("recipe_id")
+        
+        print(f"[scheduled_notification] Selected recipe: {recipe_name} ({recipe_id})")
+        
+        # Get all users with device tokens
+        client = supabase_admin if supabase_admin else supabase
+        users_resp = client.table("users").select("user_id, user_devices, user_full_name").not_.is_("user_devices", "null").execute()
+        users = _extract_response_data(users_resp) or []
+        
+        print(f"[scheduled_notification] Found {len(users)} users with devices")
+        
+        notifications_sent = 0
+        for user in users:
+            user_id = user.get("user_id")
+            devices = user.get("user_devices")
+            
+            # Skip users without valid devices
+            if not devices:
+                continue
+                
+            # Parse devices if it's a JSON string
+            if isinstance(devices, str):
+                try:
+                    devices = json.loads(devices)
+                except:
+                    continue
+            
+            if not devices or not isinstance(devices, list) or len(devices) == 0:
+                continue
+            
+            try:
+                create_notification({
+                    "user_id": user_id,
+                    "notification_title": "🍳 Recipe of the Day",
+                    "notification_type": "daily_recipe",
+                    "notification_message": f"Try today's trending recipe: {recipe_name}",
+                    "notification_data": {"recipe_id": recipe_id}
+                })
+                notifications_sent += 1
+            except Exception as e:
+                print(f"[scheduled_notification] Failed to notify user {user_id}: {e}")
+        
+        print(f"[scheduled_notification] Sent {notifications_sent} daily recipe notifications")
+        return {"success": True, "notifications_sent": notifications_sent}
+        
+    except Exception as e:
+        print(f"[scheduled_notification] Error sending scheduled notifications: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "error": str(e)}
+

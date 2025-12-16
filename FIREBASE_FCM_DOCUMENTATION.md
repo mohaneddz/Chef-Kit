@@ -442,3 +442,113 @@ If it doesn't work:
 - Verify phone battery settings allow background notifications
 - Ensure the FCM token is correctly registered
 
+## Notification Navigation (Click to Open Correct Screen)
+
+When a user taps a notification, the app navigates to the relevant screen based on the notification type.
+
+### Navigation Service
+
+**File**: `lib/common/navigation_service.dart`
+
+The `NavigationService` uses a global navigator key to enable navigation from outside the widget tree (i.e., from the FCM service).
+
+```dart
+class NavigationService {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  
+  static Future<void> navigateToRecipe(String recipeId) async { ... }
+  static void navigateToChefProfile(String chefId) { ... }
+  static void navigateToNotifications() { ... }
+  static Future<void> handleNotificationNavigation(Map<String, dynamic> data) async { ... }
+}
+```
+
+### Supported Notification Types
+
+| Type | Navigation Target | Data Required |
+|------|------------------|---------------|
+| `new_recipe` | Recipe Details Page | `recipe_id` |
+| `like` | Recipe Details Page | `recipe_id` |
+| `follow` | Chef Profile Page | `follower_id` or `user_id` |
+| `daily_recipe` | Recipe Details Page | `recipe_id` |
+| (default) | Notifications Page | - |
+
+### How It Works
+
+1. **User taps notification** (background or terminated state)
+2. `FirebaseMessaging.onMessageOpenedApp` calls `_handleNotificationTap`
+3. `NavigationService.handleNotificationNavigation(data)` is called
+4. Based on `notification_type`, navigates to appropriate screen
+5. For recipe types, fetches recipe from API first (needs full Recipe object)
+
+## Scheduled/Periodic Notifications
+
+The backend can automatically send notifications at specified times using APScheduler.
+
+### Backend Configuration
+
+**File**: `backend/app.py`
+
+```python
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    send_scheduled_recipe_notification,
+    CronTrigger(hour=9, minute=0),  # Daily at 9:00 AM
+    id='daily_recipe_notification',
+    name='Daily Recipe Notification'
+)
+scheduler.start()
+```
+
+### Scheduled Notification Function
+
+**File**: `backend/services.py`
+
+```python
+def send_scheduled_recipe_notification():
+    """Send daily trending recipe notification to all users."""
+    trending = get_trending_recipes()
+    recipe = trending[0]
+    
+    # Get all users with device tokens
+    users = supabase_admin.table("users").select("user_id, user_devices")...
+    
+    for user in users:
+        create_notification({
+            "user_id": user["user_id"],
+            "notification_title": "🍳 Recipe of the Day",
+            "notification_type": "daily_recipe",
+            "notification_message": f"Try today's trending recipe: {recipe_name}",
+            "notification_data": {"recipe_id": recipe_id}
+        })
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/notifications/trigger-daily` | POST | Manually trigger daily notification (for testing) |
+| `/api/notifications/schedule-status` | GET | Check scheduler status and next run time |
+
+### Testing Scheduled Notifications
+
+```bash
+# Manually trigger (for demo/testing)
+curl -X POST https://your-backend.render.com/api/notifications/trigger-daily
+
+# Check scheduler status
+curl https://your-backend.render.com/api/notifications/schedule-status
+```
+
+### Dependencies
+
+Add to `requirements.txt`:
+```
+APScheduler>=3.10.0
+```
+
+
+
