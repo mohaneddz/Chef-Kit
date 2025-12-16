@@ -2,9 +2,7 @@ import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:chefkit/views/screens/authentication/otp_verify_page.dart';
-import 'package:chefkit/views/widgets/button_widget.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
-import 'package:chefkit/views/layout/triangle_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,7 +23,6 @@ class _SingupPageState extends State<SingupPage> {
   @override
   void initState() {
     super.initState();
-    // Clear any stale field errors when entering signup page
     Future.microtask(() {
       if (mounted) {
         context.read<AuthCubit>().emit(
@@ -41,19 +38,13 @@ class _SingupPageState extends State<SingupPage> {
   @override
   Widget build(BuildContext context) {
     final errors = context.watch<AuthCubit>().state.fieldErrors;
+
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        // Debug outputs for signup flow
-        debugPrint(
-          '[SignupPage] AuthState loading=${state.loading} error=${state.error} signedUp=${state.signedUp}',
-        );
-
-        // Only navigate to OTP if signedUp is true AND no field errors exist
         if (!state.loading &&
             state.signedUp &&
             state.error == null &&
             state.fieldErrors.isEmpty) {
-          // With OTP flow, navigate to verification page
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -78,155 +69,206 @@ class _SingupPageState extends State<SingupPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.red600,
-        body: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            CustomPaint(
-              size: Size(
-                MediaQuery.of(context).size.width,
-                MediaQuery.of(context).size.height,
-              ),
-              painter: TrianglePainter(
-                color: AppColors.orange,
-                stratProportion: 0.35,
-                endProportion: 0.15,
-              ),
-            ),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 400, // Limit width for tablets/desktop
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // --- Brand Section ---
+                    const SizedBox(height: 20),
+                    Image.asset(
+                      'assets/images/final_logo.png',
+                      height: 120, // Same size as login
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 20,
+                    const SizedBox(height: 30),
+                    const Text(
+                      "Create Account",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontFamily: "Poppins",
+                        letterSpacing: -0.5,
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.10,
-                              ),
-                              Image.asset(
-                                "assets/images/couscous.png",
-                                width: 180,
-                              ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                "Sign Up",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 41),
-                              TextFieldWidget(
-                                controller: fullnameController,
-                                hintText: "Full Name",
-                                trailingIcon: Icons.person_outline,
-                                errorText: errors["name"],
-                              ),
-                              const SizedBox(height: 20),
-                              TextFieldWidget(
-                                controller: emailController,
-                                hintText: "Email Address",
-                                trailingIcon: Icons.email_outlined,
-                                errorText: errors["email"],
-                              ),
-                              const SizedBox(height: 20),
-                              TextFieldWidget(
-                                controller: passwordController,
-                                hintText: "Password",
-                                trailingIcon: Icons.visibility_off_outlined,
-                                isPassword: true,
-                                errorText: errors["password"],
-                              ),
-                              const SizedBox(height: 20),
-                              TextFieldWidget(
-                                controller: confirmPasswordController,
-                                hintText: "Confirm Password",
-                                trailingIcon: Icons.visibility_off_outlined,
-                                isPassword: true,
-                                errorText: errors["confirm"],
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              const SizedBox(height: 30),
-                              ButtonWidget(
-                                text: "Sign Up",
-                                isLoading: context
-                                    .watch<AuthCubit>()
-                                    .state
-                                    .loading,
-                                onTap: () {
-                                  debugPrint(
-                                    '[SignupPage] SignUp button tapped',
-                                  );
-                                  context.read<AuthCubit>().signup(
-                                    fullnameController.text.trim(),
-                                    emailController.text.trim(),
-                                    passwordController.text.trim(),
-                                    confirmPasswordController.text.trim(),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 25),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    "Already have an account?",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 3),
-                                  TextButton(
-                                    onPressed: () => Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const LoginPage(),
-                                      ),
-                                    ),
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size.zero,
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    child: const Text(
-                                      "Login",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFFFFA974),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 15),
-                            ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Join us to start cooking",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        fontFamily: "LeagueSpartan",
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+
+                    // --- Form Section ---
+                    TextFieldWidget(
+                      controller: fullnameController,
+                      hintText: "Full Name",
+                      trailingIcon: Icons.person_outline,
+                      errorText: errors["name"],
+                      textColor: Colors.black87,
+                      hintColor: Colors.grey[500]!,
+                      fillColor: const Color(0xFFF5F5F5),
+                      borderColor: Colors.transparent,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFieldWidget(
+                      controller: emailController,
+                      hintText: "Email Address",
+                      trailingIcon: Icons.email_outlined,
+                      errorText: errors["email"],
+                      textColor: Colors.black87,
+                      hintColor: Colors.grey[500]!,
+                      fillColor: const Color(0xFFF5F5F5),
+                      borderColor: Colors.transparent,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFieldWidget(
+                      controller: passwordController,
+                      hintText: "Password",
+                      trailingIcon: Icons.lock_outline_rounded,
+                      isPassword: true,
+                      errorText: errors["password"],
+                      textColor: Colors.black87,
+                      hintColor: Colors.grey[500]!,
+                      fillColor: const Color(0xFFF5F5F5),
+                      borderColor: Colors.transparent,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFieldWidget(
+                      controller: confirmPasswordController,
+                      hintText: "Confirm Password",
+                      trailingIcon: Icons.lock_outline_rounded,
+                      isPassword: true,
+                      errorText: errors["confirm"],
+                      textColor: Colors.black87,
+                      hintColor: Colors.grey[500]!,
+                      fillColor: const Color(0xFFF5F5F5),
+                      borderColor: Colors.transparent,
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // --- Actions Section ---
+                    Container(
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.red600.withOpacity(0.25),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
+                      child: ElevatedButton(
+                        onPressed: context.watch<AuthCubit>().state.loading
+                            ? null
+                            : () {
+                                context.read<AuthCubit>().signup(
+                                  fullnameController.text.trim(),
+                                  emailController.text.trim(),
+                                  passwordController.text.trim(),
+                                  confirmPasswordController.text.trim(),
+                                );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red600,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: context.watch<AuthCubit>().state.loading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                "Create Account",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "Poppins",
+                                ),
+                              ),
+                      ),
                     ),
-                  ),
-                );
-              },
+
+                    const SizedBox(height: 32),
+
+                    // Toggle Link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Already have an account? ",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 15,
+                            fontFamily: "LeagueSpartan",
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pushReplacement(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const LoginPage(),
+                              transitionsBuilder:
+                                  (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                              transitionDuration: const Duration(
+                                milliseconds: 200,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            "Sign In",
+                            style: TextStyle(
+                              color: AppColors.red600,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              fontFamily: "Poppins",
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );

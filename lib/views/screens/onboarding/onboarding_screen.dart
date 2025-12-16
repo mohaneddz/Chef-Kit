@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
 
@@ -16,17 +17,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<_OnboardingData> _slides = const [
     _OnboardingData(
-      image: 'assets/images/couscous.png',
+      imageUrl:
+          'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80',
       title: 'Discover Recipes',
       description: 'Find thousands of delicious recipes from around the world',
     ),
     _OnboardingData(
-      image: 'assets/images/chefs/chef_1.png',
+      imageUrl:
+          'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&q=80',
       title: 'Follow Top Chefs',
       description: 'Learn from the best chefs and discover their secrets',
     ),
     _OnboardingData(
-      image: 'assets/images/Barkoukes.jpg',
+      imageUrl:
+          'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
       title: 'Cook & Share',
       description: 'Create amazing dishes and share with the community',
     ),
@@ -77,11 +81,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset(
-                            slide.image,
-                            height: 220,
-                            fit: BoxFit.contain,
+                          borderRadius: BorderRadius.circular(20),
+                          child: CachedNetworkImage(
+                            imageUrl: slide.imageUrl,
+                            height: 240,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              height: 240,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.red600,
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              height: 240,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Icon(
+                                Icons.restaurant,
+                                size: 60,
+                                color: AppColors.red600,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 48),
@@ -183,12 +213,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class _OnboardingData {
-  final String image;
+  final String imageUrl;
   final String title;
   final String description;
 
   const _OnboardingData({
-    required this.image,
+    required this.imageUrl,
     required this.title,
     required this.description,
   });
