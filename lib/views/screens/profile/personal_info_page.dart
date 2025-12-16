@@ -136,18 +136,21 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         }
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).iconTheme.color,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               AppLocalizations.of(context)!.personalInfoTitle,
-              style: const TextStyle(
-                color: Colors.black,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.titleLarge?.color,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',

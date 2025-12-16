@@ -21,6 +21,9 @@ class IngredientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return SizedBox(
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -30,18 +33,19 @@ class IngredientCard extends StatelessWidget {
             height: 117,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: Colors.white,
+              color: isDark ? Color(0xFF2A2A2A) : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withOpacity(isDark ? 0.4 : 0.25),
                   offset: Offset(4, 4),
                   blurRadius: 8,
                 ),
-                BoxShadow(
-                  color: Color(0xFFF5F3EF),
-                  offset: Offset(-5, -5),
-                  blurRadius: 5,
-                ),
+                if (!isDark)
+                  BoxShadow(
+                    color: Color(0xFFF5F3EF),
+                    offset: Offset(-5, -5),
+                    blurRadius: 5,
+                  ),
               ],
             ),
           ),
@@ -51,7 +55,7 @@ class IngredientCard extends StatelessWidget {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.2),
                     offset: Offset(0, 15),
                     blurRadius: 40,
                   ),
@@ -72,7 +76,7 @@ class IngredientCard extends StatelessWidget {
                 Text(
                   ingredientName,
                   style: TextStyle(
-                    color: Colors.black,
+                    color: theme.textTheme.titleLarge?.color,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -94,9 +98,15 @@ class IngredientCard extends StatelessWidget {
                           width: 86,
                           height: 23,
                           decoration: BoxDecoration(
-                            color: Color(0xFFF0FDF4),
+                            color: isDark
+                                ? Color(0xFF0D3D1C)
+                                : Color(0xFFF0FDF4),
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: Color(0xFFB9F8CF)),
+                            border: Border.all(
+                              color: isDark
+                                  ? Color(0xFF22C55E)
+                                  : Color(0xFFB9F8CF),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -120,7 +130,9 @@ class IngredientCard extends StatelessWidget {
                               Text(
                                 "Add",
                                 style: TextStyle(
-                                  color: Color(0xFF008236),
+                                  color: isDark
+                                      ? Color(0xFF22C55E)
+                                      : Color(0xFF008236),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                 ),

@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -96,13 +96,13 @@ class _LoginPageState extends State<LoginPage> {
                       height: 120, // Bigger logo
                     ),
                     const SizedBox(height: 30),
-                    const Text(
+                    Text(
                       "Welcome Back",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Theme.of(context).textTheme.titleLarge?.color,
                         fontFamily: "Poppins",
                         letterSpacing: -0.5,
                       ),
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                         fontFamily: "LeagueSpartan",
                       ),
                     ),
@@ -125,9 +125,15 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: "Email Address",
                       trailingIcon: Icons.email_outlined,
                       errorText: errors["email"],
-                      textColor: Colors.black87,
-                      hintColor: Colors.grey[500]!,
-                      fillColor: const Color(0xFFF5F5F5), // Very light grey
+                      textColor:
+                          Theme.of(context).textTheme.bodyLarge?.color ??
+                          Colors.black87,
+                      hintColor:
+                          Theme.of(context).textTheme.bodySmall?.color ??
+                          Colors.grey[500]!,
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? Color(0xFF2A2A2A)
+                          : const Color(0xFFF5F5F5),
                       borderColor: Colors.transparent,
                     ),
                     const SizedBox(height: 16),
@@ -137,9 +143,15 @@ class _LoginPageState extends State<LoginPage> {
                       trailingIcon: Icons.lock_outline_rounded,
                       isPassword: true,
                       errorText: errors["password"],
-                      textColor: Colors.black87,
-                      hintColor: Colors.grey[500]!,
-                      fillColor: const Color(0xFFF5F5F5),
+                      textColor:
+                          Theme.of(context).textTheme.bodyLarge?.color ??
+                          Colors.black87,
+                      hintColor:
+                          Theme.of(context).textTheme.bodySmall?.color ??
+                          Colors.grey[500]!,
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? Color(0xFF2A2A2A)
+                          : const Color(0xFFF5F5F5),
                       borderColor: Colors.transparent,
                     ),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class ChefCardWidget extends StatelessWidget {
   final String name;
   final String? imageUrl;
@@ -15,6 +16,9 @@ class ChefCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -37,23 +41,23 @@ class ChefCardWidget extends StatelessWidget {
                         color: const Color(0xFFFF5E62).withOpacity(0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
-                      )
+                      ),
                     ]
                   : null,
             ),
             child: Container(
               padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                color: isDark ? Color(0xFF2A2A2A) : Colors.white,
               ),
               child: CircleAvatar(
-                radius: 34, 
-                backgroundColor: Colors.grey[100],
+                radius: 34,
+                backgroundColor: isDark ? Color(0xFF3A3A3A) : Colors.grey[100],
                 backgroundImage: imageUrl != null
                     ? (imageUrl!.startsWith('http')
-                        ? NetworkImage(imageUrl!) as ImageProvider
-                        : AssetImage(imageUrl!))
+                          ? NetworkImage(imageUrl!) as ImageProvider
+                          : AssetImage(imageUrl!))
                     : const AssetImage('assets/images/chef.png'),
               ),
             ),
@@ -65,7 +69,9 @@ class ChefCardWidget extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w600,
               fontFamily: 'Poppins',
-              color: isOnFire ? Colors.black : Colors.grey[700],
+              color: isOnFire
+                  ? (isDark ? Colors.white : Colors.black)
+                  : theme.textTheme.bodyMedium?.color,
             ),
           ),
           if (isOnFire)
@@ -79,15 +85,23 @@ class ChefCardWidget extends StatelessWidget {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.local_fire_department, size: 10, color: Color(0xFFFF5E62)),
+                  Icon(
+                    Icons.local_fire_department,
+                    size: 10,
+                    color: Color(0xFFFF5E62),
+                  ),
                   SizedBox(width: 2),
                   Text(
                     "TRENDING",
-                    style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFFFF5E62)),
-                  )
+                    style: TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFF5E62),
+                    ),
+                  ),
                 ],
               ),
-            )
+            ),
         ],
       ),
     );

@@ -4,6 +4,7 @@ import 'package:chefkit/blocs/profile/profile_bloc.dart';
 import 'package:chefkit/blocs/profile/profile_events.dart';
 import 'package:chefkit/blocs/profile/profile_state.dart';
 import 'package:chefkit/blocs/locale/locale_cubit.dart';
+import 'package:chefkit/blocs/theme/theme_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/common/config.dart';
 import 'package:chefkit/domain/repositories/profile_repository.dart';
@@ -71,16 +72,18 @@ class _ProfilePageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.profileTitle,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: "Poppins",
@@ -89,7 +92,7 @@ class _ProfilePageContent extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.more_horiz, color: Colors.black),
+            icon: Icon(Icons.more_horiz, color: theme.iconTheme.color),
           ),
         ],
       ),
@@ -190,11 +193,11 @@ class _ProfilePageContent extends StatelessWidget {
                       const SizedBox(height: 16),
                       Text(
                         profile.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           fontFamily: "Poppins",
-                          color: Colors.black,
+                          color: theme.textTheme.titleLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -202,7 +205,7 @@ class _ProfilePageContent extends StatelessWidget {
                         profile.email,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[500],
+                          color: theme.textTheme.bodySmall?.color,
                           fontFamily: "Poppins",
                         ),
                       ),
@@ -222,28 +225,31 @@ class _ProfilePageContent extends StatelessWidget {
                               child: _buildStatItem(
                                 AppLocalizations.of(context)!.recipesCount,
                                 profile.recipesCount.toString(),
+                                theme,
                               ),
                             ),
                             Container(
                               width: 1,
                               height: 40,
-                              color: Colors.grey[200],
+                              color: theme.dividerColor,
                             ),
                             Expanded(
                               child: _buildStatItem(
                                 AppLocalizations.of(context)!.followingCount,
                                 profile.followingCount.toString(),
+                                theme,
                               ),
                             ),
                             Container(
                               width: 1,
                               height: 40,
-                              color: Colors.grey[200],
+                              color: theme.dividerColor,
                             ),
                             Expanded(
                               child: _buildStatItem(
                                 AppLocalizations.of(context)!.followersCount,
                                 _formatCount(profile.followersCount),
+                                theme,
                               ),
                             ),
                           ],
@@ -254,13 +260,14 @@ class _ProfilePageContent extends StatelessWidget {
                             _buildStatItem(
                               AppLocalizations.of(context)!.followingCount,
                               profile.followingCount.toString(),
+                              theme,
                             ),
                           ],
                         ),
                 ),
 
                 const SizedBox(height: 30),
-                Divider(height: 1, color: Colors.grey[100]),
+                Divider(height: 1, color: theme.dividerColor),
                 const SizedBox(height: 20),
 
                 // Menu Items
@@ -273,6 +280,7 @@ class _ProfilePageContent extends StatelessWidget {
                       if (profile.isChef) ...[
                         _buildSectionTitle(
                           AppLocalizations.of(context)!.chefsCorner,
+                          theme,
                         ),
                         const SizedBox(height: 16),
                         _buildMenuItem(
@@ -289,7 +297,10 @@ class _ProfilePageContent extends StatelessWidget {
                         const SizedBox(height: 32),
                       ],
 
-                      _buildSectionTitle(AppLocalizations.of(context)!.general),
+                      _buildSectionTitle(
+                        AppLocalizations.of(context)!.general,
+                        theme,
+                      ),
                       const SizedBox(height: 16),
                       _buildMenuItem(
                         context,
@@ -340,6 +351,7 @@ class _ProfilePageContent extends StatelessWidget {
                       const SizedBox(height: 32),
                       _buildSectionTitle(
                         AppLocalizations.of(context)!.preferences,
+                        theme,
                       ),
                       const SizedBox(height: 16),
                       BlocBuilder<LocaleCubit, Locale>(
@@ -375,12 +387,16 @@ class _ProfilePageContent extends StatelessWidget {
                           );
                         },
                       ),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.dark_mode_outlined,
-                        title: AppLocalizations.of(context)!.darkMode,
-                        isSwitch: true,
-                        onTap: () {}, // Toggle logic
+                      BlocBuilder<ThemeCubit, ThemeMode>(
+                        builder: (context, themeMode) {
+                          return _buildDarkModeItem(
+                            context,
+                            isDarkMode: themeMode == ThemeMode.dark,
+                            onToggle: () {
+                              context.read<ThemeCubit>().toggleTheme();
+                            },
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 40),
@@ -436,16 +452,16 @@ class _ProfilePageContent extends StatelessWidget {
     return count.toString();
   }
 
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildStatItem(String label, String value, ThemeData theme) {
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             fontFamily: "Poppins",
-            color: Colors.black,
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         const SizedBox(height: 4),
@@ -453,7 +469,7 @@ class _ProfilePageContent extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[500],
+            color: theme.textTheme.bodySmall?.color,
             fontFamily: "Poppins",
           ),
         ),
@@ -461,14 +477,14 @@ class _ProfilePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, ThemeData theme) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
         fontFamily: "Poppins",
-        color: Colors.black,
+        color: theme.textTheme.titleLarge?.color,
       ),
     );
   }
@@ -481,6 +497,8 @@ class _ProfilePageContent extends StatelessWidget {
     bool isSwitch = false,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: InkWell(
@@ -492,20 +510,20 @@ class _ProfilePageContent extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: isDark ? AppColors.darkCard : Colors.grey[50],
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, size: 22, color: Colors.black87),
+              child: Icon(icon, size: 22, color: theme.iconTheme.color),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   fontFamily: "Poppins",
-                  color: Colors.black87,
+                  color: theme.textTheme.bodyLarge?.color,
                 ),
               ),
             ),
@@ -522,16 +540,73 @@ class _ProfilePageContent extends StatelessWidget {
                     trailing,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[500],
+                      color: theme.textTheme.bodySmall?.color,
                       fontFamily: "Poppins",
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+                  Icon(
+                    Icons.chevron_right,
+                    color: theme.textTheme.bodySmall?.color,
+                    size: 20,
+                  ),
                 ],
               )
             else
-              Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+              Icon(
+                Icons.chevron_right,
+                color: theme.textTheme.bodySmall?.color,
+                size: 20,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDarkModeItem(
+    BuildContext context, {
+    required bool isDarkMode,
+    required VoidCallback onToggle,
+  }) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: InkWell(
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isDarkMode ? AppColors.darkCard : Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isDarkMode ? Icons.dark_mode : Icons.dark_mode_outlined,
+                size: 22,
+                color: theme.iconTheme.color,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.darkMode,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: "Poppins",
+                  color: theme.textTheme.bodyLarge?.color,
+                ),
+              ),
+            ),
+            Switch(
+              value: isDarkMode,
+              onChanged: (val) => onToggle(),
+              activeColor: AppColors.red600,
+            ),
           ],
         ),
       ),

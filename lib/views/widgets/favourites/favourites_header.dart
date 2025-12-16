@@ -6,21 +6,22 @@ class FavouritesHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           AppLocalizations.of(context)!.favouritesTitle,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           AppLocalizations.of(context)!.favouritesSubtitle,
-          style: const TextStyle(
-            color: Color(0xFF4A5565),
+          style: TextStyle(
+            color: theme.textTheme.bodySmall?.color,
             fontSize: 14,
             fontWeight: FontWeight.w400,
             fontFamily: "LeagueSpartan",

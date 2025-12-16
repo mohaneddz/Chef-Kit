@@ -15,14 +15,16 @@ class SearchBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Color(0xFF0D0A2C).withOpacity(0.06),
+            color: Color(0xFF0D0A2C).withOpacity(isDark ? 0.2 : 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -34,14 +36,15 @@ class SearchBarWidget extends StatelessWidget {
           Expanded(
             child: TextFormField(
               onChanged: onChanged,
-              cursorColor: Color(0xFF1C0F0D).withOpacity(0.7),
+              cursorColor: theme.textTheme.bodyLarge?.color,
               style: TextStyle(
-                color: Color(0xFF1C0F0D).withOpacity(0.7),
+                color: theme.textTheme.bodyLarge?.color,
                 fontSize: 18,
                 fontFamily: "LeagueSpartan",
               ),
               decoration: InputDecoration(
                 hintText: hintText,
+                hintStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,

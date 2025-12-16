@@ -20,39 +20,27 @@ class _LanguagePopupState extends State<LanguagePopup> {
   }
 
   final List<Map<String, dynamic>> _languages = [
-    {
-      'code': 'en',
-      'name': 'English',
-      'nativeName': 'English',
-      'flag': '🇬🇧',
-    },
-    {
-      'code': 'fr',
-      'name': 'French',
-      'nativeName': 'Français',
-      'flag': '🇫🇷',
-    },
-    {
-      'code': 'ar',
-      'name': 'Arabic',
-      'nativeName': 'العربية',
-      'flag': '🇩🇿',
-    },
+    {'code': 'en', 'name': 'English', 'nativeName': 'English', 'flag': '🇬🇧'},
+    {'code': 'fr', 'name': 'French', 'nativeName': 'Français', 'flag': '🇫🇷'},
+    {'code': 'ar', 'name': 'Arabic', 'nativeName': 'العربية', 'flag': '🇩🇿'},
   ];
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.all(24),
         constraints: const BoxConstraints(maxHeight: 600),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -78,40 +66,47 @@ class _LanguagePopupState extends State<LanguagePopup> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Select Language',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       fontFamily: "Poppins",
+                      color: theme.textTheme.titleLarge?.color,
                     ),
                   ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.grey),
+                  icon: Icon(
+                    Icons.close,
+                    color: theme.textTheme.bodySmall?.color,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            
+
             // Language List
             Flexible(
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: _languages.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final language = _languages[index];
                   final isSelected = language['code'] == _selectedLanguage;
-                  
+
                   return InkWell(
                     onTap: () {
                       setState(() {
                         _selectedLanguage = language['code'];
                       });
-                      context.read<LocaleCubit>().setLocale(Locale(language['code']));
+                      context.read<LocaleCubit>().setLocale(
+                        Locale(language['code']),
+                      );
                       // Close after selection with a small delay
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.pop(context);
@@ -119,12 +114,19 @@ class _LanguagePopupState extends State<LanguagePopup> {
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.red600.withOpacity(0.05) : Colors.grey[50],
+                        color: isSelected
+                            ? AppColors.red600.withOpacity(0.05)
+                            : Colors.grey[50],
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? AppColors.red600 : Colors.transparent,
+                          color: isSelected
+                              ? AppColors.red600
+                              : Colors.transparent,
                           width: 1.5,
                         ),
                       ),
@@ -145,7 +147,9 @@ class _LanguagePopupState extends State<LanguagePopup> {
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: "Poppins",
-                                    color: isSelected ? AppColors.red600 : Colors.black87,
+                                    color: isSelected
+                                        ? AppColors.red600
+                                        : Colors.black87,
                                   ),
                                 ),
                                 Text(

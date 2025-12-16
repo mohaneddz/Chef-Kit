@@ -14,7 +14,6 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  
   @override
   void initState() {
     super.initState();
@@ -69,19 +68,22 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           AppLocalizations.of(context)!.notificationsTitle,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
@@ -90,10 +92,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.done_all, color: Colors.black),
+            icon: Icon(Icons.done_all, color: theme.iconTheme.color),
             tooltip: 'Mark all as read',
             onPressed: () {
-              context.read<NotificationsBloc>().add(const MarkAllNotificationsAsRead());
+              context.read<NotificationsBloc>().add(
+                const MarkAllNotificationsAsRead(),
+              );
             },
           ),
         ],
@@ -106,7 +110,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             return Center(child: Text('Error: ${state.message}'));
           } else if (state is NotificationsLoaded) {
             final notifications = state.notifications;
-            
+
             if (notifications.isEmpty) {
               return Center(
                 child: Column(
@@ -150,7 +154,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
     final isRead = notification['notification_is_read'] as bool? ?? false;
     final type = notification['notification_type'] as String? ?? 'general';
-    final title = notification['notification_title'] as String? ?? 'Notification';
+    final title =
+        notification['notification_title'] as String? ?? 'Notification';
     final message = notification['notification_message'] as String? ?? '';
     final time = _getTimeAgo(notification['notification_created_at']);
     final id = notification['notification_id'] as String;
@@ -168,7 +173,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
           color: isRead ? Colors.white : AppColors.red600.withOpacity(0.03),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isRead ? Colors.grey[200]! : AppColors.red600.withOpacity(0.1),
+            color: isRead
+                ? Colors.grey[200]!
+                : AppColors.red600.withOpacity(0.1),
             width: 1,
           ),
         ),

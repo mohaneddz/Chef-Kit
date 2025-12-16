@@ -70,21 +70,23 @@ class _SecurityPageState extends State<SecurityPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final profile = context.watch<ProfileBloc>().state.profile;
     final currentEmail = profile?.email ?? '';
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           AppLocalizations.of(context)!.securityTitle,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
@@ -99,8 +101,8 @@ class _SecurityPageState extends State<SecurityPage> {
           children: [
             Text(
               AppLocalizations.of(context)!.accountSecurity,
-              style: const TextStyle(
-                color: Colors.black,
+              style: TextStyle(
+                color: theme.textTheme.titleLarge?.color,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Poppins',
@@ -110,35 +112,39 @@ class _SecurityPageState extends State<SecurityPage> {
             Text(
               AppLocalizations.of(context)!.accountSecuritySubtitle,
               style: TextStyle(
-                color: Colors.grey[600],
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 14,
                 fontFamily: 'Poppins',
               ),
             ),
             const SizedBox(height: 16),
-            _buildCurrentEmailBadge(currentEmail),
+            _buildCurrentEmailBadge(currentEmail, theme, isDark),
             const SizedBox(height: 28),
-            _buildEmailSection(currentEmail),
+            _buildEmailSection(currentEmail, theme, isDark),
             const SizedBox(height: 32),
-            Divider(height: 1, color: Colors.grey[300]),
+            Divider(
+              height: 1,
+              color: isDark ? AppColors.darkDivider : Colors.grey[300],
+            ),
             const SizedBox(height: 32),
-            _buildPasswordSection(),
+            _buildPasswordSection(theme, isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEmailSection(String currentEmail) {
+  Widget _buildEmailSection(String currentEmail, ThemeData theme, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           AppLocalizations.of(context)!.changeEmail,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         const SizedBox(height: 4),
@@ -146,7 +152,7 @@ class _SecurityPageState extends State<SecurityPage> {
           AppLocalizations.of(context)!.changeEmailSubtitle,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey[600],
+            color: theme.textTheme.bodySmall?.color,
             fontFamily: 'Poppins',
           ),
         ),
@@ -155,11 +161,14 @@ class _SecurityPageState extends State<SecurityPage> {
           controller: _newEmailController,
           readOnly: _emailOtpSent,
           keyboardType: TextInputType.emailAddress,
+          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.newEmailAddress,
+            labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
             hintText: 'you@example.com',
+            hintStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: isDark ? AppColors.darkInputFill : Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -286,16 +295,17 @@ class _SecurityPageState extends State<SecurityPage> {
     );
   }
 
-  Widget _buildPasswordSection() {
+  Widget _buildPasswordSection(ThemeData theme, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           AppLocalizations.of(context)!.updatePassword,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         const SizedBox(height: 4),
@@ -481,27 +491,32 @@ class _SecurityPageState extends State<SecurityPage> {
     );
   }
 
-  Widget _buildCurrentEmailBadge(String currentEmail) {
+  Widget _buildCurrentEmailBadge(
+    String currentEmail,
+    ThemeData theme,
+    bool isDark,
+  ) {
     final display = currentEmail.isEmpty
         ? AppLocalizations.of(context)!.noEmailOnFile
         : currentEmail;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: isDark ? AppColors.darkCard : Colors.grey[100],
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.alternate_email, color: Colors.grey[700]),
+          Icon(Icons.alternate_email, color: theme.textTheme.bodyMedium?.color),
           const SizedBox(width: 10),
           Text(
             display,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
               fontFamily: 'Poppins',
+              color: theme.textTheme.bodyLarge?.color,
             ),
           ),
         ],

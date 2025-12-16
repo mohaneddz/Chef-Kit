@@ -48,18 +48,33 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         border: Border(
-          top: BorderSide(color: Colors.black.withOpacity(0.2)),
-          left: BorderSide(color: Colors.black.withOpacity(0.2)),
-          right: BorderSide(color: Colors.black.withOpacity(0.2)),
+          top: BorderSide(
+            color: isDark
+                ? AppColors.darkBorder
+                : Colors.black.withOpacity(0.2),
+          ),
+          left: BorderSide(
+            color: isDark
+                ? AppColors.darkBorder
+                : Colors.black.withOpacity(0.2),
+          ),
+          right: BorderSide(
+            color: isDark
+                ? AppColors.darkBorder
+                : Colors.black.withOpacity(0.2),
+          ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

@@ -29,6 +29,8 @@ import 'package:chefkit/blocs/favourites/favourites_events.dart';
 import 'package:chefkit/blocs/locale/locale_cubit.dart';
 import 'package:chefkit/blocs/notifications/notifications_bloc.dart';
 import 'package:chefkit/blocs/notifications/notifications_event.dart';
+import 'package:chefkit/blocs/theme/theme_cubit.dart';
+import 'package:chefkit/common/constants.dart';
 
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
@@ -91,13 +93,17 @@ Future<void> main() async {
       ? Locale(savedLanguageCode)
       : null;
 
-  runApp(MainApp(initialLocale: initialLocale));
+  // Load saved theme
+  final savedTheme = await ThemeCubit.loadSavedTheme();
+
+  runApp(MainApp(initialLocale: initialLocale, initialTheme: savedTheme));
 }
 
 class MainApp extends StatelessWidget {
   final Locale? initialLocale;
+  final ThemeMode? initialTheme;
 
-  const MainApp({super.key, this.initialLocale});
+  const MainApp({super.key, this.initialLocale, this.initialTheme});
 
   @override
   Widget build(BuildContext context) {
@@ -143,16 +149,24 @@ class MainApp extends StatelessWidget {
             create: (_) => NotificationsBloc()..add(const LoadNotifications()),
           ),
           BlocProvider(create: (_) => LocaleCubit(initialLocale)),
+          BlocProvider(create: (_) => ThemeCubit(initialTheme)),
         ],
         child: BlocBuilder<LocaleCubit, Locale>(
           builder: (context, locale) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(fontFamily: 'Poppins'),
-              locale: locale,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const AuthInitializer(),
+            return BlocBuilder<ThemeCubit, ThemeMode>(
+              builder: (context, themeMode) {
+                return MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  theme: lightTheme,
+                  darkTheme: darkTheme,
+                  themeMode: themeMode,
+                  locale: locale,
+                  localizationsDelegates:
+                      AppLocalizations.localizationsDelegates,
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  home: const AuthInitializer(),
+                );
+              },
             );
           },
         ),

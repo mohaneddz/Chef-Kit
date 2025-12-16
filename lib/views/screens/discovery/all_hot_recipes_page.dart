@@ -28,19 +28,22 @@ class _AllHotRecipesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           AppLocalizations.of(context)!.hotRecipes,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
             fontSize: 24,
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',

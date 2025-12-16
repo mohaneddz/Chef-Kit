@@ -56,14 +56,19 @@ class _InventoryPageState extends State<InventoryPage> {
     setState(() {});
   }
 
-  Widget headerText({required String title, required String subtitle}) {
+  Widget headerText(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+  }) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: TextStyle(
-            color: Color(0xFF0A0A0A),
+            color: theme.textTheme.titleLarge?.color,
             fontSize: 24,
             fontWeight: FontWeight.w500,
           ),
@@ -72,7 +77,7 @@ class _InventoryPageState extends State<InventoryPage> {
         Text(
           subtitle,
           style: TextStyle(
-            color: Color(0xFF6A7282),
+            color: theme.textTheme.bodySmall?.color,
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
@@ -130,6 +135,7 @@ class _InventoryPageState extends State<InventoryPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         headerText(
+          context,
           title: l10n.availableIngredientsTitle,
           subtitle: l10n.availableIngredientsSubtitle,
         ),
@@ -242,6 +248,7 @@ class _InventoryPageState extends State<InventoryPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         headerText(
+          context,
           title: l10n.browseIngredientsTitle,
           subtitle: l10n.browseIngredientsSubtitle,
         ),
@@ -344,11 +351,12 @@ class _InventoryPageState extends State<InventoryPage> {
           }
 
           final isSearching = state.searchTerm.isNotEmpty;
+          final theme = Theme.of(context);
 
           return Scaffold(
-            backgroundColor: AppColors.white,
+            backgroundColor: theme.scaffoldBackgroundColor,
             appBar: AppBar(
-              backgroundColor: Colors.white,
+              backgroundColor: theme.appBarTheme.backgroundColor,
               leadingWidth: 72,
               leading: Align(
                 alignment: Alignment.centerRight,
@@ -362,16 +370,16 @@ class _InventoryPageState extends State<InventoryPage> {
                 children: [
                   Text(
                     l10n.inventoryTitle,
-                    style: const TextStyle(
-                      color: Colors.black,
+                    style: TextStyle(
+                      color: theme.textTheme.titleLarge?.color,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     l10n.inventorySubtitle,
-                    style: const TextStyle(
-                      color: Color(0xFF4A5565),
+                    style: TextStyle(
+                      color: theme.textTheme.bodySmall?.color,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       fontFamily: "LeagueSpartan",

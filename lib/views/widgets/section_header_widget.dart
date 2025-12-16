@@ -13,15 +13,17 @@ class SectionHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         if (onSeeAllPressed != null)

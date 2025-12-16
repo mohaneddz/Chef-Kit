@@ -52,10 +52,13 @@ class _FavouritesPageState extends State<FavouritesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         leadingWidth: 72,
         leading: Align(
           alignment: Alignment.centerRight,
@@ -70,7 +73,12 @@ class _FavouritesPageState extends State<FavouritesPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.error != null) {
-            return Center(child: Text('Error: ${state.error}'));
+            return Center(
+              child: Text(
+                'Error: ${state.error}',
+                style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+              ),
+            );
           }
 
           if (state.displayRecipes.isEmpty) {
@@ -102,24 +110,24 @@ class _FavouritesPageState extends State<FavouritesPage> {
                         Icon(
                           Icons.favorite_border,
                           size: 100,
-                          color: Colors.grey[300],
+                          color: theme.textTheme.bodySmall?.color,
                         ),
                         const SizedBox(height: 20),
                         Text(
                           AppLocalizations.of(context)!.noFavouritesYet,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.black,
+                            color: theme.textTheme.titleLarge?.color,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
                           AppLocalizations.of(context)!.noFavouritesMessage,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            color: Colors.grey,
+                            color: theme.textTheme.bodySmall?.color,
                           ),
                         ),
                       ],

@@ -48,10 +48,13 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFCFCFC),
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         toolbarHeight: 80,
@@ -62,8 +65,8 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
             children: [
               Text(
                 AppLocalizations.of(context)!.discoverRecipes,
-                style: const TextStyle(
-                  color: Color(0xFF1D1617),
+                style: TextStyle(
+                  color: theme.textTheme.titleLarge?.color,
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
                   fontFamily: 'Poppins',
@@ -73,7 +76,7 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
               Text(
                 AppLocalizations.of(context)!.findYourNextFavoriteMeal,
                 style: TextStyle(
-                  color: Colors.grey[500],
+                  color: theme.textTheme.bodySmall?.color,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'LeagueSpartan',

@@ -367,3 +367,78 @@ firebase-admin>=6.0.0
 | 404 on /batch | Deprecated API | Use `messaging.send()` instead of `send_multicast()` |
 | RLS policy violation | Using regular Supabase client | Use `supabase_admin` for cross-user inserts |
 | Session not found | Calling `sign_out()` in backend | Remove `sign_out()` calls |
+| **No notification when app killed** | Missing high priority config | See "Background Delivery" section below |
+
+## Background Notification Delivery (When App is Killed)
+
+For push notifications to be delivered when the app is **fully closed/killed**, FCM messages must be configured with **high priority** settings.
+
+### Android Configuration
+
+**`AndroidManifest.xml`** - Required permissions:
+```xml
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.WAKE_LOCK"/>  <!-- Required for background delivery -->
+```
+
+### Backend: High Priority FCM Messages
+
+The backend MUST send messages with high priority for Android and iOS:
+
+```python
+# services.py - _send_push_notification()
+message = messaging.Message(
+    notification=messaging.Notification(
+        title=title,
+        body=body,
+    ),
+    data={...},
+    token=token,
+    # HIGH PRIORITY - Required for delivery when app is killed!
+    android=messaging.AndroidConfig(
+        priority="high",
+        notification=messaging.AndroidNotification(
+            channel_id="chef_kit_notifications",
+            priority="high",
+        ),
+    ),
+    apns=messaging.APNSConfig(
+        headers={"apns-priority": "10"},
+        payload=messaging.APNSPayload(
+            aps=messaging.Aps(content_available=True),
+        ),
+    ),
+)
+```
+
+### Why This Matters
+
+| Priority | Behavior |
+|----------|----------|
+| `normal` (default) | Message may be delayed or batched. Won't wake device in Doze mode. |
+| `high` | Message delivered immediately. Wakes device from Doze mode. |
+
+### Phone-Specific Issues
+
+Some phone manufacturers aggressively kill background apps:
+
+| Brand | Fix |
+|-------|-----|
+| **Xiaomi** | Settings → Battery → App battery saver → ChefKit → No restrictions |
+| **Huawei** | Settings → Battery → App launch → ChefKit → Manage manually → Enable all |
+| **Samsung** | Settings → Apps → ChefKit → Battery → Unrestricted |
+| **OnePlus** | Settings → Battery → Battery optimization → ChefKit → Don't optimize |
+
+### Testing Background Delivery
+
+1. **Kill the app** completely (swipe away from recents)
+2. **Send a notification** from another device
+3. **Expected**: Notification should appear in system tray
+
+If it doesn't work:
+- Check backend logs for `[_send_push_notification] Sent X messages`
+- Verify phone battery settings allow background notifications
+- Ensure the FCM token is correctly registered
+

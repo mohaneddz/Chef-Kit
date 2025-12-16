@@ -17,25 +17,28 @@ class CollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: 181,
       height: 117,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: isDark ? AppColors.darkCard : AppColors.white,
         borderRadius: BorderRadius.circular(20),
         border: isActive
             ? Border.all(color: AppColors.red600, width: 1.5)
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.25),
             offset: const Offset(4, 4),
             blurRadius: 8,
           ),
           BoxShadow(
-            color: const Color(0xFFF5F3EF),
+            color: isDark ? AppColors.darkSurface : const Color(0xFFF5F3EF),
             offset: const Offset(-5, -5),
             blurRadius: 5,
           ),
@@ -60,7 +63,9 @@ class CollectionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isActive ? AppColors.red600 : AppColors.black,
+                      color: isActive
+                          ? AppColors.red600
+                          : theme.textTheme.titleLarge?.color,
                     ),
                   ),
                 ),
@@ -74,7 +79,10 @@ class CollectionCard extends StatelessWidget {
                   child: Text(
                     subtitle,
                     maxLines: 1,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    style: TextStyle(
+                      color: theme.textTheme.bodySmall?.color,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),

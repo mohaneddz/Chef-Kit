@@ -13,7 +13,11 @@ import 'package:chefkit/views/screens/authentication/singup_page.dart';
 class OtpVerifyPage extends StatefulWidget {
   final String email;
   final bool fromSignup; // Track if arriving from signup or login
-  const OtpVerifyPage({super.key, required this.email, this.fromSignup = false});
+  const OtpVerifyPage({
+    super.key,
+    required this.email,
+    this.fromSignup = false,
+  });
 
   @override
   State<OtpVerifyPage> createState() => _OtpVerifyPageState();
@@ -56,8 +60,13 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AuthCubit>().state;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.red600,
+      backgroundColor: isDark
+          ? theme.scaffoldBackgroundColor
+          : AppColors.red600,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -65,14 +74,25 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 40),
-              const Text(
+              Text(
                 'Verify Email',
-                style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: isDark
+                      ? theme.textTheme.titleLarge?.color
+                      : Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 10),
               Text(
                 'We sent an OTP to ${widget.email}. Enter it to verify your account.',
-                style: const TextStyle(color: Colors.white70, fontSize: 14),
+                style: TextStyle(
+                  color: isDark
+                      ? theme.textTheme.bodySmall?.color
+                      : Colors.white70,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 30),
               TextFieldWidget(
@@ -88,23 +108,33 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                   final code = otpController.text.trim();
                   if (code.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter the OTP code')),
+                      const SnackBar(
+                        content: Text('Please enter the OTP code'),
+                      ),
                     );
                     return;
                   }
                   await context.read<AuthCubit>().verifyOtp(widget.email, code);
                   final newState = context.read<AuthCubit>().state;
-                  if (!newState.loading && newState.error == null && !newState.needsOtp) {
+                  if (!newState.loading &&
+                      newState.error == null &&
+                      !newState.needsOtp) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Email verified! You can now login.')),
+                      const SnackBar(
+                        content: Text('Email verified! You can now login.'),
+                      ),
                     );
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
                     );
                   } else if (newState.error != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Verification failed: ${newState.error}')),
+                      SnackBar(
+                        content: Text('Verification failed: ${newState.error}'),
+                      ),
                     );
                   }
                 },
@@ -124,7 +154,9 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                           );
                           if (resp.statusCode == 200) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Code resent. Check your email.')),
+                              const SnackBar(
+                                content: Text('Code resent. Check your email.'),
+                              ),
                             );
                             _startCooldown();
                           } else {
@@ -139,7 +171,9 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                           );
                         }
                       },
-                child: Text(_cooldown > 0 ? 'Resend in $_cooldown s' : 'Resend code'),
+                child: Text(
+                  _cooldown > 0 ? 'Resend in $_cooldown s' : 'Resend code',
+                ),
               ),
               const Spacer(),
               TextButton(
@@ -147,28 +181,37 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                   // Clear any pending OTP state before navigating back
                   final cubit = context.read<AuthCubit>();
                   cubit.pendingEmail = null;
-                  cubit.emit(cubit.state.copyWith(
-                    needsOtp: false,
-                    signedUp: false,
-                    fieldErrors: {},
-                    error: null,
-                  ));
-                  
+                  cubit.emit(
+                    cubit.state.copyWith(
+                      needsOtp: false,
+                      signedUp: false,
+                      fieldErrors: {},
+                      error: null,
+                    ),
+                  );
+
                   // Navigate to origin page
                   if (widget.fromSignup) {
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => const SingupPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const SingupPage(),
+                      ),
                       (route) => false,
                     );
                   } else {
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
                       (route) => false,
                     );
                   }
                 },
-                child: const Text('Back', style: TextStyle(color: Colors.white)),
-              )
+                child: const Text(
+                  'Back',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ],
           ),
         ),
