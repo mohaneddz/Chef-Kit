@@ -638,6 +638,20 @@ def _send_push_notification(data: Dict[str, Any]) -> None:
                                 ),
                                 data={k: str(v) for k, v in data.get("notification_data", {}).items()},
                                 token=token,
+                                # HIGH PRIORITY - Required for delivery when app is killed!
+                                android=messaging.AndroidConfig(
+                                    priority="high",
+                                    notification=messaging.AndroidNotification(
+                                        channel_id="chef_kit_notifications",
+                                        priority="high",
+                                    ),
+                                ),
+                                apns=messaging.APNSConfig(
+                                    headers={"apns-priority": "10"},
+                                    payload=messaging.APNSPayload(
+                                        aps=messaging.Aps(content_available=True),
+                                    ),
+                                ),
                             )
                             response = messaging.send(message)
                             print(f"[_send_push_notification] Sent to token {token[:20]}...: {response}")
