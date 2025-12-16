@@ -1,6 +1,6 @@
 name: chefkit
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -27,6 +27,9 @@ dependencies:
   path_provider: ^2.1.5
   get_it: ^9.2.0
   intl: ^0.20.2
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.6
+  flutter_local_notifications: ^18.0.1
 
 dev_dependencies:
   flutter_test:
@@ -44,42 +47,42 @@ flutter:
     - assets/images/
 
   fonts:
-  - family: Poppins
-    fonts:
-      - asset: assets/fonts/Poppins/Poppins-Thin.ttf
-        weight: 100
-      - asset: assets/fonts/Poppins/Poppins-ExtraLight.ttf
-        weight: 200
-      - asset: assets/fonts/Poppins/Poppins-Light.ttf
-        weight: 300
-      - asset: assets/fonts/Poppins/Poppins-Regular.ttf
-        weight: 400
-      - asset: assets/fonts/Poppins/Poppins-Medium.ttf
-        weight: 500
-      - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
-        weight: 600
-      - asset: assets/fonts/Poppins/Poppins-Bold.ttf
-        weight: 700
-      - asset: assets/fonts/Poppins/Poppins-ExtraBold.ttf
-        weight: 800
-      - asset: assets/fonts/Poppins/Poppins-Black.ttf
-        weight: 900
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Poppins/Poppins-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Poppins/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins/Poppins-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Poppins/Poppins-Black.ttf
+          weight: 900
 
-  - family: LeagueSpartan
-    fonts:
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Thin.ttf
-        weight: 100
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Light.ttf
-        weight: 300
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Regular.ttf
-        weight: 400
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Medium.ttf
-        weight: 500
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-SemiBold.ttf
-        weight: 600
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Bold.ttf
-        weight: 700
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-ExtraBold.ttf
-        weight: 800
-      - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Black.ttf
-        weight: 900
+    - family: LeagueSpartan
+      fonts:
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Light.ttf
+          weight: 300
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Black.ttf
+          weight: 900

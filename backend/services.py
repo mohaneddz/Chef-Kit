@@ -38,6 +38,12 @@ def _extract_response_data(resp):
 # -----------------------------
 def auth_signup(email: str, password: str, full_name: Optional[str] = None) -> Dict[str, Any]:
     """Sign up a user via Supabase Auth and create user profile."""
+    # Clear any existing session state to ensure stateless operation
+    try:
+        supabase.auth.sign_out()
+    except Exception:
+        pass  # Ignore errors, just ensuring clean state
+    
     # Check if email already exists in public.users (or attempt login to detect existing auth user)
     try:
         # Try to find existing user in public.users table
@@ -89,13 +95,34 @@ def auth_signup(email: str, password: str, full_name: Optional[str] = None) -> D
     return {"message": "signup_ok"}
 
 
-def auth_login(email: str, password: str) -> Dict[str, Any]:
-    """Login via Supabase Auth (password)."""
+def auth_login(email: str, password: str, device_token: Optional[str] = None) -> Dict[str, Any]:
+    """Login via Supabase Auth (password).
+    
+    Args:
+        email: User's email
+        password: User's password
+        device_token: Optional FCM device token for push notifications
+    """
+    print(f"[auth_login] Starting login for {email}")
+    print(f"[auth_login] Device token provided: {bool(device_token)}")
+    
+    # Clear any existing session state to ensure stateless operation
+    try:
+        supabase.auth.sign_out()
+    except Exception:
+        pass  # Ignore errors, just ensuring clean state
+    
+    user_id = None  # Initialize user_id at function scope
+    access_token = None
+    refresh_token = None
+    
     try:
         session = supabase.auth.sign_in_with_password({"email": email, "password": password})
+        print(f"[auth_login] Sign in successful, processing session...")
     except Exception as e:
         # Only map unverified email specifically; otherwise bubble up
         msg = str(e)
+        print(f"[auth_login] Sign in failed: {msg}")
         if "Email not confirmed" in msg or "unverified_email" in msg:
             # For unverified users attempting login, trigger a new signup to resend confirmation
             # This works because Supabase allows re-signup for unconfirmed emails
@@ -110,6 +137,7 @@ def auth_login(email: str, password: str) -> Dict[str, Any]:
             raise PermissionError(f"unverified_email: {e}")
         # Other auth errors
         raise RuntimeError(f"login_failed: {e}")
+    
     # Build a minimal, serializable user payload
     user_payload: Dict[str, Any] = {}
     try:
@@ -117,6 +145,8 @@ def auth_login(email: str, password: str) -> Dict[str, Any]:
         user_id = getattr(user_obj, "id", None)
         user_email = getattr(user_obj, "email", email)
         user_payload = {"id": user_id, "email": user_email}
+        print(f"[auth_login] User ID: {user_id}")
+        
         # Extract tokens robustly across client versions
         access_token = (
             getattr(session, "access_token", None)
@@ -129,6 +159,9 @@ def auth_login(email: str, password: str) -> Dict[str, Any]:
         if not access_token or not refresh_token:
             # Do not assume unverified if tokens missing; treat as login error
             raise RuntimeError("login_failed: missing tokens")
+        
+        print(f"[auth_login] Tokens obtained successfully")
+        
         # Attach access token to PostgREST so RLS recognizes auth.uid()
         set_postgrest_token(access_token)
         # Ensure a corresponding row exists in public.users
@@ -163,8 +196,30 @@ def auth_login(email: str, password: str) -> Dict[str, Any]:
                 "user_recipes_count": 0,
                 "user_is_chef": False,
             }).execute()
-    except Exception:
+    except Exception as e:
+        print(f"[auth_login] Error building user payload: {e}")
         user_payload = {"email": email}
+    
+    # Store device token if provided
+    print(f"[auth_login] ===== DEVICE TOKEN CHECK =====")
+    print(f"[auth_login] device_token is truthy: {bool(device_token)}")
+    print(f"[auth_login] user_id is truthy: {bool(user_id)}")
+    print(f"[auth_login] user_id value: {user_id}")
+    
+    if device_token and user_id:
+        print(f"[auth_login] Attempting to store device token...")
+        try:
+            result = update_fcm_token(user_id, device_token)
+            print(f"[auth_login] update_fcm_token result: {result}")
+        except Exception as e:
+            print(f"[auth_login] Failed to store device token: {e}")
+            import traceback
+            traceback.print_exc()
+    else:
+        print(f"[auth_login] SKIPPING device token storage - device_token={device_token}, user_id={user_id}")
+    
+    print(f"[auth_login] ===== END DEVICE TOKEN CHECK =====")
+    
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
@@ -475,31 +530,54 @@ def get_notifications_for_user(user_id: str) -> List[Dict[str, Any]]:
 
 def update_fcm_token(user_id: str, token: str) -> Dict[str, Any]:
     """Update user's FCM token list."""
+    print(f"[update_fcm_token] Updating FCM token for user {user_id}")
+    print(f"[update_fcm_token] Token: {token[:20]}..." if token and len(token) > 20 else f"[update_fcm_token] Token: {token}")
+    
+    # Use admin client to bypass RLS
+    client = supabase_admin if supabase_admin else supabase
+    
     try:
         # Get current devices
-        resp = supabase.table("users").select("user_devices").eq("user_id", user_id).single().execute()
+        resp = client.table("users").select("user_devices").eq("user_id", user_id).single().execute()
         current_data = _extract_response_data(resp)
+        print(f"[update_fcm_token] Current user data: {current_data}")
         
-        devices_json = current_data.get("user_devices")
+        devices_raw = current_data.get("user_devices")
         devices = []
-        if devices_json:
-            try:
-                devices = json.loads(devices_json)
-                if not isinstance(devices, list):
+        
+        # Handle both JSON string and array formats
+        if devices_raw:
+            if isinstance(devices_raw, list):
+                devices = devices_raw
+            elif isinstance(devices_raw, str):
+                try:
+                    devices = json.loads(devices_raw)
+                    if not isinstance(devices, list):
+                        devices = []
+                except:
                     devices = []
-            except:
-                devices = []
+        
+        print(f"[update_fcm_token] Existing devices: {len(devices)} tokens")
         
         if token not in devices:
             devices.append(token)
-            # Update DB
-            supabase.table("users").update({
+            print(f"[update_fcm_token] Adding new token, total: {len(devices)}")
+            
+            # Update DB - store as JSON string
+            update_resp = client.table("users").update({
                 "user_devices": json.dumps(devices)
             }).eq("user_id", user_id).execute()
             
-        return {"message": "Token updated"}
+            print(f"[update_fcm_token] Update response: {update_resp.data}")
+            return {"message": "Token added", "total_devices": len(devices)}
+        else:
+            print(f"[update_fcm_token] Token already exists")
+            return {"message": "Token already registered", "total_devices": len(devices)}
+            
     except Exception as e:
-        print(f"Error updating FCM token: {e}")
+        print(f"[update_fcm_token] Error: {e}")
+        import traceback
+        traceback.print_exc()
         return {"error": str(e)}
 
 

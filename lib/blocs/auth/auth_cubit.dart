@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:chefkit/domain/offline_provider.dart';
 import 'package:chefkit/common/token_storage.dart';
+import 'package:chefkit/common/firebase_messaging_service.dart';
 
 class AuthState {
   final UserModel? user;
@@ -205,13 +206,42 @@ class AuthCubit extends Cubit<AuthState> {
     }
 
     try {
+      // Get FCM token if available (for push notifications)
+      String? deviceToken;
+      if (isFirebaseSupported) {
+        deviceToken = FirebaseMessagingService().fcmToken;
+        print('[AuthCubit] Firebase supported: true');
+        print('[AuthCubit] FCM token available: ${deviceToken != null}');
+        if (deviceToken != null) {
+          print(
+            '[AuthCubit] FCM token (first 30 chars): ${deviceToken.substring(0, deviceToken.length > 30 ? 30 : deviceToken.length)}...',
+          );
+        }
+      } else {
+        print('[AuthCubit] Firebase NOT supported on this platform');
+      }
+
+      print(
+        '[AuthCubit] Sending login request with device_token: ${deviceToken != null}',
+      );
+
+      final requestBody = {
+        'email': email,
+        'password': password,
+        if (deviceToken != null) 'device_token': deviceToken,
+      };
+      print('[AuthCubit] Request body keys: ${requestBody.keys.toList()}');
+
       final resp = await http
           .post(
             Uri.parse('$baseUrl/auth/login'),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'email': email, 'password': password}),
+            body: jsonEncode(requestBody),
           )
           .timeout(const Duration(seconds: 10));
+
+      print('[AuthCubit] Response status: ${resp.statusCode}');
+
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body) as Map<String, dynamic>;
         final accessToken = data['access_token'] as String?;
@@ -231,6 +261,8 @@ class AuthCubit extends Cubit<AuthState> {
         if (accessToken != null) {
           await _tokenStorage.saveAccessToken(accessToken);
         }
+
+        // Note: FCM token is now sent with the login request (device_token param)
 
         emit(
           state.copyWith(
@@ -355,6 +387,11 @@ class AuthCubit extends Cubit<AuthState> {
             needsOtp: false,
           ),
         );
+
+        // Register FCM token with backend after session restore (only on supported platforms)
+        if (isFirebaseSupported) {
+          await FirebaseMessagingService().registerTokenWithBackend();
+        }
       } else {
         await _tokenStorage.clearAll();
         emit(state.copyWith(loading: false));
@@ -386,6 +423,11 @@ class AuthCubit extends Cubit<AuthState> {
       );
     } catch (e) {
       // Ignore backend errors - user is logged out locally
+    }
+
+    // Unregister FCM token on logout (only on supported platforms)
+    if (isFirebaseSupported) {
+      await FirebaseMessagingService().unregisterToken();
     }
 
     // Emit logged out state

@@ -1,9 +1,14 @@
+import 'dart:io' show Platform;
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/common/config.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:chefkit/common/firebase_messaging_service.dart';
 
 // Repositories
 import 'package:chefkit/domain/repositories/chef_repository.dart';
@@ -29,8 +34,39 @@ import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+/// Check if Firebase is supported on current platform
+bool get isFirebaseSupported {
+  if (kIsWeb) return true; // Web is supported
+  if (Platform.isAndroid || Platform.isIOS) return true;
+  // Windows, Linux, macOS desktop are NOT supported
+  return false;
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase only on supported platforms (Android, iOS, Web)
+  if (isFirebaseSupported) {
+    try {
+      await Firebase.initializeApp();
+
+      // Set up background message handler
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+      // Initialize Firebase Messaging Service
+      await FirebaseMessagingService().initialize();
+
+      print('[Main] Firebase initialized successfully');
+    } catch (e) {
+      print('[Main] Firebase initialization failed: $e');
+      // Continue without Firebase - notifications won't work but app will run
+    }
+  } else {
+    print(
+      '[Main] Firebase not supported on this platform (${Platform.operatingSystem})',
+    );
+  }
+
   final repo = IngredientsRepo.getInstance();
   await repo.seedIngredients();
 

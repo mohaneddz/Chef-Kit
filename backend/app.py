@@ -168,11 +168,24 @@ def login():
         payload = request.get_json() or {}
         email = payload.get("email")
         password = payload.get("password")
+        device_token = payload.get("device_token")  # Optional FCM token
+        
+        print(f"========== LOGIN REQUEST ==========")
+        print(f"[login] Email: {email}")
+        print(f"[login] Device token received: {device_token[:30] if device_token else 'NONE'}...")
+        print(f"[login] Full payload keys: {list(payload.keys())}")
+        
         if not email or not password:
             return jsonify({"error": "email and password are required"}), 400
-        result = auth_login(email, password)
+        result = auth_login(email, password, device_token)
+        
+        print(f"[login] Login successful for {email}")
+        print(f"========== END LOGIN ==========")
         return jsonify(result), 200
     except Exception as e:
+        print(f"[login] ERROR: {e}")
+        import traceback
+        traceback.print_exc()
         status = 401
         msg = str(e)
         if isinstance(e, PermissionError) or ("unverified_email" in msg):
