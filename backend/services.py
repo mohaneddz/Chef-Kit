@@ -628,6 +628,12 @@ def _send_push_notification(data: Dict[str, Any]) -> None:
                     success_count = 0
                     failure_count = 0
                     
+                    # Build FCM data payload - MUST include notification_type for navigation
+                    fcm_data = {k: str(v) for k, v in data.get("notification_data", {}).items()}
+                    # Add notification_type for Flutter navigation routing
+                    if data.get("notification_type"):
+                        fcm_data["notification_type"] = str(data.get("notification_type"))
+                    
                     # Send to each token individually (avoids deprecated /batch endpoint)
                     for token in tokens:
                         try:
@@ -636,7 +642,7 @@ def _send_push_notification(data: Dict[str, Any]) -> None:
                                     title=title,
                                     body=body,
                                 ),
-                                data={k: str(v) for k, v in data.get("notification_data", {}).items()},
+                                data=fcm_data,
                                 token=token,
                                 # HIGH PRIORITY - Required for delivery when app is killed!
                                 android=messaging.AndroidConfig(
