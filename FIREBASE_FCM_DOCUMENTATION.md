@@ -465,13 +465,14 @@ class NavigationService {
 
 ### Supported Notification Types
 
-| Type | Navigation Target | Data Required |
-|------|------------------|---------------|
-| `new_recipe` | Recipe Details Page | `recipe_id` |
-| `like` | Recipe Details Page | `recipe_id` |
-| `follow` | Chef Profile Page | `follower_id` or `user_id` |
-| `daily_recipe` | Recipe Details Page | `recipe_id` |
-| (default) | Notifications Page | - |
+| Type | Trigger | Navigation Target | Data Sent |
+|------|---------|-------------------|-----------|
+| `new_recipe` | Chef posts a new recipe | Recipe Details Page | `recipe_id`, `chef_id` |
+| `like` | Someone likes your recipe | Recipe Details Page | `recipe_id`, `user_id` |
+| `follow` | Someone follows you | Chef Profile Page | `follower_id` |
+| `hot_recipes` | Daily 9 AM / Manual trigger | All Hot Recipes Page | (none) |
+| (default) | Unknown type | Notifications Page | - |
+
 
 ### How It Works
 

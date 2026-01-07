@@ -18,6 +18,7 @@ import 'personal_info_page.dart';
 import 'security_page.dart';
 import '../recipe/my_recipes_page.dart';
 import '../../../blocs/profile/popups/language_popup.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -398,6 +399,67 @@ class _ProfilePageContent extends StatelessWidget {
                           );
                         },
                       ),
+
+                      // Debug: Crashlytics Test (only in debug mode)
+                      if (kDebugMode) ...[
+                        const SizedBox(height: 32),
+                        _buildSectionTitle('Developer', theme),
+                        const SizedBox(height: 16),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.bug_report_outlined,
+                          title: 'Test Crashlytics (Non-Fatal)',
+                          onTap: () {
+                            FirebaseCrashlytics.instance.recordError(
+                              Exception('Test non-fatal error from Chef-Kit'),
+                              StackTrace.current,
+                              reason: 'Testing Crashlytics integration',
+                              fatal: false,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Non-fatal error sent to Crashlytics!',
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.warning_amber_rounded,
+                          title: 'Force Crash (CAUTION!)',
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Force Crash?'),
+                                content: const Text(
+                                  'This will crash the app to test Crashlytics. '
+                                  'The app will close immediately. Continue?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      FirebaseCrashlytics.instance.crash();
+                                    },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red,
+                                    ),
+                                    child: const Text('Crash Now'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
 
                       const SizedBox(height: 40),
 

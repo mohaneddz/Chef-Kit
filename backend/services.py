@@ -11,11 +11,10 @@ from firebase_admin import credentials, messaging
 from supabase_client import supabase, supabase_admin
 from supabase_client import set_postgrest_token
 
-# Initialize Firebase Admin
+# Firebase Admin initialization (tries: env JSON -> env path -> local file)
 try:
     firebase_initialized = False
     
-    # Option 1: JSON string from environment variable (for cloud deployments like Render)
     firebase_json = os.getenv('FIREBASE_CREDENTIALS_JSON')
     if firebase_json:
         import json as _json
@@ -23,33 +22,25 @@ try:
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
         firebase_initialized = True
-        print("Firebase Admin initialized from FIREBASE_CREDENTIALS_JSON")
     
-    # Option 2: File path from environment variable
     if not firebase_initialized:
         cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
         if cred_path and os.path.exists(cred_path):
             cred = credentials.Certificate(cred_path)
             firebase_admin.initialize_app(cred)
             firebase_initialized = True
-            print("Firebase Admin initialized from GOOGLE_APPLICATION_CREDENTIALS")
     
-    # Option 3: Auto-detect serviceAccountKey.json in same directory (local dev fallback)
     if not firebase_initialized:
         local_key = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
         if os.path.exists(local_key):
             cred = credentials.Certificate(local_key)
             firebase_admin.initialize_app(cred)
             firebase_initialized = True
-            print(f"Firebase Admin initialized from local file: {local_key}")
     
     if not firebase_initialized:
-        print("Warning: No Firebase credentials found. Push notifications will not work.")
-        print("  Set FIREBASE_CREDENTIALS_JSON env var with JSON content, or")
-        print("  Set GOOGLE_APPLICATION_CREDENTIALS env var with file path, or")
-        print("  Place serviceAccountKey.json in the backend directory")
+        print("Warning: No Firebase credentials found. Push notifications disabled.")
 except Exception as e:
-    print(f"Error initializing Firebase Admin: {e}")
+    print(f"Firebase init error: {e}")
 
 
 def _extract_response_data(resp):
@@ -66,32 +57,25 @@ def _extract_response_data(resp):
 # -----------------------------
 def auth_signup(email: str, password: str, full_name: Optional[str] = None) -> Dict[str, Any]:
     """Sign up a user via Supabase Auth and create user profile."""
-    # NOTE: Do NOT call sign_out() here - it invalidates sessions server-side!
     
-    # Check if email already exists in public.users (or attempt login to detect existing auth user)
     try:
-        # Try to find existing user in public.users table
         existing = supabase.table("users").select("user_email").eq("user_email", email).execute()
         if existing.data and len(existing.data) > 0:
             raise ValueError("email_exists: User with this email already exists")
     except ValueError:
         raise
     except Exception:
-        # If table check fails, proceed with signup attempt
         pass
     
     try:
         resp = supabase.auth.sign_up({"email": email, "password": password})
-        # Check if Supabase returned existing user (some configs do this)
         if resp and hasattr(resp, 'user') and resp.user:
             user_data = resp.user
             user_id = getattr(user_data, 'id', None)
             
-            # If user exists and is already confirmed, reject
             if hasattr(user_data, 'email_confirmed_at') and user_data.email_confirmed_at:
                 raise ValueError("email_exists: User already registered and verified")
             
-            # Create user profile immediately with provided name
             if user_id:
                 default_avatar = "https://via.placeholder.com/250/FF6B6B/FFFFFF?text=Chef"
                 try:
@@ -105,9 +89,8 @@ def auth_signup(email: str, password: str, full_name: Optional[str] = None) -> D
                         "user_recipes_count": 0,
                         "user_is_chef": False,
                     }).execute()
-                    print(f"Created user profile for {email} with name: {full_name}")
-                except Exception as e:
-                    print(f"Failed to create user profile during signup: {e}")
+                except Exception:
+                    pass
     except ValueError:
         raise
     except Exception as e:
@@ -127,22 +110,17 @@ def auth_login(email: str, password: str, device_token: Optional[str] = None) ->
         password: User's password
         device_token: Optional FCM device token for push notifications
     """
-    print(f"[auth_login] Starting login for {email}")
-    print(f"[auth_login] Device token provided: {bool(device_token)}")
+
     
-    # NOTE: Do NOT call sign_out() here - it invalidates sessions server-side!
     
-    user_id = None  # Initialize user_id at function scope
+    user_id = None 
     access_token = None
     refresh_token = None
     
     try:
         session = supabase.auth.sign_in_with_password({"email": email, "password": password})
-        print(f"[auth_login] Sign in successful, processing session...")
     except Exception as e:
-        # Only map unverified email specifically; otherwise bubble up
         msg = str(e)
-        print(f"[auth_login] Sign in failed: {msg}")
         if "Email not confirmed" in msg or "unverified_email" in msg:
             # For unverified users attempting login, trigger a new signup to resend confirmation
             # This works because Supabase allows re-signup for unconfirmed emails
@@ -155,17 +133,15 @@ def auth_login(email: str, password: str, device_token: Optional[str] = None) ->
                 except Exception:
                     pass
             raise PermissionError(f"unverified_email: {e}")
-        # Other auth errors
         raise RuntimeError(f"login_failed: {e}")
     
-    # Build a minimal, serializable user payload
     user_payload: Dict[str, Any] = {}
     try:
         user_obj = getattr(session, "user", None)
         user_id = getattr(user_obj, "id", None)
         user_email = getattr(user_obj, "email", email)
         user_payload = {"id": user_id, "email": user_email}
-        print(f"[auth_login] User ID: {user_id}")
+
         
         # Extract tokens robustly across client versions
         access_token = (
@@ -180,7 +156,7 @@ def auth_login(email: str, password: str, device_token: Optional[str] = None) ->
             # Do not assume unverified if tokens missing; treat as login error
             raise RuntimeError("login_failed: missing tokens")
         
-        print(f"[auth_login] Tokens obtained successfully")
+
         
         # Attach access token to PostgREST so RLS recognizes auth.uid()
         set_postgrest_token(access_token)
@@ -217,28 +193,14 @@ def auth_login(email: str, password: str, device_token: Optional[str] = None) ->
                 "user_is_chef": False,
             }).execute()
     except Exception as e:
-        print(f"[auth_login] Error building user payload: {e}")
         user_payload = {"email": email}
     
-    # Store device token if provided
-    print(f"[auth_login] ===== DEVICE TOKEN CHECK =====")
-    print(f"[auth_login] device_token is truthy: {bool(device_token)}")
-    print(f"[auth_login] user_id is truthy: {bool(user_id)}")
-    print(f"[auth_login] user_id value: {user_id}")
-    
+    # Store device token for push notifications
     if device_token and user_id:
-        print(f"[auth_login] Attempting to store device token...")
         try:
-            result = update_fcm_token(user_id, device_token)
-            print(f"[auth_login] update_fcm_token result: {result}")
-        except Exception as e:
-            print(f"[auth_login] Failed to store device token: {e}")
-            import traceback
-            traceback.print_exc()
-    else:
-        print(f"[auth_login] SKIPPING device token storage - device_token={device_token}, user_id={user_id}")
-    
-    print(f"[auth_login] ===== END DEVICE TOKEN CHECK =====")
+            update_fcm_token(user_id, device_token)
+        except Exception:
+            pass
     
     return {
         "access_token": access_token,
@@ -324,16 +286,10 @@ def get_user(user_id: str) -> Optional[Dict[str, Any]]:
     try:
         resp = supabase.table("users").select("*").eq("user_id", user_id).single().execute()
         if resp.data:
-            print(f"=== get_user returning data ===")
-            print(f"User ID: {user_id}")
-            print(f"Response data: {resp.data}")
-            print(f"user_full_name: {resp.data.get('user_full_name')}")
-            print(f"user_avatar: {resp.data.get('user_avatar')}")
-            print(f"==============================")
+
             return resp.data
-    except Exception as e:
-        # User not found, try to create a minimal profile
-        print(f"User {user_id} not found in database: {e}")
+    except Exception:
+        pass
     
     # Create minimal user profile with default values
     try:
@@ -349,14 +305,11 @@ def get_user(user_id: str) -> Optional[Dict[str, Any]]:
             "user_recipes_count": 0,
             "user_is_chef": False,
         }
-        print(f"Attempting to create user profile: {minimal_profile}")
         resp = supabase.table("users").insert(minimal_profile).execute()
-        print(f"Insert response: {resp}")
         if resp.data and len(resp.data) > 0:
             return resp.data[0]
         return minimal_profile
     except Exception as e:
-        print(f"Failed to create user profile: {e}")
         raise RuntimeError(f"User not found and failed to create profile: {e}")
 
 
@@ -425,11 +378,8 @@ def get_recipe(recipe_id: str) -> Dict[str, Any]:
 
 
 def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
-    print(f"[create_recipe] Received data: {data}")
-    print(f"[create_recipe] recipe_tags value: {data.get('recipe_tags')}")
     resp = supabase.table("recipe").insert(data).execute()
     result = _extract_response_data(resp)
-    print(f"[create_recipe] Inserted recipe result: {result}")
     
     # Notify followers
     try:
@@ -461,9 +411,7 @@ def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
                             "notification_data": {"recipe_id": recipe_id, "chef_id": owner_id}
                         })
                     
-                    if notifications:
                         supabase.table("notifications").insert(notifications).execute()
-                        print(f"Created {len(notifications)} notifications for new recipe")
                         
                         # Send Push Notifications
                         for n in notifications:
@@ -475,33 +423,20 @@ def create_recipe(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def update_recipe(recipe_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
-    print(f"[services.update_recipe] Recipe ID: {recipe_id}")
-    print(f"[services.update_recipe] Data to update: {data}")
-    print(f"[services.update_recipe] recipe_tags value: {data.get('recipe_tags')}")
-    print(f"[services.update_recipe] recipe_image_url value: {data.get('recipe_image_url')}")
-    
     # Execute update
     resp = supabase.table("recipe").update(data).eq("recipe_id", recipe_id).execute()
     result = _extract_response_data(resp)
     
-    print(f"[services.update_recipe] Update response from Supabase: {result}")
-    
-    # If update returns empty (due to RLS or old client), fetch the updated record
+    # If empty response (due to RLS), fetch the updated record
     if not result or (isinstance(result, list) and len(result) == 0):
-        print(f"[services.update_recipe] Empty response, fetching updated record...")
         fetch_resp = supabase.table("recipe").select("*").eq("recipe_id", recipe_id).single().execute()
         result = _extract_response_data(fetch_resp)
-        print(f"[services.update_recipe] Fetched record: {result}")
     
     if isinstance(result, list) and result:
-        final_data = result[0]
-        print(f"[services.update_recipe] Final recipe_image_url: {final_data.get('recipe_image_url')}")
-        return final_data
+        return result[0]
     elif isinstance(result, dict):
-        print(f"[services.update_recipe] Final recipe_image_url: {result.get('recipe_image_url')}")
         return result
     
-    print(f"[services.update_recipe] ⚠️ WARNING: Could not retrieve updated recipe")
     return {}
 
 
@@ -550,22 +485,15 @@ def get_notifications_for_user(user_id: str) -> List[Dict[str, Any]]:
 
 def update_fcm_token(user_id: str, token: str) -> Dict[str, Any]:
     """Update user's FCM token list."""
-    print(f"[update_fcm_token] Updating FCM token for user {user_id}")
-    print(f"[update_fcm_token] Token: {token[:20]}..." if token and len(token) > 20 else f"[update_fcm_token] Token: {token}")
-    
-    # Use admin client to bypass RLS
     client = supabase_admin if supabase_admin else supabase
     
     try:
-        # Get current devices
         resp = client.table("users").select("user_devices").eq("user_id", user_id).single().execute()
         current_data = _extract_response_data(resp)
-        print(f"[update_fcm_token] Current user data: {current_data}")
         
         devices_raw = current_data.get("user_devices")
         devices = []
         
-        # Handle both JSON string and array formats
         if devices_raw:
             if isinstance(devices_raw, list):
                 devices = devices_raw
@@ -577,154 +505,109 @@ def update_fcm_token(user_id: str, token: str) -> Dict[str, Any]:
                 except:
                     devices = []
         
-        print(f"[update_fcm_token] Existing devices: {len(devices)} tokens")
-        
         if token not in devices:
             devices.append(token)
-            print(f"[update_fcm_token] Adding new token, total: {len(devices)}")
-            
-            # Update DB - store as JSON string
-            update_resp = client.table("users").update({
+            client.table("users").update({
                 "user_devices": json.dumps(devices)
             }).eq("user_id", user_id).execute()
-            
-            print(f"[update_fcm_token] Update response: {update_resp.data}")
             return {"message": "Token added", "total_devices": len(devices)}
         else:
-            print(f"[update_fcm_token] Token already exists")
             return {"message": "Token already registered", "total_devices": len(devices)}
             
     except Exception as e:
-        print(f"[update_fcm_token] Error: {e}")
-        import traceback
-        traceback.print_exc()
         return {"error": str(e)}
 
 
 def _send_push_notification(data: Dict[str, Any]) -> None:
-    print(f"[_send_push_notification] Preparing to send push for user {data.get('user_id')}")
+    """Send FCM push notification to user's devices."""
     try:
         user_id = data.get("user_id")
         title = data.get("notification_title")
         body = data.get("notification_message")
         
-        if user_id and title and body:
-            # Get user tokens
-            client = supabase_admin if supabase_admin else supabase
-            user_resp = client.table("users").select("user_devices").eq("user_id", user_id).single().execute()
-            user_data = _extract_response_data(user_resp)
-            devices_json = user_data.get("user_devices")
+        if not (user_id and title and body):
+            return
             
-            if devices_json:
-                tokens = []
-                try:
-                    tokens = json.loads(devices_json)
-                except:
-                    pass
-                    
-                if tokens and isinstance(tokens, list):
-                    print(f"[_send_push_notification] Found {len(tokens)} tokens. Sending individually...")
-                    
-                    success_count = 0
-                    failure_count = 0
-                    
-                    # Build FCM data payload - MUST include notification_type for navigation
-                    fcm_data = {k: str(v) for k, v in data.get("notification_data", {}).items()}
-                    # Add notification_type for Flutter navigation routing
-                    if data.get("notification_type"):
-                        fcm_data["notification_type"] = str(data.get("notification_type"))
-                    
-                    # Send to each token individually (avoids deprecated /batch endpoint)
-                    for token in tokens:
-                        try:
-                            message = messaging.Message(
-                                notification=messaging.Notification(
-                                    title=title,
-                                    body=body,
-                                ),
-                                data=fcm_data,
-                                token=token,
-                                # HIGH PRIORITY - Required for delivery when app is killed!
-                                android=messaging.AndroidConfig(
-                                    priority="high",
-                                    notification=messaging.AndroidNotification(
-                                        channel_id="chef_kit_notifications",
-                                        priority="high",
-                                    ),
-                                ),
-                                apns=messaging.APNSConfig(
-                                    headers={"apns-priority": "10"},
-                                    payload=messaging.APNSPayload(
-                                        aps=messaging.Aps(content_available=True),
-                                    ),
-                                ),
-                            )
-                            response = messaging.send(message)
-                            print(f"[_send_push_notification] Sent to token {token[:20]}...: {response}")
-                            success_count += 1
-                        except Exception as token_error:
-                            print(f"[_send_push_notification] Failed to send to token {token[:20]}...: {token_error}")
-                            failure_count += 1
-                    
-                    print(f"[_send_push_notification] Sent {success_count} messages; {failure_count} failed.")
-                else:
-                    print(f"[_send_push_notification] No valid tokens found in list.")
-            else:
-                print(f"[_send_push_notification] No devices registered for user.")
-    except Exception as e:
-        print(f"[_send_push_notification] Error sending push notification: {e}")
-        import traceback
-        traceback.print_exc()
+        client = supabase_admin if supabase_admin else supabase
+        user_resp = client.table("users").select("user_devices").eq("user_id", user_id).single().execute()
+        user_data = _extract_response_data(user_resp)
+        devices_json = user_data.get("user_devices")
+        
+        if not devices_json:
+            return
+            
+        tokens = []
+        try:
+            tokens = json.loads(devices_json)
+        except:
+            pass
+            
+        if not tokens or not isinstance(tokens, list):
+            return
+        
+        # Build FCM data payload
+        fcm_data = {k: str(v) for k, v in data.get("notification_data", {}).items()}
+        if data.get("notification_type"):
+            fcm_data["notification_type"] = str(data.get("notification_type"))
+        
+        for token in tokens:
+            try:
+                message = messaging.Message(
+                    notification=messaging.Notification(title=title, body=body),
+                    data=fcm_data,
+                    token=token,
+                    android=messaging.AndroidConfig(
+                        priority="high",
+                        notification=messaging.AndroidNotification(
+                            channel_id="chef_kit_notifications",
+                            priority="high",
+                        ),
+                    ),
+                    apns=messaging.APNSConfig(
+                        headers={"apns-priority": "10"},
+                        payload=messaging.APNSPayload(
+                            aps=messaging.Aps(content_available=True),
+                        ),
+                    ),
+                )
+                messaging.send(message)
+            except Exception:
+                pass
+    except Exception:
+        pass
 
 
 def create_notification(data: Dict[str, Any]) -> Dict[str, Any]:
-    print(f"[create_notification] Attempting to create notification: {data}")
-    print(f"[create_notification] supabase_admin available: {supabase_admin is not None}")
-    
-    # Insert into DB using admin client to bypass RLS (since users create notifications for others)
+    """Create notification and send push."""
     client = supabase_admin if supabase_admin else supabase
-    print(f"[create_notification] Using client: {'ADMIN' if client == supabase_admin else 'REGULAR'}")
     
     try:
         resp = client.table("notifications").insert(data).execute()
         result = _extract_response_data(resp)
-        print(f"[create_notification] Successfully inserted notification: {result}")
-        
-        # Send Push Notification
         _send_push_notification(data)
-
         return result
     except Exception as e:
-        print(f"[create_notification] FAILED to insert notification: {e}")
         raise e
 
 
 def mark_notification_read(notification_id: str) -> Dict[str, Any]:
-    # Use admin client to bypass RLS policies that might block updates
+    """Mark a notification as read."""
     client = supabase_admin if supabase_admin else supabase
-    print(f"[mark_notification_read] Marking {notification_id} as read")
     resp = client.table("notifications").update({"notification_is_read": True}).eq("notification_id", notification_id).execute()
     data = _extract_response_data(resp)
     
     if isinstance(data, list) and data:
-        print(f"[mark_notification_read] Success: {data[0]}")
         return data[0]
-    
-    print(f"[mark_notification_read] Warning: No rows updated. Check RLS or ID.")
     return data or {}
 
 
 def mark_all_notifications_read(user_id: str) -> List[Dict[str, Any]]:
     """Mark all unread notifications for a user as read."""
     client = supabase_admin if supabase_admin else supabase
-    print(f"[mark_all_notifications_read] Marking all read for user {user_id}")
-    
-    # Update all unread notifications for this user
     resp = client.table("notifications").update({"notification_is_read": True})\
         .eq("user_id", user_id)\
         .eq("notification_is_read", False)\
         .execute()
-        
     data = _extract_response_data(resp)
     return data or []
 
@@ -789,16 +672,12 @@ def toggle_follow(follower_id: str, chef_id: str) -> Dict[str, Any]:
 
     try:
         if is_following:
-            # Unfollow: Delete the follow relationship
             client.table("follows").delete().eq("follower_id", follower_id).eq("following_id", chef_id).execute()
-            print(f"User {follower_id} unfollowed chef {chef_id}")
         else:
-            # Follow: Insert a new follow relationship
             client.table("follows").insert({
                 "follower_id": follower_id,
                 "following_id": chef_id
             }).execute()
-            print(f"User {follower_id} followed chef {chef_id}")
             
             # Create notification for the chef
             try:
@@ -824,7 +703,6 @@ def toggle_follow(follower_id: str, chef_id: str) -> Dict[str, Any]:
             "followers_count": new_count
         }
     except Exception as e:
-        print(f"Error toggling follow: {e}")
         raise Exception(f"Failed to toggle follow status: {str(e)}")
 
 
@@ -857,33 +735,23 @@ def get_user_favorites(user_id: str) -> List[Dict[str, Any]]:
 def toggle_user_favorite(user_id: str, recipe_id: str) -> bool:
     """Toggle a recipe in user's favorites. Returns True if added, False if removed."""
     try:
-        # Use admin client if available to bypass RLS, otherwise use standard client
         client = supabase_admin if supabase_admin else supabase
-        
-        print(f"[toggle_user_favorite] Toggling {recipe_id} for user {user_id}")
         
         user_resp = client.table("users").select("user_favourite_recipees").eq("user_id", user_id).single().execute()
         user_data = _extract_response_data(user_resp)
         
-        # Handle potential None or non-list values
         fav_ids = user_data.get("user_favourite_recipees")
         if fav_ids is None:
             fav_ids = []
         elif not isinstance(fav_ids, list):
-            # If it's not a list, it might be a string representation or something else
-            print(f"[toggle_user_favorite] Warning: user_favourite_recipees is not a list: {type(fav_ids)}")
             fav_ids = []
             
-        print(f"[toggle_user_favorite] Current favorites: {fav_ids}")
-        
         is_fav = recipe_id in fav_ids
         
         if is_fav:
             fav_ids.remove(recipe_id)
-            print(f"[toggle_user_favorite] Removing {recipe_id}")
         else:
             fav_ids.append(recipe_id)
-            print(f"[toggle_user_favorite] Adding {recipe_id}")
             
             # Create notification for the recipe owner
             try:
@@ -906,13 +774,8 @@ def toggle_user_favorite(user_id: str, recipe_id: str) -> bool:
             
         update_resp = client.table("users").update({"user_favourite_recipees": fav_ids}).eq("user_id", user_id).execute()
         _extract_response_data(update_resp)
-        
-        print(f"[toggle_user_favorite] Update successful")
         return not is_fav
     except Exception as e:
-        print(f"[toggle_user_favorite] Error: {e}")
-        import traceback
-        traceback.print_exc()
         raise e
 
 
@@ -1087,42 +950,27 @@ def generate_recipes(lang: str, max_time: str, ingredients: List[str]) -> Dict[s
 # Scheduled Notifications
 # -----------------------------
 def send_scheduled_recipe_notification():
-    """Send daily trending/recommended recipe notification to all users with devices.
-    
-    This function is called by APScheduler to send periodic notifications.
-    """
-    print("[scheduled_notification] Starting daily recipe notification job...")
-    
+    """Send daily trending recipe notification to all users with devices."""
     try:
-        # Get a trending recipe to recommend
         trending = get_trending_recipes()
         if not trending:
-            print("[scheduled_notification] No trending recipes available")
             return {"success": False, "reason": "No trending recipes"}
         
         recipe = trending[0]
-        recipe_name = recipe.get("recipe_name", "a delicious recipe")
         recipe_id = recipe.get("recipe_id")
         
-        print(f"[scheduled_notification] Selected recipe: {recipe_name} ({recipe_id})")
-        
-        # Get all users with device tokens
         client = supabase_admin if supabase_admin else supabase
         users_resp = client.table("users").select("user_id, user_devices, user_full_name").not_.is_("user_devices", "null").execute()
         users = _extract_response_data(users_resp) or []
-        
-        print(f"[scheduled_notification] Found {len(users)} users with devices")
         
         notifications_sent = 0
         for user in users:
             user_id = user.get("user_id")
             devices = user.get("user_devices")
             
-            # Skip users without valid devices
             if not devices:
                 continue
                 
-            # Parse devices if it's a JSON string
             if isinstance(devices, str):
                 try:
                     devices = json.loads(devices)
@@ -1141,15 +989,11 @@ def send_scheduled_recipe_notification():
                     "notification_data": {}
                 })
                 notifications_sent += 1
-            except Exception as e:
-                print(f"[scheduled_notification] Failed to notify user {user_id}: {e}")
+            except Exception:
+                pass
         
-        print(f"[scheduled_notification] Sent {notifications_sent} daily recipe notifications")
         return {"success": True, "notifications_sent": notifications_sent}
         
     except Exception as e:
-        print(f"[scheduled_notification] Error sending scheduled notifications: {e}")
-        import traceback
-        traceback.print_exc()
         return {"success": False, "error": str(e)}
 

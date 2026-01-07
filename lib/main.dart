@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'dart:ui' show PlatformDispatcher;
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -8,6 +9,7 @@ import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/common/config.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:chefkit/common/firebase_messaging_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -40,31 +42,36 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chefkit/views/screens/onboarding/onboarding_screen.dart';
 import 'package:chefkit/common/navigation_service.dart';
 
-/// Check if Firebase is supported on current platform
 bool get isFirebaseSupported {
-  if (kIsWeb) return true; // Web is supported
+  if (kIsWeb) return true;
   if (Platform.isAndroid || Platform.isIOS) return true;
-  // Windows, Linux, macOS desktop are NOT supported
   return false;
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load local .env (gitignored) so runtime config like BASE_URL works in dev.
-  // For CI/production you can still prefer `--dart-define=BASE_URL=...`.
   try {
     await dotenv.load(fileName: '.env');
     print('[Main] .env loaded');
   } catch (e) {
-    // Don't crash if missing; AppConfig will throw a clear error if BASE_URL is required.
     print('[Main] .env not loaded: $e');
   }
 
-  // Initialize Firebase only on supported platforms (Android, iOS, Web)
   if (isFirebaseSupported) {
     try {
       await Firebase.initializeApp();
+
+      FlutterError.onError =
+          FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+      // Pass all uncaught async errors from the current Isolate to Crashlytics
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+
+      print('[Main] Firebase Crashlytics initialized successfully');
 
       // Set up background message handler
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -75,7 +82,6 @@ Future<void> main() async {
       print('[Main] Firebase initialized successfully');
     } catch (e) {
       print('[Main] Firebase initialization failed: $e');
-      // Continue without Firebase - notifications won't work but app will run
     }
   } else {
     print(
@@ -94,7 +100,6 @@ Future<void> main() async {
       ? Locale(savedLanguageCode)
       : null;
 
-  // Load saved theme
   final savedTheme = await ThemeCubit.loadSavedTheme();
 
   runApp(MainApp(initialLocale: initialLocale, initialTheme: savedTheme));
