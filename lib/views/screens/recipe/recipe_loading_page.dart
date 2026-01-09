@@ -191,63 +191,77 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               ),
 
               const SizedBox(height: 40),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.shopping_basket,
-                          color: AppColors.red600,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Your Selected Ingredients:",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 180),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.shopping_basket,
+                            color: AppColors.red600,
+                            size: 20,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: widget.selectedIngredients.map((ingredient) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.red600.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColors.red600.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Text(
-                            ingredient,
+                          const SizedBox(width: 8),
+                          Text(
+                            "Your Selected Ingredients:",
                             style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.red600,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: widget.selectedIngredients.map((
+                              ingredient,
+                            ) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.red600.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: AppColors.red600.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  ingredient,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.red600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
