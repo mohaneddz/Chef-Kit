@@ -34,7 +34,6 @@ import 'package:chefkit/blocs/notifications/notifications_event.dart';
 import 'package:chefkit/blocs/theme/theme_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 
-import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -220,6 +219,8 @@ class _AuthInitializerState extends State<AuthInitializer> {
       return const OnboardingScreen();
     }
 
+    // Login is optional - always go to HomePage after onboarding
+    // BlocBuilder still runs restoreSessionOnStart() in initState to auto-login returning users
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         if (state.loading) {
@@ -228,11 +229,8 @@ class _AuthInitializerState extends State<AuthInitializer> {
           );
         }
 
-        if (state.userId != null && state.accessToken != null) {
-          return const HomePage();
-        }
-
-        return const SingupPage();
+        // Always show HomePage - login is optional
+        return const HomePage();
       },
     );
   }

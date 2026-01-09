@@ -615,4 +615,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get proceed => 'متابعة';
+
+  @override
+  String get loginRequiredTitle => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get loginRequiredMessage => 'سجّل أو ادخل لاستخدام هذه الميزة';
+
+  @override
+  String get signUp => 'التسجيل';
+
+  @override
+  String get loginRequiredFavorites => 'سجّل لحفظ وصفاتك المفضلة';
+
+  @override
+  String get loginRequiredFollow => 'سجّل لمتابعة الطهاة';
+
+  @override
+  String get guestProfileMessage => 'سجّل لفتح جميع الميزات';
+
+  @override
+  String get continueAsGuest => 'تواصل كضيف';
+
+  @override
+  String get loginRequiredNotifications => 'سجّل لرؤية إشعاراتك';
 }

@@ -8,7 +8,9 @@ import '../../../blocs/discovery/discovery_state.dart';
 import '../../../blocs/discovery/discovery_events.dart';
 import '../../../blocs/notifications/notifications_bloc.dart';
 import '../../../blocs/notifications/notifications_state.dart';
+import '../../../blocs/auth/auth_cubit.dart';
 import '../../widgets/search_bar_widget.dart';
+import '../../widgets/login_required_modal.dart';
 import '../../widgets/section_header_widget.dart';
 import '../../widgets/profile/chef_card_widget.dart';
 import '../../widgets/recipe/recipe_card_widget.dart';
@@ -287,9 +289,24 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                           imageUrl: recipe.imageUrl,
                           isFavorite: recipe.isFavorite,
                           heroTag: 'recipe_${recipe.id}',
-                          onFavoritePressed: () => context
-                              .read<DiscoveryBloc>()
-                              .add(ToggleDiscoveryRecipeFavorite(recipe.id)),
+                          onFavoritePressed: () {
+                            final userId = context
+                                .read<AuthCubit>()
+                                .state
+                                .userId;
+                            if (userId == null) {
+                              showLoginRequiredModal(
+                                context,
+                                customMessage: AppLocalizations.of(
+                                  context,
+                                )!.loginRequiredFavorites,
+                              );
+                              return;
+                            }
+                            context.read<DiscoveryBloc>().add(
+                              ToggleDiscoveryRecipeFavorite(recipe.id),
+                            );
+                          },
                           onTap: () {
                             Navigator.push(
                               context,

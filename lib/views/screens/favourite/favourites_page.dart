@@ -5,7 +5,9 @@ import 'package:chefkit/views/widgets/favourites/recipes_grid.dart';
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
 import 'package:chefkit/blocs/favourites/favourites_state.dart';
+import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
+import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
@@ -54,6 +56,12 @@ class _FavouritesPageState extends State<FavouritesPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    // Check if user is logged in
+    final userId = context.watch<AuthCubit>().state.userId;
+    if (userId == null) {
+      return _buildGuestFavouritesView(context, theme);
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -277,6 +285,101 @@ class _FavouritesPageState extends State<FavouritesPage> {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestFavouritesView(BuildContext context, ThemeData theme) {
+    final loc = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: Text(
+          loc.favouritesTitle,
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.red600.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.favorite_rounded,
+                  size: 64,
+                  color: AppColors.red600,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                loc.loginRequiredTitle,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                  color: theme.textTheme.titleLarge?.color,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                loc.loginRequiredFavorites,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Poppins',
+                  color: theme.textTheme.bodyMedium?.color,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SingupPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.red600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    loc.signUp,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

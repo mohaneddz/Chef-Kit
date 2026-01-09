@@ -324,5 +324,13 @@
   "cookingDuration": "Cooking Duration",
   "availableIngredients": "Available Ingredients",
   "cancel": "Cancel",
-  "proceed": "Proceed"
+  "proceed": "Proceed",
+  "loginRequiredTitle": "Login Required",
+  "loginRequiredMessage": "Sign up or log in to use this feature",
+  "signUp": "Sign Up",
+  "loginRequiredFavorites": "Sign up to save your favorite recipes",
+  "loginRequiredFollow": "Sign up to follow chefs",
+  "guestProfileMessage": "Sign up to unlock all features",
+  "continueAsGuest": "Continue as Guest",
+  "loginRequiredNotifications": "Sign up to see your notifications"
 }

@@ -617,4 +617,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proceed => 'Proceed';
+
+  @override
+  String get loginRequiredTitle => 'Login Required';
+
+  @override
+  String get loginRequiredMessage => 'Sign up or log in to use this feature';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get loginRequiredFavorites => 'Sign up to save your favorite recipes';
+
+  @override
+  String get loginRequiredFollow => 'Sign up to follow chefs';
+
+  @override
+  String get guestProfileMessage => 'Sign up to unlock all features';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get loginRequiredNotifications => 'Sign up to see your notifications';
 }

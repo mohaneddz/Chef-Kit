@@ -5,6 +5,8 @@ import '../../common/constants.dart';
 import '../../blocs/notifications/notifications_bloc.dart';
 import '../../blocs/notifications/notifications_state.dart';
 import '../../blocs/notifications/notifications_event.dart';
+import '../../blocs/auth/auth_cubit.dart';
+import 'authentication/singup_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
@@ -17,7 +19,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<NotificationsBloc>().add(const LoadNotifications());
+    final authState = context.read<AuthCubit>().state;
+    if (authState.user != null) {
+      context.read<NotificationsBloc>().add(const LoadNotifications());
+    }
   }
 
   IconData _getIconForType(String type) {
@@ -102,50 +107,114 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
         ],
       ),
-      body: BlocBuilder<NotificationsBloc, NotificationsState>(
-        builder: (context, state) {
-          if (state is NotificationsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is NotificationsError) {
-            return Center(child: Text('Error: ${state.message}'));
-          } else if (state is NotificationsLoaded) {
-            final notifications = state.notifications;
-
-            if (notifications.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.notifications_none,
-                      size: 80,
-                      color: Colors.grey[300],
+      body: Builder(
+        builder: (context) {
+          final authState = context.watch<AuthCubit>().state;
+          if (authState.user == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_off_outlined,
+                    size: 80,
+                    color: Colors.grey[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.loginRequiredNotifications,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[600],
+                      fontFamily: 'Poppins',
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.noNotifications,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SingupPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.red600,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)!.signUp,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                         fontFamily: 'Poppins',
                       ),
                     ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              itemCount: notifications.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                return _buildNotificationCard(notifications[index]);
-              },
+                  ),
+                ],
+              ),
             );
           }
-          return const SizedBox.shrink();
+
+          return BlocBuilder<NotificationsBloc, NotificationsState>(
+            builder: (context, state) {
+              if (state is NotificationsLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is NotificationsError) {
+                return Center(child: Text('Error: ${state.message}'));
+              } else if (state is NotificationsLoaded) {
+                final notifications = state.notifications;
+
+                if (notifications.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.notifications_none,
+                          size: 80,
+                          color: Colors.grey[300],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          AppLocalizations.of(context)!.noNotifications,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[600],
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
+                  ),
+                  itemCount: notifications.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    return _buildNotificationCard(notifications[index]);
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          );
         },
       ),
     );

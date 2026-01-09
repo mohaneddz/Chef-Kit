@@ -4,10 +4,12 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../domain/models/recipe.dart';
 import '../../../domain/repositories/recipe_repository.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../blocs/auth/auth_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
 import '../../../common/constants.dart';
 import '../../../database/repositories/ingredients/ingredients_repository.dart';
+import '../../widgets/login_required_modal.dart';
 
 class RecipeDetailsPage extends StatelessWidget {
   final Recipe recipe;
@@ -170,8 +172,20 @@ class _RecipeDetailsContent extends StatelessWidget {
                 shadowColor: Colors.black.withOpacity(0.15),
                 shape: const CircleBorder(),
                 child: InkWell(
-                  onTap: () =>
-                      context.read<RecipeDetailsCubit>().toggleFavorite(),
+                  onTap: () {
+                    // Check if user is logged in
+                    final userId = context.read<AuthCubit>().state.userId;
+                    if (userId == null) {
+                      showLoginRequiredModal(
+                        context,
+                        customMessage: AppLocalizations.of(
+                          context,
+                        )!.loginRequiredFavorites,
+                      );
+                      return;
+                    }
+                    context.read<RecipeDetailsCubit>().toggleFavorite();
+                  },
                   customBorder: const CircleBorder(),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),

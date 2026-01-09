@@ -6,6 +6,7 @@ import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -78,209 +79,252 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: 400, // Limit width on large screens/tablets
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // --- Brand Section ---
-                    const SizedBox(height: 20),
-                    Image.asset(
-                      'assets/images/final_logo.png',
-                      height: 120, // Bigger logo
+          child: Stack(
+            children: [
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 400, // Limit width on large screens/tablets
                     ),
-                    const SizedBox(height: 30),
-                    Text(
-                      "Welcome Back",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).textTheme.titleLarge?.color,
-                        fontFamily: "Poppins",
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Sign in to continue your culinary journey",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                        fontFamily: "LeagueSpartan",
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-
-                    // --- Form Section ---
-                    TextFieldWidget(
-                      controller: emailController,
-                      hintText: "Email Address",
-                      trailingIcon: Icons.email_outlined,
-                      errorText: errors["email"],
-                      textColor:
-                          Theme.of(context).textTheme.bodyLarge?.color ??
-                          Colors.black87,
-                      hintColor:
-                          Theme.of(context).textTheme.bodySmall?.color ??
-                          Colors.grey[500]!,
-                      fillColor: Theme.of(context).brightness == Brightness.dark
-                          ? Color(0xFF2A2A2A)
-                          : const Color(0xFFF5F5F5),
-                      borderColor: Colors.transparent,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFieldWidget(
-                      controller: passwordController,
-                      hintText: "Password",
-                      trailingIcon: Icons.lock_outline_rounded,
-                      isPassword: true,
-                      errorText: errors["password"],
-                      textColor:
-                          Theme.of(context).textTheme.bodyLarge?.color ??
-                          Colors.black87,
-                      hintColor:
-                          Theme.of(context).textTheme.bodySmall?.color ??
-                          Colors.grey[500]!,
-                      fillColor: Theme.of(context).brightness == Brightness.dark
-                          ? Color(0xFF2A2A2A)
-                          : const Color(0xFFF5F5F5),
-                      borderColor: Colors.transparent,
-                    ),
-
-                    // Forgot Password
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 12, right: 8),
-                        child: GestureDetector(
-                          onTap: () {}, // TODO: Implement
-                          child: Text(
-                            "Forgot Password?",
-                            style: TextStyle(
-                              color: AppColors.red600,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // --- Actions Section ---
-                    Container(
-                      height: 56, // Taller button
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.red600.withOpacity(0.25),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: context.watch<AuthCubit>().state.loading
-                            ? null
-                            : () {
-                                context.read<AuthCubit>().login(
-                                  emailController.text.trim(),
-                                  passwordController.text.trim(),
-                                );
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.red600,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: context.watch<AuthCubit>().state.loading
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text(
-                                "Sign In",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "Poppins",
-                                ),
-                              ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Toggle Link
-                    Row(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // --- Brand Section ---
+                        const SizedBox(height: 20),
+                        Image.asset(
+                          'assets/images/final_logo.png',
+                          height: 120, // Bigger logo
+                        ),
+                        const SizedBox(height: 30),
                         Text(
-                          "Don't have an account? ",
+                          "Welcome Back",
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 15,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.color,
+                            fontFamily: "Poppins",
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Sign in to continue your culinary journey",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
                             fontFamily: "LeagueSpartan",
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () => Navigator.pushReplacement(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const SingupPage(),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) {
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    );
-                                  },
-                              transitionDuration: const Duration(
-                                milliseconds: 200,
+                        const SizedBox(height: 48),
+
+                        // --- Form Section ---
+                        TextFieldWidget(
+                          controller: emailController,
+                          hintText: "Email Address",
+                          trailingIcon: Icons.email_outlined,
+                          errorText: errors["email"],
+                          textColor:
+                              Theme.of(context).textTheme.bodyLarge?.color ??
+                              Colors.black87,
+                          hintColor:
+                              Theme.of(context).textTheme.bodySmall?.color ??
+                              Colors.grey[500]!,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF2A2A2A)
+                              : const Color(0xFFF5F5F5),
+                          borderColor: Colors.transparent,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFieldWidget(
+                          controller: passwordController,
+                          hintText: "Password",
+                          trailingIcon: Icons.lock_outline_rounded,
+                          isPassword: true,
+                          errorText: errors["password"],
+                          textColor:
+                              Theme.of(context).textTheme.bodyLarge?.color ??
+                              Colors.black87,
+                          hintColor:
+                              Theme.of(context).textTheme.bodySmall?.color ??
+                              Colors.grey[500]!,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF2A2A2A)
+                              : const Color(0xFFF5F5F5),
+                          borderColor: Colors.transparent,
+                        ),
+
+                        // Forgot Password
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 12, right: 8),
+                            child: GestureDetector(
+                              onTap: () {}, // TODO: Implement
+                              child: Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  color: AppColors.red600,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ),
-                          child: Text(
-                            "Sign Up",
-                            style: TextStyle(
-                              color: AppColors.red600,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              fontFamily: "Poppins",
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // --- Actions Section ---
+                        Container(
+                          height: 56, // Taller button
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.red600.withOpacity(0.25),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: context.watch<AuthCubit>().state.loading
+                                ? null
+                                : () {
+                                    context.read<AuthCubit>().login(
+                                      emailController.text.trim(),
+                                      passwordController.text.trim(),
+                                    );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.red600,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 0,
                             ),
+                            child: context.watch<AuthCubit>().state.loading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    "Sign In",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Poppins",
+                                    ),
+                                  ),
                           ),
                         ),
+
+                        const SizedBox(height: 32),
+
+                        // Toggle Link
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Don't have an account? ",
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 15,
+                                fontFamily: "LeagueSpartan",
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.pushReplacement(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                      ) => const SingupPage(),
+                                  transitionsBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                        child,
+                                      ) {
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        );
+                                      },
+                                  transitionDuration: const Duration(
+                                    milliseconds: 200,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                  color: AppColors.red600,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  fontFamily: "Poppins",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              // Guest Button
+              Positioned(
+                top: 10,
+                right: 20,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HomePage()),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.continueAsGuest,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward,
+                        size: 16,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

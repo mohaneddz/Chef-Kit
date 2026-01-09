@@ -619,4 +619,32 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get proceed => 'Continuer';
+
+  @override
+  String get loginRequiredTitle => 'Connexion requise';
+
+  @override
+  String get loginRequiredMessage =>
+      'Inscrivez-vous ou connectez-vous pour utiliser cette fonctionnalité';
+
+  @override
+  String get signUp => 'S\'inscrire';
+
+  @override
+  String get loginRequiredFavorites =>
+      'Inscrivez-vous pour enregistrer vos recettes préférées';
+
+  @override
+  String get loginRequiredFollow => 'Inscrivez-vous pour suivre les chefs';
+
+  @override
+  String get guestProfileMessage =>
+      'Inscrivez-vous pour débloquer toutes les fonctionnalités';
+
+  @override
+  String get continueAsGuest => 'Continuer en tant qu\'invité';
+
+  @override
+  String get loginRequiredNotifications =>
+      'Inscrivez-vous pour voir vos notifications';
 }

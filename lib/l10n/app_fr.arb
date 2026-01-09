@@ -179,5 +179,13 @@
   "cookingDuration": "Temps de cuisson",
   "availableIngredients": "Ingrédients disponibles",
   "cancel": "Annuler",
-  "proceed": "Continuer"
+  "proceed": "Continuer",
+  "loginRequiredTitle": "Connexion requise",
+  "loginRequiredMessage": "Inscrivez-vous ou connectez-vous pour utiliser cette fonctionnalité",
+  "signUp": "S'inscrire",
+  "loginRequiredFavorites": "Inscrivez-vous pour enregistrer vos recettes préférées",
+  "loginRequiredFollow": "Inscrivez-vous pour suivre les chefs",
+  "guestProfileMessage": "Inscrivez-vous pour débloquer toutes les fonctionnalités",
+  "continueAsGuest": "Continuer en tant qu'invité",
+  "loginRequiredNotifications": "Inscrivez-vous pour voir vos notifications"
 }

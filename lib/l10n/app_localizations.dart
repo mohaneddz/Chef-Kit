@@ -1185,6 +1185,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Proceed'**
   String get proceed;
+
+  /// No description provided for @loginRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Required'**
+  String get loginRequiredTitle;
+
+  /// No description provided for @loginRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up or log in to use this feature'**
+  String get loginRequiredMessage;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// No description provided for @loginRequiredFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to save your favorite recipes'**
+  String get loginRequiredFavorites;
+
+  /// No description provided for @loginRequiredFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to follow chefs'**
+  String get loginRequiredFollow;
+
+  /// No description provided for @guestProfileMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to unlock all features'**
+  String get guestProfileMessage;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @loginRequiredNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to see your notifications'**
+  String get loginRequiredNotifications;
 }
 
 class _AppLocalizationsDelegate

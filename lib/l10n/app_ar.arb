@@ -179,5 +179,13 @@
   "cookingDuration": "مدة الطهي",
   "availableIngredients": "المكونات المتاحة",
   "cancel": "إلغاء",
-  "proceed": "متابعة"
+  "proceed": "متابعة",
+  "loginRequiredTitle": "تسجيل الدخول مطلوب",
+  "loginRequiredMessage": "سجّل أو ادخل لاستخدام هذه الميزة",
+  "signUp": "التسجيل",
+  "loginRequiredFavorites": "سجّل لحفظ وصفاتك المفضلة",
+  "loginRequiredFollow": "سجّل لمتابعة الطهاة",
+  "guestProfileMessage": "سجّل لفتح جميع الميزات",
+  "continueAsGuest": "تواصل كضيف",
+  "loginRequiredNotifications": "سجّل لرؤية إشعاراتك"
 }

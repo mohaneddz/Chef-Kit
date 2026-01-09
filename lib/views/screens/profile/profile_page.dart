@@ -29,27 +29,9 @@ class ProfilePage extends StatelessWidget {
     final userId = authState.userId;
     final accessToken = authState.accessToken;
 
+    // Guest user - show guest-friendly profile with settings
     if (userId == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(AppLocalizations.of(context)!.notLoggedIn),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                  );
-                },
-                child: Text(AppLocalizations.of(context)!.goToLogin),
-              ),
-            ],
-          ),
-        ),
-      );
+      return const _GuestProfilePage();
     }
 
     // Resolve backend baseUrl depending on platform
@@ -64,6 +46,299 @@ class ProfilePage extends StatelessWidget {
         ),
       )..add(LoadProfile(userId: userId)),
       child: const _ProfilePageContent(),
+    );
+  }
+}
+
+/// Guest profile page showing settings and signup prompt
+class _GuestProfilePage extends StatelessWidget {
+  const _GuestProfilePage();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          loc.profileTitle,
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            fontFamily: "Poppins",
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            // Guest Avatar
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.red600.withOpacity(0.2),
+                        width: 2,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 55,
+                      backgroundColor: Colors.grey[200],
+                      child: Icon(
+                        Icons.person_outline,
+                        size: 50,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    loc.notLoggedIn,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Poppins",
+                      color: theme.textTheme.titleLarge?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    loc.guestProfileMessage,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: theme.textTheme.bodySmall?.color,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Sign Up Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.red600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    loc.signUp,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+            Divider(height: 1, color: theme.dividerColor),
+            const SizedBox(height: 20),
+
+            // Preferences Section (available to all users)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    loc.preferences,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Poppins",
+                      color: theme.textTheme.titleLarge?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  BlocBuilder<LocaleCubit, Locale>(
+                    builder: (context, locale) {
+                      String languageName = loc.english;
+                      switch (locale.languageCode) {
+                        case 'fr':
+                          languageName = loc.french;
+                          break;
+                        case 'ar':
+                          languageName = loc.arabic;
+                          break;
+                        default:
+                          languageName = loc.english;
+                      }
+                      return _buildGuestMenuItem(
+                        context,
+                        icon: Icons.language_rounded,
+                        title: loc.language,
+                        trailing: languageName,
+                        onTap: () => showDialog(
+                          context: context,
+                          builder: (context) => const LanguagePopup(),
+                        ),
+                      );
+                    },
+                  ),
+                  BlocBuilder<ThemeCubit, ThemeMode>(
+                    builder: (context, themeMode) {
+                      return _buildGuestDarkModeItem(
+                        context,
+                        isDarkMode: themeMode == ThemeMode.dark,
+                        onToggle: () {
+                          context.read<ThemeCubit>().toggleTheme();
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestMenuItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    String? trailing,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkCard : Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, size: 22, color: theme.iconTheme.color),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: "Poppins",
+                  color: theme.textTheme.bodyLarge?.color,
+                ),
+              ),
+            ),
+            if (trailing != null)
+              Row(
+                children: [
+                  Text(
+                    trailing,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: theme.textTheme.bodySmall?.color,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.chevron_right,
+                    color: theme.textTheme.bodySmall?.color,
+                    size: 20,
+                  ),
+                ],
+              )
+            else
+              Icon(
+                Icons.chevron_right,
+                color: theme.textTheme.bodySmall?.color,
+                size: 20,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestDarkModeItem(
+    BuildContext context, {
+    required bool isDarkMode,
+    required VoidCallback onToggle,
+  }) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: InkWell(
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isDarkMode ? AppColors.darkCard : Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isDarkMode ? Icons.dark_mode : Icons.dark_mode_outlined,
+                size: 22,
+                color: theme.iconTheme.color,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.darkMode,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: "Poppins",
+                  color: theme.textTheme.bodyLarge?.color,
+                ),
+              ),
+            ),
+            Switch(
+              value: isDarkMode,
+              onChanged: (val) => onToggle(),
+              activeColor: AppColors.red600,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

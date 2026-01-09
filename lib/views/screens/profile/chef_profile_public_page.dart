@@ -5,6 +5,8 @@ import '../../../blocs/chef_profile/chef_profile_bloc.dart';
 import '../../../blocs/chef_profile/chef_profile_state.dart';
 import '../../../blocs/chef_profile/chef_profile_events.dart';
 import '../../../blocs/auth/auth_cubit.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../widgets/login_required_modal.dart';
 import '../recipe/recipe_details_page.dart';
 
 class ChefProfilePublicPage extends StatefulWidget {
@@ -218,14 +220,25 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                                   return ElevatedButton(
                                     onPressed: isOwnProfile
                                         ? null
-                                        : () => context
-                                              .read<ChefProfileBloc>()
-                                              .add(
-                                                ToggleChefFollowEvent(
-                                                  chef.id,
-                                                  accessToken: accessToken,
-                                                ),
+                                        : () {
+                                            // Check if user is logged in
+                                            if (currentUserId == null) {
+                                              showLoginRequiredModal(
+                                                context,
+                                                customMessage:
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.loginRequiredFollow,
+                                              );
+                                              return;
+                                            }
+                                            context.read<ChefProfileBloc>().add(
+                                              ToggleChefFollowEvent(
+                                                chef.id,
+                                                accessToken: accessToken,
                                               ),
+                                            );
+                                          },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: isOwnProfile
                                           ? Colors.grey[300]
