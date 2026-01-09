@@ -182,10 +182,11 @@ class _InventoryPageState extends State<InventoryPage> {
           itemCount: availableToShow.length,
           itemBuilder: (context, index) {
             final item = availableToShow[index];
+            final lang = state.currentLang;
             return IngredientCard(
               imageUrl: item["imageUrl"]!,
-              ingredientName: item["name"]!,
-              ingredientType: item["type"]!,
+              ingredientName: item["name_$lang"] ?? item["name_en"] ?? '',
+              ingredientType: item["type_$lang"] ?? item["type_en"] ?? '',
               onRemove: () {
                 context.read<InventoryBloc>().add(RemoveIngredientEvent(item));
               },
@@ -304,10 +305,11 @@ class _InventoryPageState extends State<InventoryPage> {
           itemCount: filteredIngredients.length,
           itemBuilder: (context, index) {
             final item = filteredIngredients[index];
+            final lang = state.currentLang;
             return IngredientCard(
               imageUrl: item["imageUrl"]!,
-              ingredientName: item["name"]!,
-              ingredientType: item["type"]!,
+              ingredientName: item["name_$lang"] ?? item["name_en"] ?? '',
+              ingredientType: item["type_$lang"] ?? item["type_en"] ?? '',
               addIngredient: true,
               onAdd: () {
                 context.read<InventoryBloc>().add(AddIngredientEvent(item));
@@ -332,11 +334,16 @@ class _InventoryPageState extends State<InventoryPage> {
           final l10n = AppLocalizations.of(context)!;
           final displayTypes = _getIngredientTypes(context);
 
+          final lang = state.currentLang;
           List<Map<String, String>> searchFilteredIngredients = state.browse;
           if (state.searchTerm.isNotEmpty) {
             final query = state.searchTerm.toLowerCase();
             searchFilteredIngredients = searchFilteredIngredients
-                .where((i) => i["name"]!.toLowerCase().contains(query))
+                .where(
+                  (i) => (i["name_$lang"] ?? i["name_en"] ?? '')
+                      .toLowerCase()
+                      .contains(query),
+                )
                 .toList();
           }
 
@@ -346,7 +353,7 @@ class _InventoryPageState extends State<InventoryPage> {
           } else {
             final selected = displayTypes[selectedType];
             filteredIngredients = searchFilteredIngredients
-                .where((i) => i["type"] == selected)
+                .where((i) => (i["type_$lang"] ?? i["type_en"]) == selected)
                 .toList();
           }
 

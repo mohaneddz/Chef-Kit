@@ -4,11 +4,13 @@ import '../../common/constants.dart';
 
 class RecipeGenerationModal extends StatefulWidget {
   final List<String> availableIngredients;
+  final List<String>? backendIngredients; // English names for backend API
   final Function(int duration, List<String> selectedIngredients) onProceed;
 
   const RecipeGenerationModal({
     Key? key,
     required this.availableIngredients,
+    this.backendIngredients,
     required this.onProceed,
   }) : super(key: key);
 
