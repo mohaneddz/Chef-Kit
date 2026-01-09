@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../common/favorites_cache_service.dart';
 import '../../domain/repositories/chef_repository.dart';
 import '../../domain/repositories/recipe_repository.dart';
 import 'discovery_events.dart';
@@ -7,6 +8,7 @@ import 'discovery_state.dart';
 class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
   final ChefRepository chefRepository;
   final RecipeRepository recipeRepository;
+  final FavoritesCacheService _cacheService = FavoritesCacheService();
   DiscoveryBloc({required this.chefRepository, required this.recipeRepository})
     : super(DiscoveryState()) {
     on<LoadDiscovery>(_onLoad);
@@ -137,8 +139,6 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     ToggleDiscoveryRecipeFavorite event,
     Emitter<DiscoveryState> emit,
   ) async {
-    final previousState = state;
-
     // Optimistic update
     final updatedHotRecipes = state.hotRecipes.map((r) {
       if (r.id == event.recipeId) {
@@ -161,6 +161,10 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
       ),
     );
 
+    // Save to local cache immediately for persistence
+    await _cacheService.toggleFavorite(event.recipeId);
+
+    // Sync to server in background - don't revert on failure
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
       emit(
@@ -174,7 +178,11 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
         ),
       );
     } catch (e) {
-      emit(previousState.copyWith(error: e.toString()));
+      // Don't revert - keep optimistic state, just show sync error via snackbar
+      print('⚠️ Favorite sync failed: $e');
+      emit(
+        state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
+      );
     }
   }
 }

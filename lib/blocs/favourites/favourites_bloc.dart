@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../common/favorites_cache_service.dart';
 import '../../domain/repositories/recipe_repository.dart';
 import '../../domain/models/recipe.dart';
 import 'favourites_events.dart';
@@ -6,6 +7,7 @@ import 'favourites_state.dart';
 
 class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
   final RecipeRepository recipeRepository;
+  final FavoritesCacheService _cacheService = FavoritesCacheService();
 
   FavouritesBloc({required this.recipeRepository}) : super(FavouritesState()) {
     on<LoadFavourites>(_onLoad);
@@ -180,8 +182,6 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     ToggleFavoriteRecipe event,
     Emitter<FavouritesState> emit,
   ) async {
-    final previousState = state;
-
     // Optimistic update
     List<Recipe> updateListOptimistic(List<Recipe> list) {
       return list.map((r) {
@@ -217,6 +217,10 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
       ),
     );
 
+    // Save to local cache immediately for instant persistence
+    await _cacheService.toggleFavorite(event.recipeId);
+
+    // Sync to server in background - don't revert on failure
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
 
@@ -249,7 +253,11 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         ),
       );
     } catch (e) {
-      emit(previousState.copyWith(error: e.toString()));
+      // Don't revert - keep optimistic state, just show sync error via snackbar
+      print('⚠️ Favorite sync failed: $e');
+      emit(
+        state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
+      );
     }
   }
 

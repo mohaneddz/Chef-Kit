@@ -8,6 +8,9 @@ class FavouritesState {
   final String? error;
   final String searchQuery;
 
+  /// Non-blocking error for like sync failures - shows snackbar, doesn't revert UI
+  final String? syncError;
+
   FavouritesState({
     this.loading = false,
     this.categories = const [],
@@ -15,6 +18,7 @@ class FavouritesState {
     this.displayRecipes = const [],
     this.error,
     this.searchQuery = '',
+    this.syncError,
   });
 
   FavouritesState copyWith({
@@ -24,6 +28,7 @@ class FavouritesState {
     List<Recipe>? displayRecipes,
     String? error,
     String? searchQuery,
+    String? syncError,
   }) => FavouritesState(
     loading: loading ?? this.loading,
     categories: categories ?? this.categories,
@@ -31,5 +36,6 @@ class FavouritesState {
     displayRecipes: displayRecipes ?? this.displayRecipes,
     error: error,
     searchQuery: searchQuery ?? this.searchQuery,
+    syncError: syncError,
   );
 }

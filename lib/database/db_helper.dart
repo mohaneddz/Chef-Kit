@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 class DBHelper {
   static const _databaseName = "chefkit.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2; // Bumped for favorites table
 
   static Database? _db;
 
@@ -31,6 +31,23 @@ class DBHelper {
             image_path TEXT NOT NULL
           )
         ''');
+        await db.execute('''
+          CREATE TABLE favorites (
+            recipe_id TEXT PRIMARY KEY,
+            created_at INTEGER NOT NULL
+          )
+        ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          // Add favorites table for existing databases
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS favorites (
+              recipe_id TEXT PRIMARY KEY,
+              created_at INTEGER NOT NULL
+            )
+          ''');
+        }
       },
     );
   }

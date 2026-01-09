@@ -8,6 +8,9 @@ class HotRecipesState {
   final String selectedTag;
   final String? error;
 
+  /// Non-blocking error for like sync failures - shows snackbar, doesn't revert UI
+  final String? syncError;
+
   const HotRecipesState({
     this.loading = false,
     this.allRecipes = const [],
@@ -15,6 +18,7 @@ class HotRecipesState {
     this.availableTags = const {},
     this.selectedTag = 'All',
     this.error,
+    this.syncError,
   });
 
   /// Helper getters for stats
@@ -29,6 +33,7 @@ class HotRecipesState {
     Set<String>? availableTags,
     String? selectedTag,
     String? error,
+    String? syncError,
   }) {
     return HotRecipesState(
       loading: loading ?? this.loading,
@@ -37,6 +42,7 @@ class HotRecipesState {
       availableTags: availableTags ?? this.availableTags,
       selectedTag: selectedTag ?? this.selectedTag,
       error: error,
+      syncError: syncError,
     );
   }
 }

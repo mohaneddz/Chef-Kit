@@ -67,21 +67,102 @@ class _FavouritesPageState extends State<FavouritesPage> {
         title: const FavouritesHeader(),
         centerTitle: false,
       ),
-      body: BlocBuilder<FavouritesBloc, FavouritesState>(
-        builder: (context, state) {
-          if (state.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state.error != null) {
-            return Center(
-              child: Text(
-                'Error: ${state.error}',
-                style: TextStyle(color: theme.textTheme.bodyLarge?.color),
-              ),
-            );
-          }
+      body: BlocListener<FavouritesBloc, FavouritesState>(
+        listenWhen: (prev, curr) =>
+            curr.syncError != null && prev.syncError != curr.syncError,
+        listener: (context, state) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.syncError!),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+        child: BlocBuilder<FavouritesBloc, FavouritesState>(
+          builder: (context, state) {
+            if (state.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state.error != null) {
+              return Center(
+                child: Text(
+                  'Error: ${state.error}',
+                  style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                ),
+              );
+            }
 
-          if (state.displayRecipes.isEmpty) {
+            // Check if user has no favorites at all (categories is empty)
+            if (state.categories.isEmpty) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<FavouritesBloc>().add(
+                    RefreshFavourites(
+                      allSavedText: AppLocalizations.of(context)!.allSaved,
+                      recipeText: AppLocalizations.of(context)!.recipeSingular,
+                      recipesText: AppLocalizations.of(context)!.recipePlural,
+                      locale: Localizations.localeOf(context).languageCode,
+                      otherText: "Other",
+                    ),
+                  );
+                  await Future.delayed(const Duration(milliseconds: 500));
+                },
+                color: const Color(0xFFFF6B6B),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height:
+                        MediaQuery.of(context).size.height -
+                        kToolbarHeight -
+                        kBottomNavigationBarHeight,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.favorite_border,
+                            size: 100,
+                            color: theme.textTheme.bodySmall?.color,
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            AppLocalizations.of(context)!.noFavouritesYet,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: theme.textTheme.titleLarge?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            AppLocalizations.of(context)!.noFavouritesMessage,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: theme.textTheme.bodySmall?.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            if (_pageController == null && state.categories.isNotEmpty) {
+              // using a large multiplier to simulate infinite scrolling
+              // This allows the user to scroll left/right "infinitely"
+              // The actual index is calculated using modulo operator
+              final initialPage =
+                  1000 * state.categories.length + state.selectedCategoryIndex;
+              _pageController = PageController(
+                viewportFraction: 0.55,
+                initialPage: initialPage,
+              );
+            }
+
             return RefreshIndicator(
               onRefresh: () async {
                 context.read<FavouritesBloc>().add(
@@ -93,140 +174,110 @@ class _FavouritesPageState extends State<FavouritesPage> {
                     otherText: "Other",
                   ),
                 );
+                // Wait a bit to let the user see the visual feedback (state update is fast)
                 await Future.delayed(const Duration(milliseconds: 500));
               },
               color: const Color(0xFFFF6B6B),
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                child: SizedBox(
-                  height:
-                      MediaQuery.of(context).size.height -
-                      kToolbarHeight -
-                      kBottomNavigationBarHeight,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.favorite_border,
-                          size: 100,
-                          color: theme.textTheme.bodySmall?.color,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20.0,
+                    horizontal: 25,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 15),
+                      SearchBarWidget(
+                        hintText: AppLocalizations.of(
+                          context,
+                        )!.searchYourRecipes,
+                        onChanged: (query) {
+                          context.read<FavouritesBloc>().add(
+                            SearchFavourites(query),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 25),
+                      Text(
+                        AppLocalizations.of(context)!.categoriesTitle,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.black,
                         ),
-                        const SizedBox(height: 20),
-                        Text(
-                          AppLocalizations.of(context)!.noFavouritesYet,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: theme.textTheme.titleLarge?.color,
+                      ),
+                      const SizedBox(height: 16),
+                      if (_pageController != null)
+                        CategoriesCarousel(
+                          categories: state.categories,
+                          selectedIndex: state.selectedCategoryIndex,
+                          pageController: _pageController!,
+                          onCategoryTap: (index) {
+                            context.read<FavouritesBloc>().add(
+                              SelectCategory(index),
+                            );
+                          },
+                        ),
+                      const SizedBox(height: 30),
+                      Divider(
+                        color: Colors.grey,
+                        thickness: 0.6,
+                        indent: 20,
+                        endIndent: 20,
+                      ),
+                      const SizedBox(height: 16),
+                      // Show "no matching recipes" if search returns empty
+                      if (state.displayRecipes.isEmpty &&
+                          state.searchQuery.isNotEmpty)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 40),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.search_off,
+                                  size: 64,
+                                  color: theme.textTheme.bodySmall?.color,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No matching recipes',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.textTheme.titleLarge?.color,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Try a different search term',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: theme.textTheme.bodySmall?.color,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                        )
+                      else
+                        RecipesGrid(
+                          recipes: state.displayRecipes,
+                          onFavoriteToggle: (recipe) {
+                            context.read<FavouritesBloc>().add(
+                              ToggleFavoriteRecipe(recipe.id),
+                            );
+                          },
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          AppLocalizations.of(context)!.noFavouritesMessage,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: theme.textTheme.bodySmall?.color,
-                          ),
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
             );
-          }
-
-          if (_pageController == null && state.categories.isNotEmpty) {
-            // using a large multiplier to simulate infinite scrolling
-            // This allows the user to scroll left/right "infinitely"
-            // The actual index is calculated using modulo operator
-            final initialPage =
-                1000 * state.categories.length + state.selectedCategoryIndex;
-            _pageController = PageController(
-              viewportFraction: 0.55,
-              initialPage: initialPage,
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<FavouritesBloc>().add(
-                RefreshFavourites(
-                  allSavedText: AppLocalizations.of(context)!.allSaved,
-                  recipeText: AppLocalizations.of(context)!.recipeSingular,
-                  recipesText: AppLocalizations.of(context)!.recipePlural,
-                  locale: Localizations.localeOf(context).languageCode,
-                  otherText: "Other",
-                ),
-              );
-              // Wait a bit to let the user see the visual feedback (state update is fast)
-              await Future.delayed(const Duration(milliseconds: 500));
-            },
-            color: const Color(0xFFFF6B6B),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 20.0,
-                  horizontal: 25,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 15),
-                    SearchBarWidget(
-                      hintText: AppLocalizations.of(context)!.searchYourRecipes,
-                      onChanged: (query) {
-                        context.read<FavouritesBloc>().add(
-                          SearchFavourites(query),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 25),
-                    Text(
-                      AppLocalizations.of(context)!.categoriesTitle,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (_pageController != null)
-                      CategoriesCarousel(
-                        categories: state.categories,
-                        selectedIndex: state.selectedCategoryIndex,
-                        pageController: _pageController!,
-                        onCategoryTap: (index) {
-                          context.read<FavouritesBloc>().add(
-                            SelectCategory(index),
-                          );
-                        },
-                      ),
-                    const SizedBox(height: 30),
-                    Divider(
-                      color: Colors.grey,
-                      thickness: 0.6,
-                      indent: 20,
-                      endIndent: 20,
-                    ),
-                    const SizedBox(height: 16),
-                    RecipesGrid(
-                      recipes: state.displayRecipes,
-                      onFavoriteToggle: (recipe) {
-                        context.read<FavouritesBloc>().add(
-                          ToggleFavoriteRecipe(recipe.id),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }

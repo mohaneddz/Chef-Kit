@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../domain/models/recipe.dart';
+import '../../../domain/repositories/recipe_repository.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
@@ -18,6 +19,8 @@ class RecipeDetailsPage extends StatelessWidget {
     return BlocProvider(
       create: (_) =>
           RecipeDetailsCubit(
+            recipeId: recipe.id,
+            recipeRepository: RecipeRepository(),
             initialFavorite: recipe.isFavorite,
             initialServings: recipe.servingsCount,
           )..loadIngredientTranslations(
@@ -26,7 +29,20 @@ class RecipeDetailsPage extends StatelessWidget {
                 : recipe.ingredients,
             Localizations.localeOf(context).languageCode,
           ),
-      child: _RecipeDetailsContent(recipe: recipe),
+      child: BlocListener<RecipeDetailsCubit, RecipeDetailsState>(
+        listenWhen: (prev, curr) =>
+            curr.syncError != null && prev.syncError != curr.syncError,
+        listener: (context, state) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.syncError!),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+        child: _RecipeDetailsContent(recipe: recipe),
+      ),
     );
   }
 }
