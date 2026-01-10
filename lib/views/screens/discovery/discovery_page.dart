@@ -19,6 +19,7 @@ import 'all_chefs_page.dart';
 import '../profile/chef_profile_public_page.dart';
 import 'all_hot_recipes_page.dart';
 import '../recipe/recipe_details_page.dart';
+import 'search_page.dart';
 import '../../../common/constants.dart';
 
 class RecipeDiscoveryScreen extends StatefulWidget {
@@ -233,6 +234,10 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                       hintText: AppLocalizations.of(
                         context,
                       )!.searchRecipesOrChefs,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SearchPage()),
+                      ),
                     ),
                     const SizedBox(height: 30),
                     SectionHeaderWidget(

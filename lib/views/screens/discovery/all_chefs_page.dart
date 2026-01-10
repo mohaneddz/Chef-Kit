@@ -42,184 +42,195 @@ class AllChefsPage extends StatelessWidget {
           if (state.loading) {
             return const Center(child: CircularProgressIndicator());
           }
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF6B6B).withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<ChefsBloc>().add(LoadChefs());
+              // Wait a bit for the event to process
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 25,
+                  vertical: 20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF6B6B).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildStatItem(
+                            Icons.local_fire_department,
+                            '${state.superHotChefs.length}',
+                            AppLocalizations.of(context)!.superHot,
+                          ),
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          _buildStatItem(
+                            Icons.restaurant_menu,
+                            '${state.allChefs.where((c) => !c.isOnFire).length}',
+                            AppLocalizations.of(context)!.allChefs,
+                          ),
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          _buildStatItem(
+                            Icons.people,
+                            '${state.allChefs.length}',
+                            AppLocalizations.of(context)!.total,
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    const SizedBox(height: 32),
+                    Row(
                       children: [
-                        _buildStatItem(
-                          Icons.local_fire_department,
-                          '${state.superHotChefs.length}',
-                          AppLocalizations.of(context)!.superHot,
-                        ),
                         Container(
-                          width: 1,
-                          height: 40,
-                          color: Colors.white.withOpacity(0.3),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF6B6B), Color(0xFFFFAA6B)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.local_fire_department,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
-                        _buildStatItem(
-                          Icons.restaurant_menu,
-                          '${state.allChefs.where((c) => !c.isOnFire).length}',
-                          AppLocalizations.of(context)!.allChefs,
-                        ),
-                        Container(
-                          width: 1,
-                          height: 40,
-                          color: Colors.white.withOpacity(0.3),
-                        ),
-                        _buildStatItem(
-                          Icons.people,
-                          '${state.allChefs.length}',
-                          AppLocalizations.of(context)!.total,
+                        const SizedBox(width: 12),
+                        Text(
+                          AppLocalizations.of(context)!.superHotChefs,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            color: theme.textTheme.titleLarge?.color,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFF6B6B), Color(0xFFFFAA6B)],
+                    const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.trendingChefsSubtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: theme.textTheme.bodySmall?.color,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 24,
+                            childAspectRatio: 0.75,
                           ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.local_fire_department,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        AppLocalizations.of(context)!.superHotChefs,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                          color: theme.textTheme.titleLarge?.color,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    AppLocalizations.of(context)!.trendingChefsSubtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: theme.textTheme.bodySmall?.color,
-                      fontFamily: 'Poppins',
+                      itemCount: state.superHotChefs.length,
+                      itemBuilder: (context, index) {
+                        final chef = state.superHotChefs[index];
+                        return _buildChefCard(context, chef);
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 24,
-                          childAspectRatio: 0.75,
-                        ),
-                    itemCount: state.superHotChefs.length,
-                    itemBuilder: (context, index) {
-                      final chef = state.superHotChefs[index];
-                      return _buildChefCard(context, chef);
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.orange.withOpacity(0.8),
-                              AppColors.orange,
-                            ],
+                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.orange.withOpacity(0.8),
+                                AppColors.orange,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          child: const Icon(
+                            Icons.restaurant_menu,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.restaurant_menu,
-                          color: Colors.white,
-                          size: 20,
+                        const SizedBox(width: 12),
+                        Text(
+                          AppLocalizations.of(context)!.allChefs,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            color: theme.textTheme.titleLarge?.color,
+                          ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.paginationInfo(
+                        state.currentPage,
+                        state.totalPages,
+                        state.displayedChefs.length,
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        AppLocalizations.of(context)!.allChefs,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                          color: theme.textTheme.titleLarge?.color,
-                        ),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: theme.textTheme.bodySmall?.color,
+                        fontFamily: 'Poppins',
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    GridView.builder(
+                      key: ValueKey(state.currentPage),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 24,
+                            childAspectRatio: 0.75,
+                          ),
+                      itemCount: state.displayedChefs.length,
+                      itemBuilder: (context, index) {
+                        final chef = state.displayedChefs[index];
+                        return _buildChefCard(context, chef);
+                      },
+                    ),
+                    if (state.totalPages > 1) ...[
+                      const SizedBox(height: 20),
+                      _buildPaginationControls(context, state),
                     ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    AppLocalizations.of(context)!.paginationInfo(
-                      state.currentPage,
-                      state.totalPages,
-                      state.displayedChefs.length,
-                    ),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: theme.textTheme.bodySmall?.color,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.builder(
-                    key: ValueKey(state.currentPage),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 24,
-                          childAspectRatio: 0.75,
-                        ),
-                    itemCount: state.displayedChefs.length,
-                    itemBuilder: (context, index) {
-                      final chef = state.displayedChefs[index];
-                      return _buildChefCard(context, chef);
-                    },
-                  ),
-                  if (state.totalPages > 1) ...[
                     const SizedBox(height: 20),
-                    _buildPaginationControls(context, state),
                   ],
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
             ),
           );
