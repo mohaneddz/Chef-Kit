@@ -76,9 +76,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: SizedBox(
-          height: 72,
+          height: 68,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -145,9 +145,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
             Icon(
               isSelected ? selectedIcon : icon,
               color: isSelected ? color : Colors.grey[400],
-              size: 32,
+              size: 28,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: SizedBox(
@@ -159,10 +159,11 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                     maxLines: 1,
                     style: TextStyle(
                       color: isSelected ? color : Colors.grey[400],
-                      fontSize: isSelected ? 8 : 6,
+                      fontSize: isSelected ? 11 : 10,
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w600,
+                      fontFamily: "Poppins",
                     ),
                   ),
                 ),
