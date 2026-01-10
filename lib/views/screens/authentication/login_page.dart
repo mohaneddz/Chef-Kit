@@ -78,10 +78,16 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 24,
+                    bottom: 100, // Add bottom padding for guest button
+                  ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxWidth: 400, // Limit width on large screens/tablets
+                      minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom - 100,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -241,8 +247,10 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 32),
 
                         // Toggle Link
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 4,
                           children: [
                             Text(
                               AppLocalizations.of(context)!.dontHaveAccount,
@@ -280,7 +288,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               child: Text(
-                                "Sign Up",
+                                AppLocalizations.of(context)!.signUp,
                                 style: TextStyle(
                                   color: AppColors.red600,
                                   fontWeight: FontWeight.bold,
@@ -291,7 +299,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
@@ -302,33 +310,42 @@ class _LoginPageState extends State<LoginPage> {
                 bottom: 20,
                 left: 0,
                 right: 0,
-                child: Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomePage()),
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.continueAsGuest,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            fontFamily: 'Poppins',
-                          ),
+                child: SafeArea(
+                  top: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const HomePage()),
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                AppLocalizations.of(context)!.continueAsGuest,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward,
+                              size: 16,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward,
-                          size: 16,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

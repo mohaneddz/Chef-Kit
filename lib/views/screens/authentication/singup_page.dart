@@ -1,12 +1,12 @@
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
 import 'package:chefkit/views/screens/authentication/otp_verify_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/views/widgets/text_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:chefkit/l10n/app_localizations.dart';
 
 class SingupPage extends StatefulWidget {
   const SingupPage({super.key});
@@ -72,10 +72,20 @@ class _SingupPageState extends State<SingupPage> {
             children: [
               Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 24,
+                    bottom: 120, // Add bottom padding for guest button
+                  ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxWidth: 400, // Limit width for tablets/desktop
+                      minHeight:
+                          MediaQuery.of(context).size.height -
+                          MediaQuery.of(context).padding.top -
+                          MediaQuery.of(context).padding.bottom -
+                          140,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -262,11 +272,13 @@ class _SingupPageState extends State<SingupPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 22),
 
                         // Toggle Link
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 4,
                           children: [
                             Text(
                               AppLocalizations.of(context)!.alreadyHaveAccount,
@@ -315,7 +327,7 @@ class _SingupPageState extends State<SingupPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 80),
                       ],
                     ),
                   ),
@@ -323,36 +335,51 @@ class _SingupPageState extends State<SingupPage> {
               ),
               // Guest Button
               Positioned(
-                bottom: 20,
+                bottom: 0,
                 left: 0,
                 right: 0,
-                child: Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomePage()),
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.continueAsGuest,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            fontFamily: 'Poppins',
+                child: SafeArea(
+                  top: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const HomePage()),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward,
-                          size: 16,
-                          color: Theme.of(context).primaryColor,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.continueAsGuest,
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                fontFamily: 'Poppins',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.arrow_forward,
+                              size: 16,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
