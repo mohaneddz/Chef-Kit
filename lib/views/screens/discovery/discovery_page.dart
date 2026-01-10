@@ -91,48 +91,60 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 25.0, top: 10),
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationsPage()),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withOpacity(0.1)),
-                ),
-                child: Stack(
-                  children: [
-                    const Icon(
-                      Icons.notifications_outlined,
-                      size: 24,
-                      color: Colors.black,
+            child: Builder(
+              builder: (context) {
+                final theme = Theme.of(context);
+                final isDark = theme.brightness == Brightness.dark;
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NotificationsPage(),
                     ),
-                    BlocBuilder<NotificationsBloc, NotificationsState>(
-                      builder: (context, state) {
-                        if (state is NotificationsLoaded &&
-                            state.unreadCount > 0) {
-                          return Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark ? Color(0xFF2A2A2A) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark
+                            ? Color(0xFF3A3A3A)
+                            : Colors.grey.withOpacity(0.1),
+                      ),
                     ),
-                  ],
-                ),
-              ),
+                    child: Stack(
+                      children: [
+                        Icon(
+                          Icons.notifications_outlined,
+                          size: 24,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        BlocBuilder<NotificationsBloc, NotificationsState>(
+                          builder: (context, state) {
+                            if (state is NotificationsLoaded &&
+                                state.unreadCount > 0) {
+                              return Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],

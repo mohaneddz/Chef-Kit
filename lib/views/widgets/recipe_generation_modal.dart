@@ -21,6 +21,8 @@ class RecipeGenerationModal extends StatefulWidget {
 class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
   double _duration = 30; // Default 30 minutes
   late List<String> _selectedIngredients;
+  bool _showAllIngredients = false;
+  static const int _maxVisibleIngredients = 7;
 
   @override
   void initState() {
@@ -30,10 +32,20 @@ class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
+
+    final ingredientsToShow = _showAllIngredients
+        ? widget.availableIngredients
+        : widget.availableIngredients.take(_maxVisibleIngredients).toList();
+    final hasMoreIngredients =
+        widget.availableIngredients.length > _maxVisibleIngredients;
+
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: isDark ? Color(0xFF1A1A1A) : Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -45,17 +57,17 @@ class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: isDark ? Colors.grey[600] : Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           const SizedBox(height: 20),
           Text(
-            AppLocalizations.of(context)!.generateRecipe,
+            l10n.generateRecipe,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.black,
+              color: theme.textTheme.titleLarge?.color,
             ),
           ),
           const SizedBox(height: 20),
@@ -63,16 +75,15 @@ class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.cookingDuration,
-                style: const TextStyle(
+                l10n.cookingDuration,
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
+                  color: theme.textTheme.bodyLarge?.color,
                 ),
               ),
               Text(
-                AppLocalizations.of(
-                  context,
-                )!.minutes(_duration.round().toString()),
+                l10n.minutes(_duration.round().toString()),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.red600,
@@ -96,48 +107,94 @@ class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
           ),
           const SizedBox(height: 20),
           Text(
-            AppLocalizations.of(context)!.availableIngredients,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            l10n.availableIngredients,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: theme.textTheme.bodyLarge?.color,
+            ),
           ),
           const SizedBox(height: 10),
           Flexible(
             child: SingleChildScrollView(
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: widget.availableIngredients.map((ingredient) {
-                  final isSelected = _selectedIngredients.contains(ingredient);
-                  return FilterChip(
-                    label: Text(ingredient),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedIngredients.add(ingredient);
-                        } else {
-                          _selectedIngredients.remove(ingredient);
-                        }
-                      });
-                    },
-                    selectedColor: AppColors.red600.withOpacity(0.1),
-                    checkmarkColor: AppColors.red600,
-                    backgroundColor: Colors.grey[100],
-                    labelStyle: TextStyle(
-                      color: isSelected ? AppColors.red600 : Colors.black87,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: isSelected
-                            ? AppColors.red600
-                            : Colors.transparent,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ingredientsToShow.map((ingredient) {
+                      final isSelected = _selectedIngredients.contains(
+                        ingredient,
+                      );
+                      return FilterChip(
+                        label: Text(ingredient),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _selectedIngredients.add(ingredient);
+                            } else {
+                              _selectedIngredients.remove(ingredient);
+                            }
+                          });
+                        },
+                        selectedColor: AppColors.red600.withOpacity(0.1),
+                        checkmarkColor: AppColors.red600,
+                        backgroundColor: isDark
+                            ? Color(0xFF2A2A2A)
+                            : Colors.grey[100],
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? AppColors.red600
+                              : (isDark ? Colors.white70 : Colors.black87),
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: isSelected
+                                ? AppColors.red600
+                                : Colors.transparent,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  if (hasMoreIngredients) ...[
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showAllIngredients = !_showAllIngredients;
+                        });
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _showAllIngredients ? l10n.showLess : l10n.showMore,
+                            style: TextStyle(
+                              color: AppColors.red600,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            _showAllIngredients
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            color: AppColors.red600,
+                            size: 20,
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }).toList(),
+                  ],
+                ],
               ),
             ),
           ),
@@ -149,15 +206,17 @@ class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
                   onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    side: BorderSide(color: Colors.grey[300]!),
+                    side: BorderSide(
+                      color: isDark ? Colors.grey[600]! : Colors.grey[300]!,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: const TextStyle(
-                      color: Colors.black87,
+                    l10n.cancel,
+                    style: TextStyle(
+                      color: theme.textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -177,7 +236,9 @@ class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.red600,
-                    disabledBackgroundColor: Colors.grey[300],
+                    disabledBackgroundColor: isDark
+                        ? Colors.grey[700]
+                        : Colors.grey[300],
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -185,7 +246,7 @@ class _RecipeGenerationModalState extends State<RecipeGenerationModal> {
                     elevation: 0,
                   ),
                   child: Text(
-                    AppLocalizations.of(context)!.proceed,
+                    l10n.proceed,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,

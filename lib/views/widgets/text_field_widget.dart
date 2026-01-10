@@ -13,6 +13,7 @@ class TextFieldWidget extends StatefulWidget {
     this.hintColor = Colors.white,
     this.fillColor,
     this.borderColor = Colors.white,
+    this.iconBackgroundColor,
   });
 
   final TextEditingController controller;
@@ -24,6 +25,7 @@ class TextFieldWidget extends StatefulWidget {
   final Color hintColor;
   final Color? fillColor;
   final Color borderColor;
+  final Color? iconBackgroundColor;
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -83,24 +85,10 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
           child: Container(
             width: 35,
             height: 35,
-            decoration: const BoxDecoration(
-              // Background of icon circle adapts to light/dark
-              // If text is dark (light bg), icon bg should be light grey?
-              // Let's keep it simple: White circle if text is white,
-              // Dark circle if text is dark might be weird.
-              // Let's use logic: if textColor is white -> white circle. if black -> grey circle.
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: widget.iconBackgroundColor ?? Colors.white,
               shape: BoxShape.circle,
             ),
-            // We need to fix this container color to be adaptable too?
-            // For now let's keep it white as the user main color is red, red on white looks good.
-            // But if background is white, white on white is invisible.
-            // Let's add iconBackgroundColor
-
-            // Wait, I can't add complex logic inside the build easily without clutter.
-            // Let's just create a decoration that works for both or simply use white.
-            // If the background of the Input is "filled", "white" icon bg is fine usually.
-            // Actually, if I have a white background page, and grey input fill, white icon circle looks okay.
             child: widget.isPassword
                 ? IconButton(
                     icon: Icon(

@@ -84,24 +84,28 @@ class _SingupPageState extends State<SingupPage> {
                         // --- Brand Section ---
                         const SizedBox(height: 20),
                         Image.asset(
-                          'assets/images/final_logo.png',
+                          Theme.of(context).brightness == Brightness.dark
+                              ? 'assets/images/icon/logo-dark.webp'
+                              : 'assets/images/icon/logo.webp',
                           height: 120, // Same size as login
                         ),
                         const SizedBox(height: 30),
-                        const Text(
-                          "Create Account",
+                        Text(
+                          AppLocalizations.of(context)!.createAccount,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.color,
                             fontFamily: "Poppins",
                             letterSpacing: -0.5,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Join us to start cooking",
+                          AppLocalizations.of(context)!.joinUsSubtitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -114,7 +118,7 @@ class _SingupPageState extends State<SingupPage> {
                         // --- Form Section ---
                         TextFieldWidget(
                           controller: fullnameController,
-                          hintText: "Full Name",
+                          hintText: AppLocalizations.of(context)!.fullName,
                           trailingIcon: Icons.person_outline,
                           errorText: errors["name"],
                           textColor:
@@ -128,11 +132,15 @@ class _SingupPageState extends State<SingupPage> {
                               ? Color(0xFF2A2A2A)
                               : const Color(0xFFF5F5F5),
                           borderColor: Colors.transparent,
+                          iconBackgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF3A3A3A)
+                              : Colors.white,
                         ),
                         const SizedBox(height: 16),
                         TextFieldWidget(
                           controller: emailController,
-                          hintText: "Email Address",
+                          hintText: AppLocalizations.of(context)!.emailAddress,
                           trailingIcon: Icons.email_outlined,
                           errorText: errors["email"],
                           textColor:
@@ -146,11 +154,15 @@ class _SingupPageState extends State<SingupPage> {
                               ? Color(0xFF2A2A2A)
                               : const Color(0xFFF5F5F5),
                           borderColor: Colors.transparent,
+                          iconBackgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF3A3A3A)
+                              : Colors.white,
                         ),
                         const SizedBox(height: 16),
                         TextFieldWidget(
                           controller: passwordController,
-                          hintText: "Password",
+                          hintText: AppLocalizations.of(context)!.password,
                           trailingIcon: Icons.lock_outline_rounded,
                           isPassword: true,
                           errorText: errors["password"],
@@ -165,11 +177,17 @@ class _SingupPageState extends State<SingupPage> {
                               ? Color(0xFF2A2A2A)
                               : const Color(0xFFF5F5F5),
                           borderColor: Colors.transparent,
+                          iconBackgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF3A3A3A)
+                              : Colors.white,
                         ),
                         const SizedBox(height: 16),
                         TextFieldWidget(
                           controller: confirmPasswordController,
-                          hintText: "Confirm Password",
+                          hintText: AppLocalizations.of(
+                            context,
+                          )!.confirmPassword,
                           trailingIcon: Icons.lock_outline_rounded,
                           isPassword: true,
                           errorText: errors["confirm"],
@@ -184,6 +202,10 @@ class _SingupPageState extends State<SingupPage> {
                               ? Color(0xFF2A2A2A)
                               : const Color(0xFFF5F5F5),
                           borderColor: Colors.transparent,
+                          iconBackgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF3A3A3A)
+                              : Colors.white,
                         ),
 
                         const SizedBox(height: 40),
@@ -229,8 +251,8 @@ class _SingupPageState extends State<SingupPage> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    "Create Account",
+                                : Text(
+                                    AppLocalizations.of(context)!.createAccount,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -247,7 +269,7 @@ class _SingupPageState extends State<SingupPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Already have an account? ",
+                              AppLocalizations.of(context)!.alreadyHaveAccount,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 15,
@@ -282,7 +304,7 @@ class _SingupPageState extends State<SingupPage> {
                                 ),
                               ),
                               child: Text(
-                                "Sign In",
+                                AppLocalizations.of(context)!.signIn,
                                 style: TextStyle(
                                   color: AppColors.red600,
                                   fontWeight: FontWeight.bold,

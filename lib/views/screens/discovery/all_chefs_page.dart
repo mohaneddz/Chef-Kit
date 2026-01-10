@@ -116,10 +116,11 @@ class AllChefsPage extends StatelessWidget {
                       const SizedBox(width: 12),
                       Text(
                         AppLocalizations.of(context)!.superHotChefs,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
+                          color: theme.textTheme.titleLarge?.color,
                         ),
                       ),
                     ],
@@ -129,7 +130,7 @@ class AllChefsPage extends StatelessWidget {
                     AppLocalizations.of(context)!.trendingChefsSubtitle,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: theme.textTheme.bodySmall?.color,
                       fontFamily: 'Poppins',
                     ),
                   ),
@@ -173,10 +174,11 @@ class AllChefsPage extends StatelessWidget {
                       const SizedBox(width: 12),
                       Text(
                         AppLocalizations.of(context)!.allChefs,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
+                          color: theme.textTheme.titleLarge?.color,
                         ),
                       ),
                     ],
@@ -190,7 +192,7 @@ class AllChefsPage extends StatelessWidget {
                     ),
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: theme.textTheme.bodySmall?.color,
                       fontFamily: 'Poppins',
                     ),
                   ),
@@ -272,15 +274,18 @@ class AllChefsPage extends StatelessWidget {
   }
 
   Widget _buildPaginationControls(BuildContext context, ChefsState state) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Center(
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Color(0xFF2A2A2A) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -347,6 +352,8 @@ class AllChefsPage extends StatelessWidget {
     int pageNumber,
     ChefsState state,
   ) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isActive = pageNumber == state.currentPage;
     return GestureDetector(
       onTap: () => context.read<ChefsBloc>().add(GoToChefsPage(pageNumber)),
@@ -360,7 +367,9 @@ class AllChefsPage extends StatelessWidget {
                   colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
                 )
               : null,
-          color: isActive ? null : Colors.grey[200],
+          color: isActive
+              ? null
+              : (isDark ? Color(0xFF3A3A3A) : Colors.grey[200]),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
@@ -369,7 +378,9 @@ class AllChefsPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-              color: isActive ? Colors.white : Colors.grey[700],
+              color: isActive
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : Colors.grey[700]),
               fontFamily: 'Poppins',
             ),
           ),
@@ -379,20 +390,26 @@ class AllChefsPage extends StatelessWidget {
   }
 
   Widget _buildDots() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: 36,
-      height: 36,
-      child: Center(
-        child: Text(
-          '...',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-            fontFamily: 'Poppins',
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: 36,
+          height: 36,
+          child: Center(
+            child: Text(
+              '...',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white70 : Colors.grey[600],
+                fontFamily: 'Poppins',
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

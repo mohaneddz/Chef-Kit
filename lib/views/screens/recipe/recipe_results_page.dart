@@ -35,6 +35,8 @@ class RecipeResultsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return BlocProvider(
       create: (context) {
         final bloc = RecipeResultsBloc(
@@ -48,11 +50,11 @@ class RecipeResultsPage extends StatelessWidget {
         return bloc;
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: theme.appBarTheme.backgroundColor,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
             onPressed: () => Navigator.pop(context),
           ),
           title: BlocBuilder<RecipeResultsBloc, RecipeResultsState>(
@@ -62,8 +64,8 @@ class RecipeResultsPage extends StatelessWidget {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.recipeResultsTitle,
-                    style: const TextStyle(
-                      color: Colors.black,
+                    style: TextStyle(
+                      color: theme.textTheme.titleLarge?.color,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -72,8 +74,8 @@ class RecipeResultsPage extends StatelessWidget {
                     AppLocalizations.of(
                       context,
                     )!.recipesFound(state.matchedRecipes.length),
-                    style: const TextStyle(
-                      color: Color(0xFF4A5565),
+                    style: TextStyle(
+                      color: theme.textTheme.bodySmall?.color,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       fontFamily: "LeagueSpartan",
@@ -150,7 +152,9 @@ class RecipeResultsPage extends StatelessWidget {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: isDark
+                                      ? Color(0xFF2A2A2A)
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
                                     color: AppColors.red600.withOpacity(0.3),
@@ -173,8 +177,8 @@ class RecipeResultsPage extends StatelessWidget {
                     const SizedBox(height: 30),
                     Text(
                       AppLocalizations.of(context)!.recipesYouCanMake,
-                      style: const TextStyle(
-                        color: Color(0xFF0A0A0A),
+                      style: TextStyle(
+                        color: theme.textTheme.titleLarge?.color,
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                       ),
@@ -182,8 +186,8 @@ class RecipeResultsPage extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       AppLocalizations.of(context)!.sortedByMatch,
-                      style: const TextStyle(
-                        color: Color(0xFF6A7282),
+                      style: TextStyle(
+                        color: theme.textTheme.bodySmall?.color,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
@@ -192,29 +196,21 @@ class RecipeResultsPage extends StatelessWidget {
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final availableWidth = constraints.maxWidth;
-                        int crossAxisCount;
-
-                        if (availableWidth < 400) {
-                          crossAxisCount = 1;
-                        } else if (availableWidth < 700) {
-                          crossAxisCount = 2;
-                        } else {
-                          crossAxisCount = 3;
-                        }
+                        // Always use 2 columns for compact 2x2 grid
+                        const crossAxisCount = 2;
+                        const spacing = 12.0;
 
                         return Wrap(
-                          spacing: 16,
-                          runSpacing: 20,
+                          spacing: spacing,
+                          runSpacing: spacing,
                           alignment: WrapAlignment.start,
                           children: state.matchedRecipes.map((recipe) {
-                            final double itemWidth = crossAxisCount == 1
-                                ? availableWidth
-                                : (availableWidth - (crossAxisCount - 1) * 16) /
-                                      crossAxisCount;
+                            final double itemWidth =
+                                (availableWidth - spacing) / crossAxisCount;
                             final title = _getLocalizedTitle(context, recipe);
                             return SizedBox(
                               width: itemWidth,
-                              height: itemWidth / 0.75,
+                              height: itemWidth * 1.1, // Compact aspect ratio
                               child: RecipeCardWidget(
                                 title: title,
                                 subtitle: title,

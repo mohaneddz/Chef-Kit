@@ -21,21 +21,16 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _rotationAnimation;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
 
-    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
-    _rotationAnimation = Tween<double>(begin: -0.05, end: 0.05).animate(
+    _scaleAnimation = Tween<double>(begin: 0.98, end: 1.02).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
@@ -187,47 +182,49 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
           offset: const Offset(0, -35),
           child: Transform.scale(
             scale: _scaleAnimation.value,
-            child: Transform.rotate(
-              angle: _rotationAnimation.value,
+            child: GestureDetector(
+              onTap: () => widget.onItemTapped(2),
+              behavior: HitTestBehavior.opaque,
               child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.red600,
-                      AppColors.red600,
-                      Color(0xFFFFAA6B),
+                width: 80,
+                height: 80,
+                alignment: Alignment.center,
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.red600,
+                        AppColors.red600,
+                        Color(0xFFFFAA6B),
+                      ],
+                      stops: [0, 0.4, 1],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF6B6B).withOpacity(0.6),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: const Offset(0, 5),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFFFFAA6B).withOpacity(0.4),
+                        blurRadius: 15,
+                        spreadRadius: -2,
+                        offset: const Offset(0, 8),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 5,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 5),
+                      ),
                     ],
-                    stops: [0, 0.4, 1],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF6B6B).withOpacity(0.6),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                      offset: const Offset(0, 5),
-                    ),
-                    BoxShadow(
-                      color: const Color(0xFFFFAA6B).withOpacity(0.4),
-                      blurRadius: 15,
-                      spreadRadius: -2,
-                      offset: const Offset(0, 8),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onTap: () => widget.onItemTapped(2),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [

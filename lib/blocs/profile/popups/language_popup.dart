@@ -70,7 +70,7 @@ class _LanguagePopupState extends State<LanguagePopup> {
                   child: Text(
                     'Select Language',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       fontFamily: "Poppins",
                       color: theme.textTheme.titleLarge?.color,
@@ -121,7 +121,7 @@ class _LanguagePopupState extends State<LanguagePopup> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.red600.withOpacity(0.05)
-                            : Colors.grey[50],
+                            : (isDark ? Color(0xFF3A3A3A) : Colors.grey[50]),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
@@ -149,14 +149,18 @@ class _LanguagePopupState extends State<LanguagePopup> {
                                     fontFamily: "Poppins",
                                     color: isSelected
                                         ? AppColors.red600
-                                        : Colors.black87,
+                                        : (isDark
+                                              ? Colors.white
+                                              : Colors.black87),
                                   ),
                                 ),
                                 Text(
                                   language['nativeName'],
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey[500],
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[500],
                                     fontFamily: "Poppins",
                                   ),
                                 ),

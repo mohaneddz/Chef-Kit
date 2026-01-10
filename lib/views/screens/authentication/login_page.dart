@@ -90,12 +90,14 @@ class _LoginPageState extends State<LoginPage> {
                         // --- Brand Section ---
                         const SizedBox(height: 20),
                         Image.asset(
-                          'assets/images/final_logo.png',
+                          Theme.of(context).brightness == Brightness.dark
+                              ? 'assets/images/icon/logo-dark.webp'
+                              : 'assets/images/icon/logo.webp',
                           height: 120, // Bigger logo
                         ),
                         const SizedBox(height: 30),
                         Text(
-                          "Welcome Back",
+                          AppLocalizations.of(context)!.welcomeBack,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 32,
@@ -109,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Sign in to continue your culinary journey",
+                          AppLocalizations.of(context)!.signInSubtitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -122,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                         // --- Form Section ---
                         TextFieldWidget(
                           controller: emailController,
-                          hintText: "Email Address",
+                          hintText: AppLocalizations.of(context)!.emailAddress,
                           trailingIcon: Icons.email_outlined,
                           errorText: errors["email"],
                           textColor:
@@ -136,11 +138,15 @@ class _LoginPageState extends State<LoginPage> {
                               ? Color(0xFF2A2A2A)
                               : const Color(0xFFF5F5F5),
                           borderColor: Colors.transparent,
+                          iconBackgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF3A3A3A)
+                              : Colors.white,
                         ),
                         const SizedBox(height: 16),
                         TextFieldWidget(
                           controller: passwordController,
-                          hintText: "Password",
+                          hintText: AppLocalizations.of(context)!.password,
                           trailingIcon: Icons.lock_outline_rounded,
                           isPassword: true,
                           errorText: errors["password"],
@@ -155,6 +161,10 @@ class _LoginPageState extends State<LoginPage> {
                               ? Color(0xFF2A2A2A)
                               : const Color(0xFFF5F5F5),
                           borderColor: Colors.transparent,
+                          iconBackgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Color(0xFF3A3A3A)
+                              : Colors.white,
                         ),
 
                         // Forgot Password
@@ -165,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: GestureDetector(
                               onTap: () {}, // TODO: Implement
                               child: Text(
-                                "Forgot Password?",
+                                AppLocalizations.of(context)!.forgotPassword,
                                 style: TextStyle(
                                   color: AppColors.red600,
                                   fontWeight: FontWeight.w600,
@@ -217,8 +227,8 @@ class _LoginPageState extends State<LoginPage> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    "Sign In",
+                                : Text(
+                                    AppLocalizations.of(context)!.signIn,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -235,7 +245,7 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Don't have an account? ",
+                              AppLocalizations.of(context)!.dontHaveAccount,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 15,

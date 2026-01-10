@@ -86,8 +86,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(30.0),
@@ -144,10 +146,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               const SizedBox(height: 50),
               Text(
                 AppLocalizations.of(context)!.findingRecipes,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.black,
+                  color: theme.textTheme.titleLarge?.color,
                 ),
               ),
 
@@ -170,7 +172,7 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               SizedBox(
                 width: 200,
                 child: LinearProgressIndicator(
-                  backgroundColor: Colors.grey[200],
+                  backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.red600),
                   minHeight: 6,
                 ),
@@ -182,9 +184,11 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
+                    color: isDark ? Color(0xFF2A2A2A) : Colors.grey[50],
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey[200]!),
+                    border: Border.all(
+                      color: isDark ? Color(0xFF3A3A3A) : Colors.grey[200]!,
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,11 +203,13 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            "Your Selected Ingredients:",
+                            AppLocalizations.of(
+                              context,
+                            )!.yourSelectedIngredients,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
+                              color: theme.textTheme.bodyMedium?.color,
                             ),
                           ),
                         ],

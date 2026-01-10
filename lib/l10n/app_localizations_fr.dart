@@ -298,6 +298,19 @@ class AppLocalizationsFr extends AppLocalizations {
       'Explorez l\'application et enregistrez vos recettes préférées !';
 
   @override
+  String get noSavedItems => 'Aucun élément enregistré actuellement';
+
+  @override
+  String get noMatchingRecipes => 'Aucune recette correspondante';
+
+  @override
+  String get tryDifferentSearch => 'Essayez un autre terme de recherche';
+
+  @override
+  String get startSavingRecipes =>
+      'Commencez à enregistrer des recettes pour les voir ici !';
+
+  @override
   String get searchYourRecipes => 'Recherchez vos recettes...';
 
   @override
@@ -308,6 +321,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get profileTitle => 'Profil';
+
+  @override
+  String get profileSubtitle => 'Gérez votre compte';
 
   @override
   String get notLoggedIn => 'Non connecté';
@@ -536,6 +552,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get yourIngredients => 'Vos ingrédients :';
 
   @override
+  String get yourSelectedIngredients => 'Vos ingrédients sélectionnés :';
+
+  @override
   String get recipesYouCanMake => 'Recettes que vous pouvez faire';
 
   @override
@@ -647,4 +666,47 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get loginRequiredNotifications =>
       'Inscrivez-vous pour voir vos notifications';
+
+  @override
+  String get signIn => 'Se Connecter';
+
+  @override
+  String get welcomeBack => 'Bon Retour';
+
+  @override
+  String get signInSubtitle =>
+      'Connectez-vous pour continuer votre aventure culinaire';
+
+  @override
+  String get emailAddress => 'Adresse Email';
+
+  @override
+  String get password => 'Mot de Passe';
+
+  @override
+  String get forgotPassword => 'Mot de passe oublié ?';
+
+  @override
+  String get dontHaveAccount => 'Vous n\'avez pas de compte ? ';
+
+  @override
+  String get createAccount => 'Créer un Compte';
+
+  @override
+  String get joinUsSubtitle => 'Rejoignez-nous pour commencer à cuisiner';
+
+  @override
+  String get fullName => 'Nom Complet';
+
+  @override
+  String get confirmPassword => 'Confirmer le Mot de Passe';
+
+  @override
+  String get alreadyHaveAccount => 'Vous avez déjà un compte ? ';
+
+  @override
+  String get addIngredient => 'Ajouter';
+
+  @override
+  String get deleteIngredient => 'Supprimer';
 }

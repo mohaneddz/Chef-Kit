@@ -5,6 +5,7 @@ import 'package:chefkit/blocs/inventory/inventory_event.dart';
 import 'package:chefkit/blocs/inventory/inventory_state.dart';
 import 'package:chefkit/views/widgets/inventory/ingredient_card.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
+import 'package:chefkit/views/widgets/top_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
@@ -253,6 +254,7 @@ class _InventoryPageState extends State<InventoryPage> {
   ) {
     final l10n = AppLocalizations.of(context)!;
     final displayTypes = _getIngredientTypes(context);
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +292,7 @@ class _InventoryPageState extends State<InventoryPage> {
                           decorationThickness: 2,
                         )
                       : TextStyle(
-                          color: AppColors.black,
+                          color: theme.textTheme.bodyLarge?.color,
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
                           fontFamily: "LeagueSpartan",
@@ -375,39 +377,9 @@ class _InventoryPageState extends State<InventoryPage> {
 
           return Scaffold(
             backgroundColor: theme.scaffoldBackgroundColor,
-            appBar: AppBar(
-              backgroundColor: theme.appBarTheme.backgroundColor,
-              leadingWidth: 72,
-              leading: Align(
-                alignment: Alignment.centerRight,
-                child: Image.asset(
-                  "assets/images/list-ingredients.png",
-                  width: 52,
-                ),
-              ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.inventoryTitle,
-                    style: TextStyle(
-                      color: theme.textTheme.titleLarge?.color,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    l10n.inventorySubtitle,
-                    style: TextStyle(
-                      color: theme.textTheme.bodySmall?.color,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: "LeagueSpartan",
-                    ),
-                  ),
-                ],
-              ),
-              centerTitle: false,
+            appBar: TopNavBar(
+              title: l10n.inventoryTitle,
+              subtitle: l10n.inventorySubtitle,
             ),
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

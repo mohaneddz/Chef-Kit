@@ -298,6 +298,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Explore the app and save your favourite recipes!';
 
   @override
+  String get noSavedItems => 'No saved items currently exist';
+
+  @override
+  String get noMatchingRecipes => 'No matching recipes';
+
+  @override
+  String get tryDifferentSearch => 'Try a different search term';
+
+  @override
+  String get startSavingRecipes => 'Start saving recipes to see them here!';
+
+  @override
   String get searchYourRecipes => 'Search Your Recipes...';
 
   @override
@@ -308,6 +320,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileTitle => 'Profile';
+
+  @override
+  String get profileSubtitle => 'Manage your account';
 
   @override
   String get notLoggedIn => 'Not logged in';
@@ -534,6 +549,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourIngredients => 'Your Ingredients:';
 
   @override
+  String get yourSelectedIngredients => 'Your Selected Ingredients:';
+
+  @override
   String get recipesYouCanMake => 'Recipes You Can Make';
 
   @override
@@ -641,4 +659,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginRequiredNotifications => 'Sign up to see your notifications';
+
+  @override
+  String get signIn => 'Sign In';
+
+  @override
+  String get welcomeBack => 'Welcome Back';
+
+  @override
+  String get signInSubtitle => 'Sign in to continue your culinary journey';
+
+  @override
+  String get emailAddress => 'Email Address';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get forgotPassword => 'Forgot Password?';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account? ';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get joinUsSubtitle => 'Join us to start cooking';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? ';
+
+  @override
+  String get addIngredient => 'Add';
+
+  @override
+  String get deleteIngredient => 'Delete';
 }

@@ -1,12 +1,12 @@
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/widgets/favourites/categories_carousel.dart';
-import 'package:chefkit/views/widgets/favourites/favourites_header.dart';
 import 'package:chefkit/views/widgets/favourites/recipes_grid.dart';
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
 import 'package:chefkit/blocs/favourites/favourites_state.dart';
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/views/widgets/search_bar_widget.dart';
+import 'package:chefkit/views/widgets/top_navbar.dart';
 import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -65,27 +65,36 @@ class _FavouritesPageState extends State<FavouritesPage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        leadingWidth: 72,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: Icon(Icons.favorite, size: 52, color: Color(0xFFFF6B6B)),
-        ),
-        title: const FavouritesHeader(),
-        centerTitle: false,
+      appBar: TopNavBar(
+        title: AppLocalizations.of(context)!.favouritesTitle,
+        subtitle: AppLocalizations.of(context)!.favouritesSubtitle,
       ),
       body: BlocListener<FavouritesBloc, FavouritesState>(
         listenWhen: (prev, curr) =>
-            curr.syncError != null && prev.syncError != curr.syncError,
+            (curr.syncError != null && prev.syncError != curr.syncError) ||
+            (prev.loading && !curr.loading && curr.categories.isNotEmpty),
         listener: (context, state) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.syncError!),
-              backgroundColor: Colors.orange,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          if (state.syncError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.syncError!),
+                backgroundColor: Colors.orange,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          // Animate to "All Saved" (index 0) when data finishes loading
+          if (!state.loading &&
+              state.categories.isNotEmpty &&
+              _pageController != null) {
+            final targetPage =
+                1000 * state.categories.length + state.selectedCategoryIndex;
+            _pageController!.animateToPage(
+              targetPage,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
         },
         child: BlocBuilder<FavouritesBloc, FavouritesState>(
           builder: (context, state) {
@@ -210,10 +219,10 @@ class _FavouritesPageState extends State<FavouritesPage> {
                       const SizedBox(height: 25),
                       Text(
                         AppLocalizations.of(context)!.categoriesTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.black,
+                          color: theme.textTheme.titleLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -236,35 +245,50 @@ class _FavouritesPageState extends State<FavouritesPage> {
                         endIndent: 20,
                       ),
                       const SizedBox(height: 16),
-                      // Show "no matching recipes" if search returns empty
-                      if (state.displayRecipes.isEmpty &&
-                          state.searchQuery.isNotEmpty)
+                      // Show empty state if no results
+                      if (state.displayRecipes.isEmpty)
                         Center(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 40),
                             child: Column(
                               children: [
                                 Icon(
-                                  Icons.search_off,
+                                  state.searchQuery.isNotEmpty
+                                      ? Icons.search_off
+                                      : Icons.bookmark_border,
                                   size: 64,
                                   color: theme.textTheme.bodySmall?.color,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No matching recipes',
+                                  state.searchQuery.isNotEmpty
+                                      ? AppLocalizations.of(
+                                          context,
+                                        )!.noMatchingRecipes
+                                      : AppLocalizations.of(
+                                          context,
+                                        )!.noSavedItems,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     color: theme.textTheme.titleLarge?.color,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Try a different search term',
+                                  state.searchQuery.isNotEmpty
+                                      ? AppLocalizations.of(
+                                          context,
+                                        )!.tryDifferentSearch
+                                      : AppLocalizations.of(
+                                          context,
+                                        )!.startSavingRecipes,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: theme.textTheme.bodySmall?.color,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
@@ -295,19 +319,9 @@ class _FavouritesPageState extends State<FavouritesPage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          loc.favouritesTitle,
-          style: TextStyle(
-            color: theme.textTheme.titleLarge?.color,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
-          ),
-        ),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        elevation: 0,
-        centerTitle: true,
+      appBar: TopNavBar(
+        title: loc.favouritesTitle,
+        subtitle: loc.favouritesSubtitle,
       ),
       body: Center(
         child: Padding(

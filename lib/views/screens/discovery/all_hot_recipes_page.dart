@@ -374,6 +374,8 @@ class _AllHotRecipesView extends StatelessWidget {
     IconData icon,
     String selectedTag,
   ) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isSelected = selectedTag == filterKey;
     return GestureDetector(
       onTap: () {
@@ -388,7 +390,9 @@ class _AllHotRecipesView extends StatelessWidget {
                   colors: [Color(0xFFFF6B6B), Color(0xFFFF8E8E)],
                 )
               : null,
-          color: isSelected ? null : Colors.grey[200],
+          color: isSelected
+              ? null
+              : (isDark ? Color(0xFF3A3A3A) : Colors.grey[200]),
           borderRadius: BorderRadius.circular(20),
           boxShadow: isSelected
               ? [
@@ -406,7 +410,9 @@ class _AllHotRecipesView extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : Colors.grey[700],
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : Colors.grey[700]),
             ),
             const SizedBox(width: 6),
             Text(
@@ -414,7 +420,9 @@ class _AllHotRecipesView extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? Colors.white : Colors.grey[700],
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? Colors.white70 : Colors.grey[700]),
                 fontFamily: 'Poppins',
               ),
             ),

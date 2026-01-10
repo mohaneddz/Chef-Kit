@@ -110,6 +110,18 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
 
       final categories = <Map<String, dynamic>>[];
 
+      // Add "All Saved" first so it's the default selection
+      categories.add({
+        'title': allSavedTitle,
+        'subtitle': _formatSubtitle(
+          favoriteRecipes.length,
+          recipeSingular,
+          recipePlural,
+        ),
+        'imagePaths': _getPreviewImagePaths(favoriteRecipes),
+        'recipes': favoriteRecipes,
+      });
+
       grouped.forEach((key, value) {
         categories.add({
           'title': key,
@@ -123,20 +135,8 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         });
       });
 
-      categories.add({
-        'title': allSavedTitle,
-        'subtitle': _formatSubtitle(
-          favoriteRecipes.length,
-          recipeSingular,
-          recipePlural,
-        ),
-        'imagePaths': _getPreviewImagePaths(favoriteRecipes),
-        'recipes': favoriteRecipes,
-      });
-
-      final newIndex = state.selectedCategoryIndex < categories.length
-          ? state.selectedCategoryIndex
-          : 0;
+      // Always default to index 0 (All Saved) on fresh load
+      final newIndex = 0;
 
       emit(
         state.copyWith(
@@ -182,19 +182,21 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     ToggleFavoriteRecipe event,
     Emitter<FavouritesState> emit,
   ) async {
-    // Optimistic update
-    List<Recipe> updateListOptimistic(List<Recipe> list) {
-      return list.map((r) {
-        if (r.id == event.recipeId) {
-          return r.copyWith(isFavorite: !r.isFavorite);
-        }
-        return r;
-      }).toList();
+    // Optimistic update - remove unfavorited recipes immediately from the list
+    List<Recipe> removeFromList(List<Recipe> list) {
+      return list.where((r) => r.id != event.recipeId).toList();
     }
 
     final optimisticCategories = state.categories.map((cat) {
       final recipes = cat['recipes'] as List<Recipe>;
-      return {...cat, 'recipes': updateListOptimistic(recipes)};
+      final updatedRecipes = removeFromList(recipes);
+      final count = updatedRecipes.length;
+      return {
+        ...cat,
+        'recipes': updatedRecipes,
+        'subtitle': _formatSubtitle(count, 'recipe', 'recipes'),
+        'imagePaths': _getPreviewImagePaths(updatedRecipes),
+      };
     }).toList();
 
     final optimisticCurrentCategoryRecipes =
@@ -222,39 +224,9 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
 
     // Sync to server in background - don't revert on failure
     try {
-      final updated = await recipeRepository.toggleFavorite(event.recipeId);
-
-      // Update the recipe in the current lists without removing it
-      List<Recipe> updateList(List<Recipe> list) {
-        return list.map((r) => r.id == updated.id ? updated : r).toList();
-      }
-
-      final newCategories = state.categories.map((cat) {
-        final recipes = cat['recipes'] as List<Recipe>;
-        return {...cat, 'recipes': updateList(recipes)};
-      }).toList();
-
-      final currentCategoryRecipes =
-          newCategories[state.selectedCategoryIndex]['recipes'] as List<Recipe>;
-      final filteredRecipes = state.searchQuery.isEmpty
-          ? currentCategoryRecipes
-          : currentCategoryRecipes
-                .where(
-                  (recipe) => recipe.name.toLowerCase().contains(
-                    state.searchQuery.toLowerCase(),
-                  ),
-                )
-                .toList();
-
-      emit(
-        state.copyWith(
-          categories: newCategories,
-          displayRecipes: filteredRecipes,
-        ),
-      );
+      await recipeRepository.toggleFavorite(event.recipeId);
     } catch (e) {
       // Don't revert - keep optimistic state, just show sync error via snackbar
-      // print('⚠️ Favorite sync failed: $e');
       emit(
         state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
       );

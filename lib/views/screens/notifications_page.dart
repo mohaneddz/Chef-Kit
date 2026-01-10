@@ -221,6 +221,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isRead = notification['notification_is_read'] as bool? ?? false;
     final type = notification['notification_type'] as String? ?? 'general';
     final title =
@@ -239,11 +241,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isRead ? Colors.white : AppColors.red600.withOpacity(0.03),
+          color: isRead
+              ? (isDark ? Color(0xFF2A2A2A) : Colors.white)
+              : (isDark
+                    ? AppColors.red600.withOpacity(0.08)
+                    : AppColors.red600.withOpacity(0.03)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isRead
-                ? Colors.grey[200]!
+                ? (isDark ? Color(0xFF3A3A3A) : Colors.grey[200]!)
                 : AppColors.red600.withOpacity(0.1),
             width: 1,
           ),
@@ -255,12 +261,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isRead ? Colors.grey[100] : Colors.white,
+                color: isRead
+                    ? (isDark ? Color(0xFF3A3A3A) : Colors.grey[100])
+                    : (isDark ? Color(0xFF2A2A2A) : Colors.white),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 _getIconForType(type),
-                color: isRead ? Colors.grey[500] : _getColorForType(type),
+                color: isRead
+                    ? (isDark ? Colors.grey[400] : Colors.grey[500])
+                    : _getColorForType(type),
                 size: 22,
               ),
             ),
@@ -276,7 +286,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         child: Text(
                           title,
                           style: TextStyle(
-                            color: Colors.black,
+                            color: isDark ? Colors.white : Colors.black,
                             fontSize: 15,
                             fontWeight: isRead
                                 ? FontWeight.w500
@@ -300,7 +310,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   Text(
                     message,
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Poppins',
@@ -312,7 +322,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   Text(
                     time,
                     style: TextStyle(
-                      color: Colors.grey[400],
+                      color: isDark ? Colors.grey[500] : Colors.grey[400],
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Poppins',

@@ -1,4 +1,5 @@
 import 'package:chefkit/common/constants.dart';
+import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class IngredientCard extends StatelessWidget {
@@ -144,7 +145,7 @@ class IngredientCard extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    "Add",
+                                    AppLocalizations.of(context)!.addIngredient,
                                     style: TextStyle(
                                       color: isDark
                                           ? Color(0xFF22C55E)
@@ -192,7 +193,9 @@ class IngredientCard extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        "Delete",
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.deleteIngredient,
                                         style: TextStyle(
                                           color: AppColors.red600,
                                           fontSize: 12,

@@ -9,6 +9,7 @@ import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/common/config.dart';
 import 'package:chefkit/domain/repositories/profile_repository.dart';
 import 'package:chefkit/views/screens/authentication/login_page.dart';
+import 'package:chefkit/views/widgets/top_navbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,20 +62,7 @@ class _GuestProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          loc.profileTitle,
-          style: TextStyle(
-            color: theme.textTheme.titleLarge?.color,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            fontFamily: "Poppins",
-          ),
-        ),
-      ),
+      appBar: TopNavBar(title: loc.profileTitle, subtitle: loc.profileSubtitle),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -352,25 +340,9 @@ class _ProfilePageContent extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          AppLocalizations.of(context)!.profileTitle,
-          style: TextStyle(
-            color: theme.textTheme.titleLarge?.color,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            fontFamily: "Poppins",
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.more_horiz, color: theme.iconTheme.color),
-          ),
-        ],
+      appBar: TopNavBar(
+        title: AppLocalizations.of(context)!.profileTitle,
+        subtitle: AppLocalizations.of(context)!.profileSubtitle,
       ),
       body: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
