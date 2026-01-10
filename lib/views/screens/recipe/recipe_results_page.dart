@@ -1,12 +1,14 @@
 import 'package:chefkit/blocs/recipe_results/recipe_results_bloc.dart';
 import 'package:chefkit/blocs/recipe_results/recipe_results_events.dart';
 import 'package:chefkit/blocs/recipe_results/recipe_results_state.dart';
+import 'package:chefkit/blocs/auth/auth_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/domain/models/recipe.dart';
 import 'package:chefkit/domain/repositories/recipe_repository.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/views/screens/recipe/recipe_details_page.dart';
 import 'package:chefkit/views/widgets/recipe/recipe_card_widget.dart';
+import 'package:chefkit/views/widgets/login_required_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -217,6 +219,19 @@ class RecipeResultsPage extends StatelessWidget {
                                 imageUrl: recipe.imageUrl,
                                 isFavorite: recipe.isFavorite,
                                 onFavoritePressed: () {
+                                  final userId = context
+                                      .read<AuthCubit>()
+                                      .state
+                                      .userId;
+                                  if (userId == null) {
+                                    showLoginRequiredModal(
+                                      context,
+                                      customMessage: AppLocalizations.of(
+                                        context,
+                                      )!.loginRequiredFavorites,
+                                    );
+                                    return;
+                                  }
                                   context.read<RecipeResultsBloc>().add(
                                     ToggleRecipeResultFavorite(recipe.id),
                                   );
