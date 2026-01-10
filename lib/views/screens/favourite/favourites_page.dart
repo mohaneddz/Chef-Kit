@@ -55,9 +55,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // final isDark = theme.brightness == Brightness.dark;
 
-    // Check if user is logged in
     final userId = context.watch<AuthCubit>().state.userId;
     if (userId == null) {
       return _buildGuestFavouritesView(context, theme);
@@ -97,7 +95,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
               );
             }
 
-            // Check if user has no favorites at all (categories is empty)
             if (state.categories.isEmpty) {
               return RefreshIndicator(
                 onRefresh: () async {
@@ -156,9 +153,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
             }
 
             if (_pageController == null && state.categories.isNotEmpty) {
-              // using a large multiplier to simulate infinite scrolling
-              // This allows the user to scroll left/right "infinitely"
-              // The actual index is calculated using modulo operator
               final initialPage =
                   1000 * state.categories.length + state.selectedCategoryIndex;
               _pageController = PageController(
@@ -178,7 +172,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
                     otherText: "Other",
                   ),
                 );
-                // Wait a bit to let the user see the visual feedback (state update is fast)
                 await Future.delayed(const Duration(milliseconds: 500));
               },
               color: const Color(0xFFFF6B6B),
@@ -217,11 +210,9 @@ class _FavouritesPageState extends State<FavouritesPage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              // Select the "All Favourites" category (index 0)
                               context.read<FavouritesBloc>().add(
                                 SelectCategory(0),
                               );
-                              // Animate the page controller to the first category
                               if (_pageController != null &&
                                   state.categories.isNotEmpty) {
                                 final targetPage =

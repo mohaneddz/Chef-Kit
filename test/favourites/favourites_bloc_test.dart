@@ -74,7 +74,6 @@ void main() {
     mockRecipeRepository = MockRecipeRepository();
     mockFavoritesCacheService = MockFavoritesCacheService();
 
-    // Default stubs
     when(
       () => mockFavoritesCacheService.toggleFavorite(any()),
     ).thenAnswer((_) async => true);
@@ -156,12 +155,9 @@ void main() {
         final state = bloc.state;
         expect(state.categories.isNotEmpty, true);
 
-        // Check that "All Saved" category is last and contains all recipes
         final allSavedCategory = state.categories.last;
         expect(allSavedCategory['title'], 'All Saved');
         expect((allSavedCategory['recipes'] as List).length, 3);
-
-        // Verify categories are created for tags
         final categoryTitles = state.categories
             .map((c) => c['title'] as String)
             .toList();
@@ -389,7 +385,6 @@ void main() {
       verify: (bloc) {
         expect(bloc.state.syncError, isNotNull);
         expect(bloc.state.syncError!.contains('Failed to sync'), true);
-        // Recipe should still be removed optimistically
         expect(bloc.state.displayRecipes.length, 0);
 
         verify(() => mockFavoritesCacheService.toggleFavorite('1')).called(1);
@@ -503,7 +498,7 @@ void main() {
           loading: false,
           categories: categories,
           displayRecipes: [mockRecipe1],
-          selectedCategoryIndex: 0, // Italian category selected
+          selectedCategoryIndex: 0,
         );
       },
       act: (bloc) => bloc.add(SearchFavourites('chicken')),
@@ -514,7 +509,7 @@ void main() {
               (s) => s.displayRecipes.length,
               'count',
               0,
-            ), // No chicken in Italian
+            ),
       ],
     );
   });

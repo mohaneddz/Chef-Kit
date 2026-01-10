@@ -1,5 +1,5 @@
 import 'package:sqflite/sqflite.dart';
-import '../database/db_helper.dart';
+import '../domain/db_helper.dart';
 
 /// Service for caching favorite recipe IDs locally using SQLite.
 /// This provides immediate persistence before syncing to the server.

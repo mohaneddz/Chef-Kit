@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
 import 'package:chefkit/blocs/inventory/inventory_event.dart';
 import 'package:chefkit/blocs/inventory/inventory_state.dart';
-import 'package:chefkit/database/db_helper.dart';
+import 'package:chefkit/domain/db_helper.dart';
 import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart';

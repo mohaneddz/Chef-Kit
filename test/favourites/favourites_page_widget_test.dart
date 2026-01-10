@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chefkit/blocs/auth/auth_cubit.dart';
-// import 'package:chefkit/blocs/auth/auth_state.dart'; // Removed to avoid conflict
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_events.dart';
 import 'package:chefkit/blocs/favourites/favourites_state.dart';
@@ -15,7 +13,6 @@ import 'package:chefkit/domain/models/recipe.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
 import 'package:chefkit/views/screens/favourite/favourites_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -33,38 +30,6 @@ class MockLocaleCubit extends MockCubit<Locale> implements LocaleCubit {}
 class MockNotificationsBloc
     extends MockBloc<NotificationsEvent, NotificationsState>
     implements NotificationsBloc {}
-
-class _TestAssetBundle extends CachingAssetBundle {
-  static final Uint8List _transparentImage = Uint8List.fromList(const <int>[
-    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, //
-    0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, //
-    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, //
-    0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, //
-    0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, //
-    0x63, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, //
-    0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
-  ]);
-  static final ByteData _emptyManifest = const StandardMessageCodec()
-      .encodeMessage(<String, dynamic>{})!;
-
-  @override
-  Future<ByteData> load(String key) async =>
-      ByteData.view(_transparentImage.buffer);
-
-  @override
-  Future<T> loadStructuredBinaryData<T>(
-    String key,
-    FutureOr<T> Function(ByteData data) parser,
-  ) async {
-    if (key == 'AssetManifest.bin') {
-      return parser(_emptyManifest);
-    }
-    return parser(ByteData(0));
-  }
-
-  @override
-  Future<String> loadString(String key, {bool cache = true}) async => '{}';
-}
 
 Recipe _recipe(String id, String name, List<String> tags) {
   return Recipe(
@@ -172,25 +137,22 @@ void main() {
 
     return MediaQuery(
       data: mediaQueryData,
-      child: DefaultAssetBundle(
-        bundle: _TestAssetBundle(),
-        child: MultiBlocProvider(
-          providers: [
-            BlocProvider<FavouritesBloc>.value(value: mockFavouritesBloc),
-            BlocProvider<AuthCubit>.value(value: mockAuthCubit),
-            BlocProvider<LocaleCubit>.value(value: mockLocaleCubit),
-            BlocProvider<NotificationsBloc>.value(value: mockNotificationsBloc),
-          ],
-          child: BlocBuilder<LocaleCubit, Locale>(
-            builder: (context, locale) {
-              return MaterialApp(
-                locale: locale,
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                home: const FavouritesPage(),
-              );
-            },
-          ),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<FavouritesBloc>.value(value: mockFavouritesBloc),
+          BlocProvider<AuthCubit>.value(value: mockAuthCubit),
+          BlocProvider<LocaleCubit>.value(value: mockLocaleCubit),
+          BlocProvider<NotificationsBloc>.value(value: mockNotificationsBloc),
+        ],
+        child: BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return MaterialApp(
+              locale: locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const FavouritesPage(),
+            );
+          },
         ),
       ),
     );
@@ -296,7 +258,6 @@ void main() {
     await tester.pumpWidget(_buildPage());
     await tester.pump();
 
-    // Find and tap a category card
     final categoryCards = find.byType(GestureDetector);
     if (categoryCards.evaluate().isNotEmpty) {
       await tester.tap(find.text('Italian').first);
@@ -316,7 +277,7 @@ void main() {
 
     await tester.drag(find.byType(RefreshIndicator), const Offset(0, 300));
     await tester.pump();
-    await tester.pumpAndSettle(); // Wait for all animations and timers
+    await tester.pumpAndSettle();
 
     verify(
       () => mockFavouritesBloc.add(any(that: isA<RefreshFavourites>())),
@@ -393,7 +354,6 @@ void main() {
     await tester.pumpWidget(_buildPage());
     await tester.pump();
 
-    // Find favorite icon buttons
     final favoriteIcons = find.byIcon(Icons.favorite);
     if (favoriteIcons.evaluate().isNotEmpty) {
       await tester.tap(favoriteIcons.first);
@@ -441,13 +401,9 @@ void main() {
 
     expect(find.text('Sign Up'), findsOneWidget);
 
-    // Tap the sign up button
     await tester.tap(find.text('Sign Up'));
-    await tester.pump(); // Start animation
-    await tester.pump(const Duration(milliseconds: 100)); // Advance slightly
-
-    // We just verify no crash, as full navigation verification would require checking the route stack
-    // which is implicit if we don't crash and AuthCubit was found.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
   });
 
   testWidgets('empty favourites displays pull to refresh', (tester) async {

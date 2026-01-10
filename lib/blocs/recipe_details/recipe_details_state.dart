@@ -1,4 +1,4 @@
-import '../../database/repositories/ingredients/ingredients_repository.dart';
+import '../../domain/repositories/ingredients/ingredients_repository.dart';
 
 class RecipeDetailsState {
   final bool loading;

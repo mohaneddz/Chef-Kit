@@ -1,4 +1,4 @@
-import 'package:chefkit/database/db_helper.dart';
+import 'package:chefkit/domain/db_helper.dart';
 import 'package:chefkit/domain/repositories/ingredients/ingredient_repo.dart';
 
 class IngredientsDB extends IngredientsRepo {

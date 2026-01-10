@@ -8,7 +8,7 @@ import '../../../blocs/auth/auth_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
 import '../../../common/constants.dart';
-import '../../../database/repositories/ingredients/ingredients_repository.dart';
+import '../../../domain/repositories/ingredients/ingredients_repository.dart';
 import '../../widgets/login_required_modal.dart';
 
 class RecipeDetailsPage extends StatelessWidget {
@@ -98,7 +98,6 @@ class _RecipeDetailsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

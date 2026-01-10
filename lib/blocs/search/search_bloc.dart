@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/models/chef.dart';
-import '../../domain/models/recipe.dart';
 import '../../domain/repositories/chef_repository.dart';
 import '../../domain/repositories/recipe_repository.dart';
 import 'search_events.dart';

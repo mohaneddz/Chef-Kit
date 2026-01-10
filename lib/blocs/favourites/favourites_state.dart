@@ -8,7 +8,6 @@ class FavouritesState {
   final String? error;
   final String searchQuery;
 
-  /// Non-blocking error for like sync failures - shows snackbar, doesn't revert UI
   final String? syncError;
 
   FavouritesState({

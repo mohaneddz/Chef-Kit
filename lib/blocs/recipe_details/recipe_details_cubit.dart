@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../common/favorites_cache_service.dart';
-import '../../database/repositories/ingredients/ingredients_repository.dart';
+import '../../domain/repositories/ingredients/ingredients_repository.dart';
 import '../../domain/repositories/recipe_repository.dart';
 import 'recipe_details_state.dart';
 

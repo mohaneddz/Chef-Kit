@@ -62,7 +62,6 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     RefreshFavourites event,
     Emitter<FavouritesState> emit,
   ) async {
-    // We don't set loading: true because RefreshIndicator shows its own spinner
     await _loadData(
       emit,
       event.allSavedText,
@@ -128,7 +127,6 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         });
       });
 
-      // Add "All Saved" at the beginning (index 0) so it's selected by default
       categories.insert(0, {
         'title': allSavedTitle,
         'subtitle': _formatSubtitle(
@@ -140,7 +138,6 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         'recipes': favoriteRecipes,
       });
 
-      // Keep current selection if valid, otherwise reset to 0
       final newIndex = state.selectedCategoryIndex < categories.length
           ? state.selectedCategoryIndex
           : 0;
@@ -189,7 +186,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     ToggleFavoriteRecipe event,
     Emitter<FavouritesState> emit,
   ) async {
-    // Optimistic update - remove unfavorited recipes immediately from the list
+
     List<Recipe> removeFromList(List<Recipe> list) {
       return list.where((r) => r.id != event.recipeId).toList();
     }
@@ -226,14 +223,11 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
       ),
     );
 
-    // Save to local cache immediately for instant persistence
     await _cacheService.toggleFavorite(event.recipeId);
 
-    // Sync to server in background - don't revert on failure
     try {
       await recipeRepository.toggleFavorite(event.recipeId);
     } catch (e) {
-      // Don't revert - keep optimistic state, just show sync error via snackbar
       emit(
         state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
       );
