@@ -124,13 +124,18 @@ class AllChefsPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          AppLocalizations.of(context)!.superHotChefs,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins',
-                            color: theme.textTheme.titleLarge?.color,
+                        Flexible(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Text(
+                              AppLocalizations.of(context)!.superHotChefs,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins',
+                                color: theme.textTheme.titleLarge?.color,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -182,13 +187,18 @@ class AllChefsPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          AppLocalizations.of(context)!.allChefs,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins',
-                            color: theme.textTheme.titleLarge?.color,
+                        Flexible(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Text(
+                              AppLocalizations.of(context)!.allChefs,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins',
+                                color: theme.textTheme.titleLarge?.color,
+                              ),
+                            ),
                           ),
                         ),
                       ],

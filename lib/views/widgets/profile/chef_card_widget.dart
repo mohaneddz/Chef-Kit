@@ -62,16 +62,22 @@ class ChefCardWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            name,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Poppins',
-              color: isOnFire
-                  ? (isDark ? Colors.white : Colors.black)
-                  : theme.textTheme.bodyMedium?.color,
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 16,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins',
+                  color: isOnFire
+                      ? (isDark ? Colors.white : Colors.black)
+                      : theme.textTheme.bodyMedium?.color,
+                ),
+              ),
             ),
           ),
           if (isOnFire)
