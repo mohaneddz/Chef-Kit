@@ -20,7 +20,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void initState() {
     super.initState();
     final authState = context.read<AuthCubit>().state;
-    if (authState.user != null) {
+    if (authState.userId != null) {
       context.read<NotificationsBloc>().add(const LoadNotifications());
     }
   }
@@ -110,7 +110,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: Builder(
         builder: (context) {
           final authState = context.watch<AuthCubit>().state;
-          if (authState.user == null) {
+          if (authState.userId == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

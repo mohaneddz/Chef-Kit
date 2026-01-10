@@ -71,8 +71,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
       ),
       body: BlocListener<FavouritesBloc, FavouritesState>(
         listenWhen: (prev, curr) =>
-            (curr.syncError != null && prev.syncError != curr.syncError) ||
-            (prev.loading && !curr.loading && curr.categories.isNotEmpty),
+            curr.syncError != null && prev.syncError != curr.syncError,
         listener: (context, state) {
           if (state.syncError != null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -81,18 +80,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
                 backgroundColor: Colors.orange,
                 behavior: SnackBarBehavior.floating,
               ),
-            );
-          }
-          // Animate to "All Saved" (index 0) when data finishes loading
-          if (!state.loading &&
-              state.categories.isNotEmpty &&
-              _pageController != null) {
-            final targetPage =
-                1000 * state.categories.length + state.selectedCategoryIndex;
-            _pageController!.animateToPage(
-              targetPage,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
             );
           }
         },

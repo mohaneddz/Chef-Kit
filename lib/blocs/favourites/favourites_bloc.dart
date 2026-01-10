@@ -110,18 +110,6 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
 
       final categories = <Map<String, dynamic>>[];
 
-      // Add "All Saved" first so it's the default selection
-      categories.add({
-        'title': allSavedTitle,
-        'subtitle': _formatSubtitle(
-          favoriteRecipes.length,
-          recipeSingular,
-          recipePlural,
-        ),
-        'imagePaths': _getPreviewImagePaths(favoriteRecipes),
-        'recipes': favoriteRecipes,
-      });
-
       grouped.forEach((key, value) {
         categories.add({
           'title': key,
@@ -135,8 +123,22 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         });
       });
 
-      // Always default to index 0 (All Saved) on fresh load
-      final newIndex = 0;
+      // Add "All Saved" at the end
+      categories.add({
+        'title': allSavedTitle,
+        'subtitle': _formatSubtitle(
+          favoriteRecipes.length,
+          recipeSingular,
+          recipePlural,
+        ),
+        'imagePaths': _getPreviewImagePaths(favoriteRecipes),
+        'recipes': favoriteRecipes,
+      });
+
+      // Keep current selection if valid, otherwise reset to 0
+      final newIndex = state.selectedCategoryIndex < categories.length
+          ? state.selectedCategoryIndex
+          : 0;
 
       emit(
         state.copyWith(
