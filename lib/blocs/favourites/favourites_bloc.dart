@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../common/favorites_cache_service.dart';
 import '../../domain/repositories/recipe_repository.dart';
 import '../../domain/models/recipe.dart';
 import 'favourites_events.dart';
@@ -6,6 +7,7 @@ import 'favourites_state.dart';
 
 class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
   final RecipeRepository recipeRepository;
+  final FavoritesCacheService _cacheService = FavoritesCacheService();
 
   FavouritesBloc({required this.recipeRepository}) : super(FavouritesState()) {
     on<LoadFavourites>(_onLoad);
@@ -121,6 +123,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         });
       });
 
+      // Add "All Saved" at the end
       categories.add({
         'title': allSavedTitle,
         'subtitle': _formatSubtitle(
@@ -132,6 +135,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         'recipes': favoriteRecipes,
       });
 
+      // Keep current selection if valid, otherwise reset to 0
       final newIndex = state.selectedCategoryIndex < categories.length
           ? state.selectedCategoryIndex
           : 0;
@@ -180,21 +184,21 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     ToggleFavoriteRecipe event,
     Emitter<FavouritesState> emit,
   ) async {
-    final previousState = state;
-
-    // Optimistic update
-    List<Recipe> updateListOptimistic(List<Recipe> list) {
-      return list.map((r) {
-        if (r.id == event.recipeId) {
-          return r.copyWith(isFavorite: !r.isFavorite);
-        }
-        return r;
-      }).toList();
+    // Optimistic update - remove unfavorited recipes immediately from the list
+    List<Recipe> removeFromList(List<Recipe> list) {
+      return list.where((r) => r.id != event.recipeId).toList();
     }
 
     final optimisticCategories = state.categories.map((cat) {
       final recipes = cat['recipes'] as List<Recipe>;
-      return {...cat, 'recipes': updateListOptimistic(recipes)};
+      final updatedRecipes = removeFromList(recipes);
+      final count = updatedRecipes.length;
+      return {
+        ...cat,
+        'recipes': updatedRecipes,
+        'subtitle': _formatSubtitle(count, 'recipe', 'recipes'),
+        'imagePaths': _getPreviewImagePaths(updatedRecipes),
+      };
     }).toList();
 
     final optimisticCurrentCategoryRecipes =
@@ -217,39 +221,17 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
       ),
     );
 
+    // Save to local cache immediately for instant persistence
+    await _cacheService.toggleFavorite(event.recipeId);
+
+    // Sync to server in background - don't revert on failure
     try {
-      final updated = await recipeRepository.toggleFavorite(event.recipeId);
-
-      // Update the recipe in the current lists without removing it
-      List<Recipe> updateList(List<Recipe> list) {
-        return list.map((r) => r.id == updated.id ? updated : r).toList();
-      }
-
-      final newCategories = state.categories.map((cat) {
-        final recipes = cat['recipes'] as List<Recipe>;
-        return {...cat, 'recipes': updateList(recipes)};
-      }).toList();
-
-      final currentCategoryRecipes =
-          newCategories[state.selectedCategoryIndex]['recipes'] as List<Recipe>;
-      final filteredRecipes = state.searchQuery.isEmpty
-          ? currentCategoryRecipes
-          : currentCategoryRecipes
-                .where(
-                  (recipe) => recipe.name.toLowerCase().contains(
-                    state.searchQuery.toLowerCase(),
-                  ),
-                )
-                .toList();
-
-      emit(
-        state.copyWith(
-          categories: newCategories,
-          displayRecipes: filteredRecipes,
-        ),
-      );
+      await recipeRepository.toggleFavorite(event.recipeId);
     } catch (e) {
-      emit(previousState.copyWith(error: e.toString()));
+      // Don't revert - keep optimistic state, just show sync error via snackbar
+      emit(
+        state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
+      );
     }
   }
 

@@ -1,7 +1,7 @@
 name: chefkit
 description: "A new Flutter project."
 publish_to: "none"
-version: 0.1.0
+version: 1.0.0
 
 environment:
   sdk: ^3.8.1
@@ -33,6 +33,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   shared_preferences: ^2.5.4
   cached_network_image: ^3.3.1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -40,6 +41,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
+  test: ^1.26.3
 
 flutter:
   generate: true
@@ -50,17 +52,12 @@ flutter:
     - assets/images/ingredients/
     - assets/images/recipes/
     - assets/images/chefs/
+    - assets/images/icon/
     - assets/images/
 
   fonts:
     - family: Poppins
       fonts:
-        - asset: assets/fonts/Poppins/Poppins-Thin.ttf
-          weight: 100
-        - asset: assets/fonts/Poppins/Poppins-ExtraLight.ttf
-          weight: 200
-        - asset: assets/fonts/Poppins/Poppins-Light.ttf
-          weight: 300
         - asset: assets/fonts/Poppins/Poppins-Regular.ttf
           weight: 400
         - asset: assets/fonts/Poppins/Poppins-Medium.ttf
@@ -76,10 +73,6 @@ flutter:
 
     - family: LeagueSpartan
       fonts:
-        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Thin.ttf
-          weight: 100
-        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Light.ttf
-          weight: 300
         - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Regular.ttf
           weight: 400
         - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Medium.ttf
@@ -92,3 +85,10 @@ flutter:
           weight: 800
         - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Black.ttf
           weight: 900
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon/bg.webp"
+  adaptive_icon_background: "#ea514a"
+  adaptive_icon_foreground: "assets/images/icon/fg.webp"

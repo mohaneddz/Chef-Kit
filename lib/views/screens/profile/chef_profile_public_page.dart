@@ -5,6 +5,8 @@ import '../../../blocs/chef_profile/chef_profile_bloc.dart';
 import '../../../blocs/chef_profile/chef_profile_state.dart';
 import '../../../blocs/chef_profile/chef_profile_events.dart';
 import '../../../blocs/auth/auth_cubit.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../widgets/login_required_modal.dart';
 import '../recipe/recipe_details_page.dart';
 
 class ChefProfilePublicPage extends StatefulWidget {
@@ -40,50 +42,35 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             // 1. Simple clean App Bar
             SliverAppBar(
-              backgroundColor: const Color(0xFFFAFAFA),
+              backgroundColor: theme.scaffoldBackgroundColor,
               elevation: 0,
               pinned: true,
               leading: Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? Color(0xFF2A2A2A) : Colors.white,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.grey.withOpacity(0.2)),
                 ),
                 child: IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_back,
-                    color: Colors.black,
+                    color: theme.iconTheme.color,
                     size: 20,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
-              actions: [
-                Container(
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.more_horiz,
-                      color: Colors.black,
-                      size: 20,
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
+              actions: [],
             ),
 
             SliverToBoxAdapter(
@@ -123,7 +110,9 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                               ),
                               child: CircleAvatar(
                                 radius: 55,
-                                backgroundColor: Colors.grey[200],
+                                backgroundColor: isDark
+                                    ? Color(0xFF3A3A3A)
+                                    : Colors.grey[200],
                                 backgroundImage:
                                     chef.imageUrl.startsWith('http')
                                     ? NetworkImage(chef.imageUrl)
@@ -156,11 +145,11 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                           children: [
                             Text(
                               chef.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
                                 fontFamily: 'Poppins',
-                                color: Color(0xFF1D1617),
+                                color: theme.textTheme.titleLarge?.color,
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -179,7 +168,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
+                            color: theme.textTheme.bodySmall?.color,
                             fontFamily: 'Poppins',
                           ),
                         ),
@@ -218,14 +207,25 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                                   return ElevatedButton(
                                     onPressed: isOwnProfile
                                         ? null
-                                        : () => context
-                                              .read<ChefProfileBloc>()
-                                              .add(
-                                                ToggleChefFollowEvent(
-                                                  chef.id,
-                                                  accessToken: accessToken,
-                                                ),
+                                        : () {
+                                            // Check if user is logged in
+                                            if (currentUserId == null) {
+                                              showLoginRequiredModal(
+                                                context,
+                                                customMessage:
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.loginRequiredFollow,
+                                              );
+                                              return;
+                                            }
+                                            context.read<ChefProfileBloc>().add(
+                                              ToggleChefFollowEvent(
+                                                chef.id,
+                                                accessToken: accessToken,
                                               ),
+                                            );
+                                          },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: isOwnProfile
                                           ? Colors.grey[300]
@@ -283,7 +283,8 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                 TabBar(
                   controller: _tabController,
                   labelColor: const Color(0xFFFF6B6B),
-                  unselectedLabelColor: Colors.grey,
+                  unselectedLabelColor:
+                      theme.textTheme.bodySmall?.color ?? Colors.grey,
                   indicatorColor: const Color(0xFFFF6B6B),
                   indicatorSize: TabBarIndicatorSize.label,
                   labelStyle: const TextStyle(
@@ -341,7 +342,9 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                 ),
                 SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
+                  physics: const ClampingScrollPhysics(),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (state.chef?.story != null &&
@@ -360,7 +363,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                           style: TextStyle(
                             fontSize: 14,
                             height: 1.6,
-                            color: Colors.grey[700],
+                            color: theme.textTheme.bodyMedium?.color,
                             fontFamily: 'Poppins',
                           ),
                         ),
@@ -414,22 +417,23 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
   }
 
   Widget _buildStatItem(String label, String value) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',
-            color: Color(0xFF1D1617),
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         Text(
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[500],
+            color: theme.textTheme.bodySmall?.color,
             fontFamily: 'Poppins',
           ),
         ),
@@ -438,16 +442,18 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
   }
 
   Widget _buildChip(String label) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: isDark ? Color(0xFF3A3A3A) : Colors.grey[100],
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: Colors.grey[800],
+          color: isDark ? Colors.grey[200] : Colors.grey[800],
           fontSize: 12,
           fontFamily: 'Poppins',
         ),
@@ -457,6 +463,8 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
 
   Widget _buildPremiumRecipeCard(dynamic recipe) {
     // recipe expected to be a Recipe model with fields
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
@@ -465,7 +473,7 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Color(0xFF2A2A2A) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -504,7 +512,9 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
+                          color: isDark
+                              ? Color(0xFF2A2A2A).withOpacity(0.9)
+                              : Colors.white.withOpacity(0.9),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -532,10 +542,11 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                     recipe.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Poppins',
+                      color: theme.textTheme.titleSmall?.color,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -559,14 +570,14 @@ class _ChefProfilePublicPageState extends State<ChefProfilePublicPage>
                       Icon(
                         Icons.access_time_filled,
                         size: 14,
-                        color: Colors.grey[400],
+                        color: theme.textTheme.bodySmall?.color,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '${recipe.prepTime + recipe.cookTime} min',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[500],
+                          color: theme.textTheme.bodySmall?.color,
                           fontFamily: 'Poppins',
                         ),
                       ),
@@ -608,12 +619,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(
-      color: const Color(
-        0xFFFAFAFA,
-      ), // Matches background to hide content scrolling behind
-      child: _tabBar,
-    );
+    final theme = Theme.of(context);
+    return Container(color: theme.scaffoldBackgroundColor, child: _tabBar);
   }
 
   @override

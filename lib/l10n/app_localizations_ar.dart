@@ -293,6 +293,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noFavouritesMessage => 'استكشف التطبيق واحفظ وصفاتك المفضلة!';
 
   @override
+  String get noSavedItems => 'لا توجد عناصر محفوظة حالياً';
+
+  @override
+  String get noMatchingRecipes => 'لا توجد وصفات مطابقة';
+
+  @override
+  String get tryDifferentSearch => 'جرب مصطلح بحث مختلف';
+
+  @override
+  String get startSavingRecipes => 'ابدأ بحفظ الوصفات لتراها هنا!';
+
+  @override
   String get searchYourRecipes => 'ابحث في وصفاتك...';
 
   @override
@@ -303,6 +315,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileTitle => 'الملف الشخصي';
+
+  @override
+  String get profileSubtitle => 'إدارة حسابك';
 
   @override
   String get notLoggedIn => 'غير مسجل الدخول';
@@ -532,6 +547,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get yourIngredients => 'مكوناتك:';
 
   @override
+  String get yourSelectedIngredients => 'المكونات المختارة:';
+
+  @override
   String get recipesYouCanMake => 'وصفات يمكنك صنعها';
 
   @override
@@ -615,4 +633,70 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get proceed => 'متابعة';
+
+  @override
+  String get loginRequiredTitle => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get loginRequiredMessage => 'سجّل أو ادخل لاستخدام هذه الميزة';
+
+  @override
+  String get signUp => 'التسجيل';
+
+  @override
+  String get loginRequiredFavorites => 'سجّل لحفظ وصفاتك المفضلة';
+
+  @override
+  String get loginRequiredFollow => 'سجّل لمتابعة الطهاة';
+
+  @override
+  String get guestProfileMessage => 'سجّل لفتح جميع الميزات';
+
+  @override
+  String get continueAsGuest => 'تواصل كضيف';
+
+  @override
+  String get loginRequiredNotifications => 'سجّل لرؤية إشعاراتك';
+
+  @override
+  String get signIn => 'تسجيل الدخول';
+
+  @override
+  String get welcomeBack => 'مرحباً بعودتك';
+
+  @override
+  String get signInSubtitle => 'سجّل الدخول لمتابعة رحلتك في الطهي';
+
+  @override
+  String get emailAddress => 'عنوان البريد الإلكتروني';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get forgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get dontHaveAccount => 'ليس لديك حساب؟ ';
+
+  @override
+  String get createAccount => 'إنشاء حساب';
+
+  @override
+  String get joinUsSubtitle => 'انضم إلينا لبدء الطهي';
+
+  @override
+  String get fullName => 'الاسم الكامل';
+
+  @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get alreadyHaveAccount => 'هل لديك حساب بالفعل؟ ';
+
+  @override
+  String get addIngredient => 'إضافة';
+
+  @override
+  String get deleteIngredient => 'حذف';
 }

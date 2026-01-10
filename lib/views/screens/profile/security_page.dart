@@ -186,11 +186,13 @@ class _SecurityPageState extends State<SecurityPage> {
             controller: _emailOtpController,
             keyboardType: TextInputType.number,
             maxLength: 6,
+            style: TextStyle(color: theme.textTheme.bodyLarge?.color),
             decoration: InputDecoration(
               labelText: AppLocalizations.of(context)!.enterOtp,
+              labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
               counterText: '',
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: isDark ? AppColors.darkInputFill : Colors.grey[100],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -313,7 +315,7 @@ class _SecurityPageState extends State<SecurityPage> {
           AppLocalizations.of(context)!.updatePasswordSubtitle,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey[600],
+            color: theme.textTheme.bodySmall?.color,
             fontFamily: 'Poppins',
           ),
         ),
@@ -322,10 +324,12 @@ class _SecurityPageState extends State<SecurityPage> {
           controller: _currentPasswordController,
           readOnly: _passwordOtpSent,
           obscureText: true,
+          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.currentPassword,
+            labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: isDark ? AppColors.darkInputFill : Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -342,11 +346,14 @@ class _SecurityPageState extends State<SecurityPage> {
           controller: _newPasswordController,
           readOnly: _passwordOtpSent,
           obscureText: true,
+          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.newPassword,
+            labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
             helperText: AppLocalizations.of(context)!.passwordHelperText,
+            helperStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: isDark ? AppColors.darkInputFill : Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -363,10 +370,12 @@ class _SecurityPageState extends State<SecurityPage> {
           controller: _confirmPasswordController,
           readOnly: _passwordOtpSent,
           obscureText: true,
+          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.confirmNewPassword,
+            labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: isDark ? AppColors.darkInputFill : Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -384,11 +393,13 @@ class _SecurityPageState extends State<SecurityPage> {
             controller: _passwordOtpController,
             keyboardType: TextInputType.number,
             maxLength: 6,
+            style: TextStyle(color: theme.textTheme.bodyLarge?.color),
             decoration: InputDecoration(
               labelText: AppLocalizations.of(context)!.enterOtp,
+              labelStyle: TextStyle(color: theme.textTheme.bodySmall?.color),
               counterText: '',
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: isDark ? AppColors.darkInputFill : Colors.grey[100],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,

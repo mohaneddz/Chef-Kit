@@ -11,10 +11,6 @@ class ProfileRepository {
 
   Future<UserProfile> fetchProfile(String userId) async {
     try {
-      print('=== ProfileRepository.fetchProfile ===');
-      print('Fetching profile for userId: $userId');
-      print('URL: $baseUrl/api/users/$userId');
-      
       final response = await http.get(
         Uri.parse('$baseUrl/api/users/$userId'),
         headers: {
@@ -23,18 +19,13 @@ class ProfileRepository {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('Decoded JSON data: $data');
         return UserProfile.fromJson(data);
       } else {
         throw Exception('Failed to load profile: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching profile: $e');
       throw Exception('Failed to fetch profile: $e');
     }
   }
@@ -68,7 +59,9 @@ class ProfileRepository {
         return UserProfile.fromJson(data);
       }
 
-      throw Exception('Failed to update profile: ${response.statusCode} ${response.body}');
+      throw Exception(
+        'Failed to update profile: ${response.statusCode} ${response.body}',
+      );
     } catch (e) {
       throw Exception('Failed to update personal info: $e');
     }

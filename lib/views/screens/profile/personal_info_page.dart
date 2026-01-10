@@ -451,8 +451,8 @@ Widget _buildLabeledField({
 
 Future<void> _onEditAvatarPressed(BuildContext context, String userId) async {
   try {
-    print('=== _onEditAvatarPressed called ===');
-    print('Opening image picker...');
+    // print('=== _onEditAvatarPressed called ===');
+    // print('Opening image picker...');
 
     final picker = ImagePicker();
     final picked = await picker.pickImage(
@@ -462,34 +462,34 @@ Future<void> _onEditAvatarPressed(BuildContext context, String userId) async {
       imageQuality: 85,
     );
 
-    print('Picked result: ${picked?.path ?? "null - user cancelled"}');
+    // print('Picked result: ${picked?.path ?? "null - user cancelled"}');
     if (picked == null) {
-      print('User cancelled image selection');
+      // print('User cancelled image selection');
       return;
     }
 
-    print('Reading image bytes...');
+    // print('Reading image bytes...');
     final bytes = await picked.readAsBytes();
-    print('Image size: ${bytes.length} bytes');
+    // print('Image size: ${bytes.length} bytes');
 
-    print('Encoding to base64...');
+    // print('Encoding to base64...');
     final b64 = base64Encode(bytes);
-    print('Base64 length: ${b64.length} characters');
+    // print('Base64 length: ${b64.length} characters');
 
     final authState = context.read<AuthCubit>().state;
     final accessToken = authState.accessToken;
-    print('Access token present: ${accessToken != null}');
-    if (accessToken != null) {
-      final preview = accessToken.length > 16
-          ? '${accessToken.substring(0, 16)}...'
-          : accessToken;
-      print('Access token preview: $preview');
-    }
+    // print('Access token present: ${accessToken != null}');
+    // if (accessToken != null) {
+    //   final preview = accessToken.length > 16
+    //       ? '${accessToken.substring(0, 16)}...'
+    //       : accessToken;
+    //   // print('Access token preview: $preview');
+    // }
 
     final String baseUrl = AppConfig.baseUrl; // Use centralized config
-    print('Upload URL: $baseUrl/api/users/$userId/avatar');
+    // print('Upload URL: $baseUrl/api/users/$userId/avatar');
 
-    print('Uploading to backend...');
+    // print('Uploading to backend...');
     final resp = await http.post(
       Uri.parse('$baseUrl/api/users/$userId/avatar'),
       headers: {
@@ -499,19 +499,19 @@ Future<void> _onEditAvatarPressed(BuildContext context, String userId) async {
       body: jsonEncode({'image_base64': b64}),
     );
 
-    print('Upload response: ${resp.statusCode}');
-    print('Response body: ${resp.body}');
-    print('Response headers: ${resp.headers}');
+    // print('Upload response: ${resp.statusCode}');
+    // print('Response body: ${resp.body}');
+    // print('Response headers: ${resp.headers}');
 
     if (resp.statusCode == 200) {
-      print('✅ Upload successful! Reloading profile...');
+      // print('✅ Upload successful! Reloading profile...');
       context.read<ProfileBloc>().add(LoadProfile(userId: userId));
     } else {
-      print('❌ Upload failed: ${resp.statusCode} ${resp.body}');
-      debugPrint('Avatar upload failed: ${resp.statusCode} ${resp.body}');
+      // print('❌ Upload failed: ${resp.statusCode} ${resp.body}');
+      // print('Avatar upload failed: ${resp.statusCode} ${resp.body}');
     }
   } catch (e) {
-    print('❌ Error in _onEditAvatarPressed: $e');
-    debugPrint('Avatar upload error: $e');
+    // print('❌ Error in _onEditAvatarPressed: $e');
+    // print('Avatar upload error: $e');
   }
 }

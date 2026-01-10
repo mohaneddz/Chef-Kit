@@ -34,7 +34,6 @@ import 'package:chefkit/blocs/notifications/notifications_event.dart';
 import 'package:chefkit/blocs/theme/theme_cubit.dart';
 import 'package:chefkit/common/constants.dart';
 
-import 'package:chefkit/views/screens/authentication/singup_page.dart';
 import 'package:chefkit/views/screens/home_page.dart';
 import 'package:chefkit/domain/offline_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -53,9 +52,8 @@ Future<void> main() async {
 
   try {
     await dotenv.load(fileName: '.env');
-    print('[Main] .env loaded');
   } catch (e) {
-    print('[Main] .env not loaded: $e');
+    // .env not loaded
   }
 
   if (isFirebaseSupported) {
@@ -71,22 +69,16 @@ Future<void> main() async {
         return true;
       };
 
-      print('[Main] Firebase Crashlytics initialized successfully');
+      // Firebase Crashlytics initialized successfully
 
       // Set up background message handler
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
       // Initialize Firebase Messaging Service
       await FirebaseMessagingService().initialize();
-
-      print('[Main] Firebase initialized successfully');
     } catch (e) {
-      print('[Main] Firebase initialization failed: $e');
+      // Firebase initialization failed
     }
-  } else {
-    print(
-      '[Main] Firebase not supported on this platform (${Platform.operatingSystem})',
-    );
   }
 
   final repo = IngredientsRepo.getInstance();
@@ -220,6 +212,8 @@ class _AuthInitializerState extends State<AuthInitializer> {
       return const OnboardingScreen();
     }
 
+    // Login is optional - always go to HomePage after onboarding
+    // BlocBuilder still runs restoreSessionOnStart() in initState to auto-login returning users
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         if (state.loading) {
@@ -228,11 +222,8 @@ class _AuthInitializerState extends State<AuthInitializer> {
           );
         }
 
-        if (state.userId != null && state.accessToken != null) {
-          return const HomePage();
-        }
-
-        return const SingupPage();
+        // Always show HomePage - login is optional
+        return const HomePage();
       },
     );
   }

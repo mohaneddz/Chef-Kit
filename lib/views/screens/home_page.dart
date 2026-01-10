@@ -47,8 +47,20 @@ class _HomePageState extends State<HomePage> {
         onItemTapped: (index) {
           if (index == 2) {
             final inventoryState = context.read<InventoryBloc>().state;
-            final List<String> availableIngredients = inventoryState.available
-                .map((e) => e['name'] ?? '')
+            final lang = inventoryState.currentLang;
+
+            // Get ingredient maps with all translations
+            final availableItems = inventoryState.available;
+
+            // Display names (localized) for UI
+            final List<String> displayIngredients = availableItems
+                .map((e) => e['name_$lang'] ?? e['name_en'] ?? '')
+                .where((name) => name.isNotEmpty)
+                .toList();
+
+            // English names for backend API
+            final List<String> backendIngredients = availableItems
+                .map((e) => e['key'] ?? e['name_en'] ?? '')
                 .where((name) => name.isNotEmpty)
                 .toList();
 
@@ -57,13 +69,24 @@ class _HomePageState extends State<HomePage> {
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (modalContext) => RecipeGenerationModal(
-                availableIngredients: availableIngredients,
-                onProceed: (duration, selectedIngredients) {
+                availableIngredients: displayIngredients,
+                backendIngredients: backendIngredients,
+                onProceed: (duration, selectedDisplayIngredients) {
+                  // Map selected display names back to English names for backend
+                  final selectedBackendIngredients = <String>[];
+                  for (int i = 0; i < displayIngredients.length; i++) {
+                    if (selectedDisplayIngredients.contains(
+                      displayIngredients[i],
+                    )) {
+                      selectedBackendIngredients.add(backendIngredients[i]);
+                    }
+                  }
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => RecipeLoadingPage(
-                        selectedIngredients: selectedIngredients,
+                        selectedIngredients: selectedBackendIngredients,
                         duration: duration,
                         language: Localizations.localeOf(context).languageCode,
                       ),

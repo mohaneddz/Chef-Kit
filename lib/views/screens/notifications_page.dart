@@ -5,6 +5,8 @@ import '../../common/constants.dart';
 import '../../blocs/notifications/notifications_bloc.dart';
 import '../../blocs/notifications/notifications_state.dart';
 import '../../blocs/notifications/notifications_event.dart';
+import '../../blocs/auth/auth_cubit.dart';
+import 'authentication/singup_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
@@ -17,7 +19,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<NotificationsBloc>().add(const LoadNotifications());
+    final authState = context.read<AuthCubit>().state;
+    if (authState.userId != null) {
+      context.read<NotificationsBloc>().add(const LoadNotifications());
+    }
   }
 
   IconData _getIconForType(String type) {
@@ -69,7 +74,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    // final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -102,56 +107,122 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
         ],
       ),
-      body: BlocBuilder<NotificationsBloc, NotificationsState>(
-        builder: (context, state) {
-          if (state is NotificationsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is NotificationsError) {
-            return Center(child: Text('Error: ${state.message}'));
-          } else if (state is NotificationsLoaded) {
-            final notifications = state.notifications;
-
-            if (notifications.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.notifications_none,
-                      size: 80,
-                      color: Colors.grey[300],
+      body: Builder(
+        builder: (context) {
+          final authState = context.watch<AuthCubit>().state;
+          if (authState.userId == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_off_outlined,
+                    size: 80,
+                    color: Colors.grey[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.loginRequiredNotifications,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[600],
+                      fontFamily: 'Poppins',
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.noNotifications,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SingupPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.red600,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)!.signUp,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                         fontFamily: 'Poppins',
                       ),
                     ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              itemCount: notifications.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                return _buildNotificationCard(notifications[index]);
-              },
+                  ),
+                ],
+              ),
             );
           }
-          return const SizedBox.shrink();
+
+          return BlocBuilder<NotificationsBloc, NotificationsState>(
+            builder: (context, state) {
+              if (state is NotificationsLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is NotificationsError) {
+                return Center(child: Text('Error: ${state.message}'));
+              } else if (state is NotificationsLoaded) {
+                final notifications = state.notifications;
+
+                if (notifications.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.notifications_none,
+                          size: 80,
+                          color: Colors.grey[300],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          AppLocalizations.of(context)!.noNotifications,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[600],
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
+                  ),
+                  itemCount: notifications.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    return _buildNotificationCard(notifications[index]);
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          );
         },
       ),
     );
   }
 
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isRead = notification['notification_is_read'] as bool? ?? false;
     final type = notification['notification_type'] as String? ?? 'general';
     final title =
@@ -170,11 +241,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isRead ? Colors.white : AppColors.red600.withOpacity(0.03),
+          color: isRead
+              ? (isDark ? Color(0xFF2A2A2A) : Colors.white)
+              : (isDark
+                    ? AppColors.red600.withOpacity(0.08)
+                    : AppColors.red600.withOpacity(0.03)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isRead
-                ? Colors.grey[200]!
+                ? (isDark ? Color(0xFF3A3A3A) : Colors.grey[200]!)
                 : AppColors.red600.withOpacity(0.1),
             width: 1,
           ),
@@ -186,12 +261,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isRead ? Colors.grey[100] : Colors.white,
+                color: isRead
+                    ? (isDark ? Color(0xFF3A3A3A) : Colors.grey[100])
+                    : (isDark ? Color(0xFF2A2A2A) : Colors.white),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 _getIconForType(type),
-                color: isRead ? Colors.grey[500] : _getColorForType(type),
+                color: isRead
+                    ? (isDark ? Colors.grey[400] : Colors.grey[500])
+                    : _getColorForType(type),
                 size: 22,
               ),
             ),
@@ -207,7 +286,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         child: Text(
                           title,
                           style: TextStyle(
-                            color: Colors.black,
+                            color: isDark ? Colors.white : Colors.black,
                             fontSize: 15,
                             fontWeight: isRead
                                 ? FontWeight.w500
@@ -231,7 +310,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   Text(
                     message,
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Poppins',
@@ -243,7 +322,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   Text(
                     time,
                     style: TextStyle(
-                      color: Colors.grey[400],
+                      color: isDark ? Colors.grey[500] : Colors.grey[400],
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Poppins',

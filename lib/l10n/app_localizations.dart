@@ -598,6 +598,30 @@ abstract class AppLocalizations {
   /// **'Explore the app and save your favourite recipes!'**
   String get noFavouritesMessage;
 
+  /// No description provided for @noSavedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved items currently exist'**
+  String get noSavedItems;
+
+  /// No description provided for @noMatchingRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching recipes'**
+  String get noMatchingRecipes;
+
+  /// No description provided for @tryDifferentSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search term'**
+  String get tryDifferentSearch;
+
+  /// No description provided for @startSavingRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Start saving recipes to see them here!'**
+  String get startSavingRecipes;
+
   /// No description provided for @searchYourRecipes.
   ///
   /// In en, this message translates to:
@@ -621,6 +645,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get profileTitle;
+
+  /// No description provided for @profileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your account'**
+  String get profileSubtitle;
 
   /// No description provided for @notLoggedIn.
   ///
@@ -1030,6 +1060,12 @@ abstract class AppLocalizations {
   /// **'Your Ingredients:'**
   String get yourIngredients;
 
+  /// No description provided for @yourSelectedIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Selected Ingredients:'**
+  String get yourSelectedIngredients;
+
   /// No description provided for @recipesYouCanMake.
   ///
   /// In en, this message translates to:
@@ -1185,6 +1221,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Proceed'**
   String get proceed;
+
+  /// No description provided for @loginRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Required'**
+  String get loginRequiredTitle;
+
+  /// No description provided for @loginRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up or log in to use this feature'**
+  String get loginRequiredMessage;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// No description provided for @loginRequiredFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to save your favorite recipes'**
+  String get loginRequiredFavorites;
+
+  /// No description provided for @loginRequiredFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to follow chefs'**
+  String get loginRequiredFollow;
+
+  /// No description provided for @guestProfileMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to unlock all features'**
+  String get guestProfileMessage;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @loginRequiredNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to see your notifications'**
+  String get loginRequiredNotifications;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signIn;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back'**
+  String get welcomeBack;
+
+  /// No description provided for @signInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue your culinary journey'**
+  String get signInSubtitle;
+
+  /// No description provided for @emailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get emailAddress;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get forgotPassword;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? '**
+  String get dontHaveAccount;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @joinUsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join us to start cooking'**
+  String get joinUsSubtitle;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPassword;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? '**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @addIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addIngredient;
+
+  /// No description provided for @deleteIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteIngredient;
 }
 
 class _AppLocalizationsDelegate

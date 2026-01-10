@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../domain/models/recipe.dart';
+import '../../../domain/repositories/recipe_repository.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../blocs/auth/auth_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
 import '../../../common/constants.dart';
 import '../../../database/repositories/ingredients/ingredients_repository.dart';
+import '../../widgets/login_required_modal.dart';
 
 class RecipeDetailsPage extends StatelessWidget {
   final Recipe recipe;
@@ -18,6 +21,8 @@ class RecipeDetailsPage extends StatelessWidget {
     return BlocProvider(
       create: (_) =>
           RecipeDetailsCubit(
+            recipeId: recipe.id,
+            recipeRepository: RecipeRepository(),
             initialFavorite: recipe.isFavorite,
             initialServings: recipe.servingsCount,
           )..loadIngredientTranslations(
@@ -26,7 +31,20 @@ class RecipeDetailsPage extends StatelessWidget {
                 : recipe.ingredients,
             Localizations.localeOf(context).languageCode,
           ),
-      child: _RecipeDetailsContent(recipe: recipe),
+      child: BlocListener<RecipeDetailsCubit, RecipeDetailsState>(
+        listenWhen: (prev, curr) =>
+            curr.syncError != null && prev.syncError != curr.syncError,
+        listener: (context, state) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.syncError!),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+        child: _RecipeDetailsContent(recipe: recipe),
+      ),
     );
   }
 }
@@ -79,8 +97,11 @@ class _RecipeDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -120,24 +141,27 @@ class _RecipeDetailsContent extends StatelessWidget {
   }
 
   Widget _buildSliverAppBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return SliverAppBar(
       expandedHeight: 320,
       pinned: true,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       elevation: 0,
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Material(
-          color: Colors.white,
+          color: isDark ? Color(0xFF2A2A2A) : Colors.white,
           elevation: 4,
           shadowColor: Colors.black.withOpacity(0.15),
           shape: const CircleBorder(),
           child: InkWell(
             onTap: () => Navigator.pop(context),
             customBorder: const CircleBorder(),
-            child: const Icon(
+            child: Icon(
               LucideIcons.arrowLeft,
-              color: Colors.black,
+              color: theme.iconTheme.color,
               size: 20,
             ),
           ),
@@ -149,13 +173,25 @@ class _RecipeDetailsContent extends StatelessWidget {
           child: BlocBuilder<RecipeDetailsCubit, RecipeDetailsState>(
             builder: (context, state) {
               return Material(
-                color: Colors.white,
+                color: isDark ? Color(0xFF2A2A2A) : Colors.white,
                 elevation: 4,
                 shadowColor: Colors.black.withOpacity(0.15),
                 shape: const CircleBorder(),
                 child: InkWell(
-                  onTap: () =>
-                      context.read<RecipeDetailsCubit>().toggleFavorite(),
+                  onTap: () {
+                    // Check if user is logged in
+                    final userId = context.read<AuthCubit>().state.userId;
+                    if (userId == null) {
+                      showLoginRequiredModal(
+                        context,
+                        customMessage: AppLocalizations.of(
+                          context,
+                        )!.loginRequiredFavorites,
+                      );
+                      return;
+                    }
+                    context.read<RecipeDetailsCubit>().toggleFavorite();
+                  },
                   customBorder: const CircleBorder(),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -163,7 +199,7 @@ class _RecipeDetailsContent extends StatelessWidget {
                       state.isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: state.isFavorite
                           ? AppColors.primary
-                          : Colors.black87,
+                          : theme.iconTheme.color,
                       size: 20,
                     ),
                   ),
@@ -183,19 +219,25 @@ class _RecipeDetailsContent extends StatelessWidget {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.3),
-                      Colors.white,
-                    ],
-                  ),
-                ),
+              child: Builder(
+                builder: (context) {
+                  final theme = Theme.of(context);
+                  final isDark = theme.brightness == Brightness.dark;
+                  return Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.3),
+                          isDark ? Color(0xFF1A1A1A) : Colors.white,
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -242,6 +284,8 @@ class _RecipeDetailsContent extends StatelessWidget {
   Widget _buildHeaderSection(BuildContext context) {
     final localizedName = _getLocalizedName(context);
     final localizedDescription = _getLocalizedDescription(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -250,11 +294,11 @@ class _RecipeDetailsContent extends StatelessWidget {
         children: [
           Text(
             localizedName,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
               fontFamily: 'Poppins',
-              color: Color(0xFF1D1617),
+              color: isDark ? Colors.white : Color(0xFF1D1617),
               height: 1.2,
               letterSpacing: -0.5,
             ),
@@ -374,89 +418,103 @@ class _RecipeDetailsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      LucideIcons.shoppingCart,
-                      size: 20,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    AppLocalizations.of(context)!.ingredients,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Poppins',
-                      color: Color(0xFF1D1617),
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.itemsCount(ingredientsList.length),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'LeagueSpartan',
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ...ingredientsList.asMap().entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              Builder(
+                builder: (context) {
+                  final theme = Theme.of(context);
+                  final isDark = theme.brightness == Brightness.dark;
+                  return Row(
                     children: [
                       Container(
-                        margin: const EdgeInsets.only(top: 8),
-                        width: 24,
-                        height: 24,
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.1),
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Center(
-                          child: Text(
-                            '${entry.key + 1}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
+                        child: Icon(
+                          LucideIcons.shoppingCart,
+                          size: 20,
+                          color: AppColors.primary,
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          _scaleIngredient(
-                            entry.value,
-                            servingMultiplier,
-                            state.ingredientTranslations,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            height: 1.5,
-                            fontFamily: 'LeagueSpartan',
-                            color: Color(0xFF1D1617),
-                          ),
+                      const SizedBox(width: 12),
+                      Text(
+                        AppLocalizations.of(context)!.ingredients,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Poppins',
+                          color: isDark ? Colors.white : Color(0xFF1D1617),
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.itemsCount(ingredientsList.length),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'LeagueSpartan',
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
                         ),
                       ),
                     ],
-                  ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              ...ingredientsList.asMap().entries.map((entry) {
+                return Builder(
+                  builder: (context) {
+                    final theme = Theme.of(context);
+                    final isDark = theme.brightness == Brightness.dark;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 8),
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${entry.key + 1}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              _scaleIngredient(
+                                entry.value,
+                                servingMultiplier,
+                                state.ingredientTranslations,
+                              ),
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 1.5,
+                                fontFamily: 'LeagueSpartan',
+                                color: isDark
+                                    ? Colors.white
+                                    : Color(0xFF1D1617),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 );
               }),
             ],
@@ -525,6 +583,9 @@ class _RecipeDetailsContent extends StatelessWidget {
 
   Widget _buildInstructionsSection(BuildContext context) {
     final instructions = _getLocalizedInstructions(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       child: Column(
@@ -547,11 +608,11 @@ class _RecipeDetailsContent extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 AppLocalizations.of(context)!.instructions,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Poppins',
-                  color: Color(0xFF1D1617),
+                  color: isDark ? Colors.white : Color(0xFF1D1617),
                 ),
               ),
               const Spacer(),
@@ -561,7 +622,7 @@ class _RecipeDetailsContent extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'LeagueSpartan',
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                 ),
               ),
             ],
@@ -603,11 +664,11 @@ class _RecipeDetailsContent extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
                         entry.value,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           height: 1.6,
                           fontFamily: 'LeagueSpartan',
-                          color: Color(0xFF1D1617),
+                          color: isDark ? Colors.white : Color(0xFF1D1617),
                         ),
                       ),
                     ),
@@ -635,16 +696,25 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF6F6F6),
+        color: isDark ? Color(0xFF2A2A2A) : const Color(0xFFF6F6F6),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEAEAEA)),
+        border: Border.all(
+          color: isDark ? Color(0xFF3A3A3A) : const Color(0xFFEAEAEA),
+        ),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF7B6F72)),
+          Icon(
+            icon,
+            size: 20,
+            color: isDark ? Colors.grey[400] : const Color(0xFF7B6F72),
+          ),
           const SizedBox(height: 8),
           Text(
             label,
@@ -652,17 +722,17 @@ class _InfoCard extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w500,
               fontFamily: 'LeagueSpartan',
-              color: Colors.grey[600],
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               fontFamily: 'Poppins',
-              color: Color(0xFF1D1617),
+              color: isDark ? Colors.white : Color(0xFF1D1617),
             ),
           ),
         ],

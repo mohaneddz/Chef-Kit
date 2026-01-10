@@ -2,10 +2,8 @@ import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/recipe/recipe_results_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
-import 'package:chefkit/domain/models/recipe.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/domain/repositories/recipe_repository.dart';
-import 'dart:convert';
 
 class RecipeLoadingPage extends StatefulWidget {
   final List<String> selectedIngredients;
@@ -31,7 +29,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
 
   int _currentStep = 0;
   // Number of steps to iterate through
-  final int _totalSteps = 4;
 
   @override
   void initState() {
@@ -80,17 +77,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
     }
   }
 
-  void _simulateLoading() async {
-    for (int i = 0; i < _totalSteps; i++) {
-      await Future.delayed(const Duration(milliseconds: 1200));
-      if (mounted) {
-        setState(() {
-          _currentStep = i;
-        });
-      }
-    }
-  }
-
   @override
   void dispose() {
     _rotationController.dispose();
@@ -100,8 +86,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(30.0),
@@ -158,10 +146,10 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               const SizedBox(height: 50),
               Text(
                 AppLocalizations.of(context)!.findingRecipes,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.black,
+                  color: theme.textTheme.titleLarge?.color,
                 ),
               ),
 
@@ -184,70 +172,88 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
               SizedBox(
                 width: 200,
                 child: LinearProgressIndicator(
-                  backgroundColor: Colors.grey[200],
+                  backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.red600),
                   minHeight: 6,
                 ),
               ),
 
               const SizedBox(height: 40),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.shopping_basket,
-                          color: AppColors.red600,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Your Selected Ingredients:",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 180),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isDark ? Color(0xFF2A2A2A) : Colors.grey[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDark ? Color(0xFF3A3A3A) : Colors.grey[200]!,
                     ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: widget.selectedIngredients.map((ingredient) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.shopping_basket,
+                            color: AppColors.red600,
+                            size: 20,
                           ),
-                          decoration: BoxDecoration(
-                            color: AppColors.red600.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColors.red600.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Text(
-                            ingredient,
+                          const SizedBox(width: 8),
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.yourSelectedIngredients,
                             style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.red600,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: theme.textTheme.bodyMedium?.color,
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: widget.selectedIngredients.map((
+                              ingredient,
+                            ) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.red600.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: AppColors.red600.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  ingredient,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.red600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 

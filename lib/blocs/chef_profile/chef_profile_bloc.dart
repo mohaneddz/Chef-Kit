@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../common/favorites_cache_service.dart';
 import '../../domain/repositories/chef_repository.dart';
 import '../../domain/repositories/recipe_repository.dart';
 import 'chef_profile_events.dart';
@@ -7,6 +8,7 @@ import 'chef_profile_state.dart';
 class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
   final ChefRepository chefRepository;
   final RecipeRepository recipeRepository;
+  final FavoritesCacheService _cacheService = FavoritesCacheService();
   ChefProfileBloc({
     required this.chefRepository,
     required this.recipeRepository,
@@ -20,34 +22,34 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
     LoadChefProfileEvent event,
     Emitter<ChefProfileState> emit,
   ) async {
-    print('\n🔵 ChefProfileBloc._onLoad START');
-    print('Chef ID: ${event.chefId}');
-    print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
+    // print('\n🔵 ChefProfileBloc._onLoad START');
+    // print('Chef ID: ${event.chefId}');
+    // print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
     emit(state.copyWith(loading: true, error: null));
 
     try {
-      print('Fetching chef data with auth...');
+      // print('Fetching chef data with auth...');
       final chef = await chefRepository.getChefById(
         event.chefId,
         accessToken: event.accessToken,
       );
-      print(
-        '✅ Chef loaded: ${chef?.name ?? "null"}, isFollowed: ${chef?.isFollowed}',
-      );
+      // print(
+      // '✅ Chef loaded: ${chef?.name ?? "null"}, isFollowed: ${chef?.isFollowed}',
+      // );
 
-      print('Fetching recipes...');
+      // print('Fetching recipes...');
       final recipes = await recipeRepository.fetchRecipesByChef(event.chefId);
-      print('✅ Recipes loaded: ${recipes.length} recipes');
+      // print('✅ Recipes loaded: ${recipes.length} recipes');
 
-      print('Emitting new state...');
+      // print('Emitting new state...');
       emit(state.copyWith(loading: false, chef: chef, recipes: recipes));
-      print('✅ State emitted successfully');
-      print('🔵 ChefProfileBloc._onLoad END\n');
-    } catch (e, stackTrace) {
-      print('\n❌ ERROR in ChefProfileBloc._onLoad: $e');
-      print('Stack trace: $stackTrace');
+      // print('✅ State emitted successfully');
+      // print('🔵 ChefProfileBloc._onLoad END\n');
+    } catch (e) {
+      // print('\n❌ ERROR in ChefProfileBloc._onLoad: $e');
+      // print('Stack trace: $stackTrace');
       emit(state.copyWith(loading: false, error: e.toString()));
-      print('🔵 ChefProfileBloc._onLoad END (ERROR)\n');
+      // print('🔵 ChefProfileBloc._onLoad END (ERROR)\n');
     }
   }
 
@@ -55,28 +57,28 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
     ToggleChefFollowEvent event,
     Emitter<ChefProfileState> emit,
   ) async {
-    print('\n🟡 ChefProfileBloc._onToggleFollow START');
-    print('Chef ID: ${event.chefId}');
-    print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
+    // print('\n🟡 ChefProfileBloc._onToggleFollow START');
+    // print('Chef ID: ${event.chefId}');
+    // print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
 
     try {
-      print('Calling chefRepository.toggleFollow...');
+      // print('Calling chefRepository.toggleFollow...');
       final updated = await chefRepository.toggleFollow(
         event.chefId,
         accessToken: event.accessToken,
       );
-      print('✅ Toggle follow successful');
-      print('New follow status: ${updated.isFollowed}');
-      print('New follower count: ${updated.followersCount}');
+      // print('✅ Toggle follow successful');
+      // print('New follow status: ${updated.isFollowed}');
+      // print('New follower count: ${updated.followersCount}');
 
       emit(state.copyWith(chef: updated));
-      print('✅ State updated with new chef data');
-      print('🟡 ChefProfileBloc._onToggleFollow END\n');
-    } catch (e, stackTrace) {
-      print('\n❌ ERROR in ChefProfileBloc._onToggleFollow: $e');
-      print('Stack trace: $stackTrace');
+      // print('✅ State updated with new chef data');
+      // print('🟡 ChefProfileBloc._onToggleFollow END\n');
+    } catch (e) {
+      // print('\n❌ ERROR in ChefProfileBloc._onToggleFollow: $e');
+      // print('Stack trace: $stackTrace');
       emit(state.copyWith(error: e.toString()));
-      print('🟡 ChefProfileBloc._onToggleFollow END (ERROR)\n');
+      // print('🟡 ChefProfileBloc._onToggleFollow END (ERROR)\n');
     }
   }
 
@@ -84,8 +86,6 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
     ToggleChefRecipeFavoriteEvent event,
     Emitter<ChefProfileState> emit,
   ) async {
-    final previousState = state;
-
     // Optimistic update
     final updatedRecipes = state.recipes.map((r) {
       if (r.id == event.recipeId) {
@@ -96,6 +96,10 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
 
     emit(state.copyWith(recipes: updatedRecipes));
 
+    // Save to local cache immediately for persistence
+    await _cacheService.toggleFavorite(event.recipeId);
+
+    // Sync to server in background - don't revert on failure
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
       emit(
@@ -106,7 +110,11 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
         ),
       );
     } catch (e) {
-      emit(previousState.copyWith(error: e.toString()));
+      // Don't revert - keep optimistic state, just show sync error via snackbar
+      // print('⚠️ Favorite sync failed: $e');
+      emit(
+        state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
+      );
     }
   }
 }

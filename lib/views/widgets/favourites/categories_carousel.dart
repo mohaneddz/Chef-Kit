@@ -32,6 +32,41 @@ class CategoriesCarousel extends StatelessWidget {
       return const SizedBox(height: 130);
     }
 
+    // When fewer than 3 categories, use a simpler centered layout
+    if (categories.length < 3) {
+      return SizedBox(
+        height: 130,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: categories.asMap().entries.map((entry) {
+            final index = entry.key;
+            final categoryData = entry.value;
+            return GestureDetector(
+              onTap: () => onCategoryTap(index),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: AnimatedScale(
+                  scale: selectedIndex == index ? 1.0 : 0.9,
+                  duration: const Duration(milliseconds: 200),
+                  child: SizedBox(
+                    width:
+                        (MediaQuery.of(context).size.width - 60) /
+                        categories.length,
+                    child: CollectionCard(
+                      title: categoryData['title'],
+                      subtitle: categoryData['subtitle'],
+                      imagePaths: List<String>.from(categoryData['imagePaths']),
+                      isActive: selectedIndex == index,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
     return SizedBox(
       height: 130,
       child: PageView.builder(

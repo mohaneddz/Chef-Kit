@@ -8,7 +8,9 @@ import '../../../blocs/discovery/discovery_state.dart';
 import '../../../blocs/discovery/discovery_events.dart';
 import '../../../blocs/notifications/notifications_bloc.dart';
 import '../../../blocs/notifications/notifications_state.dart';
+import '../../../blocs/auth/auth_cubit.dart';
 import '../../widgets/search_bar_widget.dart';
+import '../../widgets/login_required_modal.dart';
 import '../../widgets/section_header_widget.dart';
 import '../../widgets/profile/chef_card_widget.dart';
 import '../../widgets/recipe/recipe_card_widget.dart';
@@ -49,7 +51,7 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    // final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -89,48 +91,60 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 25.0, top: 10),
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationsPage()),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withOpacity(0.1)),
-                ),
-                child: Stack(
-                  children: [
-                    const Icon(
-                      Icons.notifications_outlined,
-                      size: 24,
-                      color: Colors.black,
+            child: Builder(
+              builder: (context) {
+                final theme = Theme.of(context);
+                final isDark = theme.brightness == Brightness.dark;
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NotificationsPage(),
                     ),
-                    BlocBuilder<NotificationsBloc, NotificationsState>(
-                      builder: (context, state) {
-                        if (state is NotificationsLoaded &&
-                            state.unreadCount > 0) {
-                          return Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark ? Color(0xFF2A2A2A) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark
+                            ? Color(0xFF3A3A3A)
+                            : Colors.grey.withOpacity(0.1),
+                      ),
                     ),
-                  ],
-                ),
-              ),
+                    child: Stack(
+                      children: [
+                        Icon(
+                          Icons.notifications_outlined,
+                          size: 24,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        BlocBuilder<NotificationsBloc, NotificationsState>(
+                          builder: (context, state) {
+                            if (state is NotificationsLoaded &&
+                                state.unreadCount > 0) {
+                              return Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -287,9 +301,24 @@ class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
                           imageUrl: recipe.imageUrl,
                           isFavorite: recipe.isFavorite,
                           heroTag: 'recipe_${recipe.id}',
-                          onFavoritePressed: () => context
-                              .read<DiscoveryBloc>()
-                              .add(ToggleDiscoveryRecipeFavorite(recipe.id)),
+                          onFavoritePressed: () {
+                            final userId = context
+                                .read<AuthCubit>()
+                                .state
+                                .userId;
+                            if (userId == null) {
+                              showLoginRequiredModal(
+                                context,
+                                customMessage: AppLocalizations.of(
+                                  context,
+                                )!.loginRequiredFavorites,
+                              );
+                              return;
+                            }
+                            context.read<DiscoveryBloc>().add(
+                              ToggleDiscoveryRecipeFavorite(recipe.id),
+                            );
+                          },
                           onTap: () {
                             Navigator.push(
                               context,

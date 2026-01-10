@@ -79,7 +79,7 @@ class ChefCardWidget extends StatelessWidget {
               margin: const EdgeInsets.only(top: 4),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFECEC),
+                color: isDark ? Color(0xFF3D1F1F) : const Color(0xFFFFECEC),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Row(

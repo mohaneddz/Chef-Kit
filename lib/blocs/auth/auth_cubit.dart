@@ -131,7 +131,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final signupUrl = Uri.parse('$baseUrl/auth/signup');
-      print('[AuthCubit] signup POST $signupUrl');
+      // print('[AuthCubit] signup POST $signupUrl');
       final resp = await http
           .post(
             signupUrl,
@@ -212,27 +212,27 @@ class AuthCubit extends Cubit<AuthState> {
       String? deviceToken;
       if (isFirebaseSupported) {
         deviceToken = FirebaseMessagingService().fcmToken;
-        print('[AuthCubit] Firebase supported: true');
-        print('[AuthCubit] FCM token available: ${deviceToken != null}');
+        // print('[AuthCubit] Firebase supported: true');
+        // print('[AuthCubit] FCM token available: ${deviceToken != null}');
         if (deviceToken != null) {
-          print(
-            '[AuthCubit] FCM token (first 30 chars): ${deviceToken.substring(0, deviceToken.length > 30 ? 30 : deviceToken.length)}...',
-          );
+          // print(
+          // '[AuthCubit] FCM token (first 30 chars): ${deviceToken.substring(0, deviceToken.length > 30 ? 30 : deviceToken.length)}...',
+          // );
         }
       } else {
-        print('[AuthCubit] Firebase NOT supported on this platform');
+        // print('[AuthCubit] Firebase NOT supported on this platform');
       }
 
-      print(
-        '[AuthCubit] Sending login request with device_token: ${deviceToken != null}',
-      );
+      // print(
+      // '[AuthCubit] Sending login request with device_token: ${deviceToken != null}',
+      // );
 
       final requestBody = {
         'email': email,
         'password': password,
         if (deviceToken != null) 'device_token': deviceToken,
       };
-      print('[AuthCubit] Request body keys: ${requestBody.keys.toList()}');
+      // print('[AuthCubit] Request body keys: ${requestBody.keys.toList()}');
 
       final resp = await http
           .post(
@@ -242,7 +242,7 @@ class AuthCubit extends Cubit<AuthState> {
           )
           .timeout(const Duration(seconds: 10));
 
-      print('[AuthCubit] Response status: ${resp.statusCode}');
+      // print('[AuthCubit] Response status: ${resp.statusCode}');
 
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -471,6 +471,24 @@ class AuthCubit extends Cubit<AuthState> {
 
   bool _validateEmail(String email) {
     return RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(email);
+  }
+
+  /// Clear field errors and general error state
+  void clearAuthFieldErrors() {
+    emit(state.copyWith(fieldErrors: {}, error: null));
+  }
+
+  /// Reset OTP and signup state
+  void resetOtpAndSignupState() {
+    emit(
+      state.copyWith(
+        needsOtp: false,
+        signedUp: false,
+        fieldErrors: {},
+        error: null,
+      ),
+    );
+    pendingEmail = null;
   }
 
   Map<String, String> _authHeaders() {

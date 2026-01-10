@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../common/favorites_cache_service.dart';
 import '../../domain/repositories/chef_repository.dart';
 import '../../domain/repositories/recipe_repository.dart';
 import 'discovery_events.dart';
@@ -7,6 +8,7 @@ import 'discovery_state.dart';
 class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
   final ChefRepository chefRepository;
   final RecipeRepository recipeRepository;
+  final FavoritesCacheService _cacheService = FavoritesCacheService();
   DiscoveryBloc({required this.chefRepository, required this.recipeRepository})
     : super(DiscoveryState()) {
     on<LoadDiscovery>(_onLoad);
@@ -20,7 +22,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
   ) async {
     // Skip if already loading
     if (state.loading) {
-      print('⏭️ Discovery: Already loading, skipping');
+      // print('⏭️ Discovery: Already loading, skipping');
       return;
     }
 
@@ -28,7 +30,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     if (state.chefsOnFire.isNotEmpty &&
         state.hotRecipes.isNotEmpty &&
         state.error == null) {
-      print('⏭️ Discovery: Already have data, skipping');
+      // print('⏭️ Discovery: Already have data, skipping');
       return;
     }
 
@@ -43,34 +45,34 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
 
     // Load chefs
     try {
-      print('📡 Discovery: Loading chefs...');
+      // print('📡 Discovery: Loading chefs...');
       chefs = await chefRepository.fetchChefsOnFire();
-      print('✅ Discovery: Got ${chefs.length} chefs');
+      // print('✅ Discovery: Got ${chefs.length} chefs');
       hasAnyData = true;
     } catch (e) {
-      print('❌ Discovery: Chefs failed: $e');
+      // print('❌ Discovery: Chefs failed: $e');
       lastError = e.toString();
     }
 
     // Load hot recipes
     try {
-      print('📡 Discovery: Loading hot recipes...');
+      // print('📡 Discovery: Loading hot recipes...');
       hot = await recipeRepository.fetchHotRecipes();
-      print('✅ Discovery: Got ${hot.length} hot recipes');
+      // print('✅ Discovery: Got ${hot.length} hot recipes');
       hasAnyData = true;
     } catch (e) {
-      print('❌ Discovery: Hot recipes failed: $e');
+      // print('❌ Discovery: Hot recipes failed: $e');
       lastError = e.toString();
     }
 
     // Load seasonal recipes (often fails due to large data)
     try {
-      print('📡 Discovery: Loading seasonal recipes...');
+      // print('📡 Discovery: Loading seasonal recipes...');
       seasonal = await recipeRepository.fetchSeasonalRecipes();
-      print('✅ Discovery: Got ${seasonal.length} seasonal recipes');
+      // print('✅ Discovery: Got ${seasonal.length} seasonal recipes');
       hasAnyData = true;
     } catch (e) {
-      print('❌ Discovery: Seasonal recipes failed: $e (non-critical)');
+      // print('❌ Discovery: Seasonal recipes failed: $e (non-critical)');
       // Don't set lastError - seasonal failing is OK if we have other data
     }
 
@@ -85,7 +87,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
           error: null,
         ),
       );
-      print('✅ Discovery: Load complete!');
+      // print('✅ Discovery: Load complete!');
     } else {
       emit(
         state.copyWith(
@@ -93,7 +95,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
           error: lastError ?? 'Failed to load data',
         ),
       );
-      print('❌ Discovery: All sections failed');
+      // print('❌ Discovery: All sections failed');
     }
   }
 
@@ -106,7 +108,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     // Don't show loading spinner for refresh (pull-to-refresh has its own)
 
     try {
-      print('🔄 Discovery: Force refreshing...');
+      // print('🔄 Discovery: Force refreshing...');
       final chefs = await chefRepository.fetchChefsOnFire();
       final hot = await recipeRepository.fetchHotRecipes();
       final seasonal = await recipeRepository.fetchSeasonalRecipes();
@@ -120,15 +122,15 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
           error: null,
         ),
       );
-      print('✅ Discovery: Refresh complete!');
+      // print('✅ Discovery: Refresh complete!');
     } catch (e) {
-      print('❌ Discovery: Refresh failed: $e');
+      // print('❌ Discovery: Refresh failed: $e');
       // If we have existing data, silently fail - don't show error
       if (state.chefsOnFire.isEmpty && state.hotRecipes.isEmpty) {
         emit(state.copyWith(loading: false, error: e.toString()));
       } else {
         // Keep the old data, just stop loading
-        print('ℹ️ Discovery: Keeping old data after refresh failure');
+        // print('ℹ️ Discovery: Keeping old data after refresh failure');
       }
     }
   }
@@ -137,8 +139,6 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     ToggleDiscoveryRecipeFavorite event,
     Emitter<DiscoveryState> emit,
   ) async {
-    final previousState = state;
-
     // Optimistic update
     final updatedHotRecipes = state.hotRecipes.map((r) {
       if (r.id == event.recipeId) {
@@ -161,6 +161,10 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
       ),
     );
 
+    // Save to local cache immediately for persistence
+    await _cacheService.toggleFavorite(event.recipeId);
+
+    // Sync to server in background - don't revert on failure
     try {
       final updated = await recipeRepository.toggleFavorite(event.recipeId);
       emit(
@@ -174,7 +178,11 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
         ),
       );
     } catch (e) {
-      emit(previousState.copyWith(error: e.toString()));
+      // Don't revert - keep optimistic state, just show sync error via snackbar
+      // print('⚠️ Favorite sync failed: $e');
+      emit(
+        state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
+      );
     }
   }
 }

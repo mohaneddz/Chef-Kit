@@ -8,6 +8,9 @@ class RecipeDetailsState {
   final bool showFullRecipe;
   final Map<String, IngredientTranslation> ingredientTranslations;
 
+  /// Non-blocking error for like sync failures - shows snackbar, doesn't revert UI
+  final String? syncError;
+
   RecipeDetailsState({
     this.loading = false,
     this.error,
@@ -15,6 +18,7 @@ class RecipeDetailsState {
     this.servings = 4,
     this.showFullRecipe = false,
     this.ingredientTranslations = const {},
+    this.syncError,
   });
 
   RecipeDetailsState copyWith({
@@ -24,6 +28,7 @@ class RecipeDetailsState {
     int? servings,
     bool? showFullRecipe,
     Map<String, IngredientTranslation>? ingredientTranslations,
+    String? syncError,
   }) {
     return RecipeDetailsState(
       loading: loading ?? this.loading,
@@ -33,6 +38,7 @@ class RecipeDetailsState {
       showFullRecipe: showFullRecipe ?? this.showFullRecipe,
       ingredientTranslations:
           ingredientTranslations ?? this.ingredientTranslations,
+      syncError: syncError,
     );
   }
 }

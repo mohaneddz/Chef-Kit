@@ -20,7 +20,7 @@ class NavigationService {
   /// Navigate to a recipe details page by fetching the recipe first.
   static Future<void> navigateToRecipe(String recipeId) async {
     try {
-      print('[NavigationService] Navigating to recipe: $recipeId');
+      // print('[NavigationService] Navigating to recipe: $recipeId');
 
       // Fetch recipe from backend
       final accessToken = await _tokenStorage.readAccessToken();
@@ -40,21 +40,21 @@ class NavigationService {
           MaterialPageRoute(builder: (_) => RecipeDetailsPage(recipe: recipe)),
         );
       } else {
-        print(
-          '[NavigationService] Failed to fetch recipe: ${response.statusCode}',
-        );
+        // print(
+          // '[NavigationService] Failed to fetch recipe: ${response.statusCode}',
+        // );
         // Fallback to notifications page
         navigateToNotifications();
       }
     } catch (e) {
-      print('[NavigationService] Error navigating to recipe: $e');
+      // print('[NavigationService] Error navigating to recipe: $e');
       navigateToNotifications();
     }
   }
 
   /// Navigate to a chef's public profile page.
   static void navigateToChefProfile(String chefId) {
-    print('[NavigationService] Navigating to chef profile: $chefId');
+    // print('[NavigationService] Navigating to chef profile: $chefId');
     navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (_) => ChefProfilePublicPage(chefId: chefId)),
     );
@@ -62,7 +62,7 @@ class NavigationService {
 
   /// Navigate to the notifications page (default fallback).
   static void navigateToNotifications() {
-    print('[NavigationService] Navigating to notifications page');
+    // print('[NavigationService] Navigating to notifications page');
     navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (_) => const NotificationsPage()),
     );
@@ -70,7 +70,7 @@ class NavigationService {
 
   /// Navigate to the all hot recipes page.
   static void navigateToHotRecipes() {
-    print('[NavigationService] Navigating to hot recipes page');
+    // print('[NavigationService] Navigating to hot recipes page');
     navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (_) => const AllHotRecipesPage()),
     );
@@ -81,7 +81,7 @@ class NavigationService {
   static Future<void> handleNotificationNavigation(
     Map<String, dynamic> data,
   ) async {
-    print('[NavigationService] Handling notification navigation: $data');
+    // print('[NavigationService] Handling notification navigation: $data');
 
     final type = data['notification_type'] ?? data['type'];
     final recipeId = data['recipe_id'];

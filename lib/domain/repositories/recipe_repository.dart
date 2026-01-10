@@ -40,9 +40,6 @@ class RecipeRepository {
         return await http.get(uri, headers: headers).timeout(timeout);
       } on TimeoutException {
         if (attempts < maxRetries) {
-          print(
-            '⏱️ HTTP timeout, retry attempt $attempts/$maxRetries for $uri',
-          );
           await Future.delayed(Duration(milliseconds: 500 * attempts));
           continue;
         }
@@ -55,7 +52,6 @@ class RecipeRepository {
             e.toString().contains('ClientException');
 
         if (isConnectionError && attempts < maxRetries) {
-          print('🔄 HTTP retry attempt $attempts/$maxRetries for $uri');
           await Future.delayed(Duration(milliseconds: 100 * attempts));
           continue;
         }
@@ -80,7 +76,6 @@ class RecipeRepository {
       }
       return [];
     } catch (e) {
-      print('Error fetching favorite IDs: $e');
       return [];
     }
   }
@@ -108,37 +103,27 @@ class RecipeRepository {
   }
 
   Future<List<Recipe>> fetchRecipesResult(List<String> ingredients) async {
-    print('Fetching recipes result from: $baseUrl/api/recipes/result');
-    print('Ingredients: $ingredients');
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/recipes/result'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'ingredients': ingredients}),
       );
-      print('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         try {
           final List<dynamic> data = json.decode(response.body);
-          print('Decoded JSON data length: ${data.length}');
           final recipes = data.map((json) => Recipe.fromJson(json)).toList();
-          print('Parsed ${recipes.length} recipes');
           return _processRecipes(recipes);
-        } catch (e, stack) {
-          print('Error parsing recipes: $e');
-          print(stack);
+        } catch (e) {
           throw Exception('Failed to parse recipes: $e');
         }
       } else {
-        print('Request failed with status: ${response.statusCode}');
-        print('Body: ${response.body}');
         throw Exception(
           'Failed to load recipes result: ${response.statusCode}',
         );
       }
     } catch (e) {
-      print('Network or other error: $e');
       rethrow;
     }
   }
@@ -156,72 +141,43 @@ class RecipeRepository {
   }
 
   Future<List<Recipe>> fetchSeasonalRecipes() async {
-    print('Fetching seasonal recipes from $baseUrl/api/recipes/seasonal');
+    // print('Fetching seasonal recipes from $baseUrl/api/recipes/seasonal');
     final response = await _httpGetWithRetry(
       Uri.parse('$baseUrl/api/recipes/seasonal'),
     );
-    print('Seasonal response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final recipes = data.map((json) => Recipe.fromJson(json)).toList();
       return _processRecipes(recipes);
     }
-    print('❌ Seasonal recipes failed with status ${response.statusCode}');
-    print('Response body: ${response.body}');
     throw Exception('Failed to load seasonal recipes: ${response.statusCode}');
   }
 
   Future<List<Recipe>> fetchRecipesByChef(String chefId) async {
-    print('\n=== fetchRecipesByChef START ===');
-    print('Chef ID: $chefId');
-    print('URL: $baseUrl/api/chefs/$chefId/recipes');
-
     try {
-      print('Making HTTP request...');
       final response = await http.get(
         Uri.parse('$baseUrl/api/chefs/$chefId/recipes'),
       );
-      print('Response status code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        print('Response body length: ${response.body.length}');
-        print('Response body: ${response.body}');
-
-        print('Decoding JSON...');
         final List<dynamic> data = json.decode(response.body);
-        print('Number of recipes in response: ${data.length}');
-
         final recipes = <Recipe>[];
 
         for (int i = 0; i < data.length; i++) {
-          print('\n--- Parsing recipe $i ---');
           final recipeJson = data[i];
-          print('Recipe JSON keys: ${recipeJson.keys.toList()}');
-          print('Recipe ID: ${recipeJson['recipe_id']}');
-          print('Recipe Name: ${recipeJson['recipe_name']}');
 
           try {
-            print('Calling Recipe.fromJson...');
             final recipe = Recipe.fromJson(recipeJson);
-            print('Successfully parsed recipe: ${recipe.name}');
             recipes.add(recipe);
-          } catch (e, stackTrace) {
-            print('❌ ERROR parsing recipe $i: $e');
-            print('Recipe data: $recipeJson');
-            print('Stack trace: $stackTrace');
+          } catch (e) {
             // Skip this recipe and continue with others
           }
         }
 
-        print('\n✅ Total recipes parsed successfully: ${recipes.length}');
-        print('=== fetchRecipesByChef END ===\n');
         return _processRecipes(recipes);
       }
       throw Exception('Failed to load chef recipes: ${response.statusCode}');
-    } catch (e, stackTrace) {
-      print('\n❌ FATAL ERROR in fetchRecipesByChef: $e');
-      print('Stack trace: $stackTrace');
-      print('=== fetchRecipesByChef END (ERROR) ===\n');
+    } catch (e) {
       rethrow;
     }
   }
@@ -246,8 +202,9 @@ class RecipeRepository {
 
   Future<Recipe> toggleFavorite(String recipeId) async {
     final headers = await _getHeaders();
-    if (!headers.containsKey('Authorization'))
+    if (!headers.containsKey('Authorization')) {
       throw Exception('User not logged in');
+    }
 
     final response = await http.post(
       Uri.parse('$baseUrl/api/favorites/$recipeId/toggle'),
@@ -292,7 +249,7 @@ class RecipeRepository {
         throw Exception('Failed to generate recipes: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error generating recipes: $e');
+      // print('Error generating recipes: $e');
       rethrow;
     }
   }

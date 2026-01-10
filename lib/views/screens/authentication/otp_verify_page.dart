@@ -179,16 +179,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
               TextButton(
                 onPressed: () {
                   // Clear any pending OTP state before navigating back
-                  final cubit = context.read<AuthCubit>();
-                  cubit.pendingEmail = null;
-                  cubit.emit(
-                    cubit.state.copyWith(
-                      needsOtp: false,
-                      signedUp: false,
-                      fieldErrors: {},
-                      error: null,
-                    ),
-                  );
+                  context.read<AuthCubit>().resetOtpAndSignupState();
 
                   // Navigate to origin page
                   if (widget.fromSignup) {
