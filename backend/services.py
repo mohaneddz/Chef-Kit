@@ -344,8 +344,8 @@ def get_all_recipes(tag: Optional[str] = None) -> List[Dict[str, Any]]:
     query = supabase.table("recipe").select(_RECIPE_COLUMNS)
     if tag:
         query = query.contains("recipe_tags", [tag])
-    # Limit to 20 to prevent huge payloads for now
-    resp = query.limit(20).execute()
+    # Limit to 100 to show more recipes
+    resp = query.limit(100).execute()
     data = _extract_response_data(resp)
     return data or []
 
