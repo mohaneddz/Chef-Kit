@@ -294,33 +294,37 @@ class _LoginPageState extends State<LoginPage> {
               ),
               // Guest Button
               Positioned(
-                top: 10,
-                right: 20,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HomePage()),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.continueAsGuest,
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          fontFamily: 'Poppins',
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomePage()),
+                      );
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.continueAsGuest,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward,
-                        size: 16,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 16,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
