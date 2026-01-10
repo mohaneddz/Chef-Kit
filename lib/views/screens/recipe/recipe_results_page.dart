@@ -14,11 +14,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RecipeResultsPage extends StatelessWidget {
   final List<String> selectedIngredients;
+  final List<String>? displayIngredients;
   final List<Recipe>? initialRecipes;
 
   const RecipeResultsPage({
     super.key,
     required this.selectedIngredients,
+    this.displayIngredients,
     this.initialRecipes,
   });
 
@@ -147,31 +149,36 @@ class RecipeResultsPage extends StatelessWidget {
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: selectedIngredients.map((ingredient) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Color(0xFF2A2A2A)
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: AppColors.red600.withOpacity(0.3),
-                                  ),
-                                ),
-                                child: Text(
-                                  ingredient,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.red600,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                            children:
+                                (displayIngredients ?? selectedIngredients).map(
+                                  (ingredient) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? Color(0xFF2A2A2A)
+                                            : Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: AppColors.red600.withOpacity(
+                                            0.3,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        ingredient,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.red600,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ).toList(),
                           ),
                         ],
                       ),

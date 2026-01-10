@@ -7,12 +7,14 @@ import 'package:chefkit/domain/repositories/recipe_repository.dart';
 
 class RecipeLoadingPage extends StatefulWidget {
   final List<String> selectedIngredients;
+  final List<String>? displayIngredients;
   final int? duration;
   final String? language;
 
   const RecipeLoadingPage({
     super.key,
     required this.selectedIngredients,
+    this.displayIngredients,
     this.duration,
     this.language,
   });
@@ -62,6 +64,7 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
           MaterialPageRoute(
             builder: (context) => RecipeResultsPage(
               selectedIngredients: widget.selectedIngredients,
+              displayIngredients: widget.displayIngredients,
               initialRecipes: recipes,
             ),
           ),
@@ -220,35 +223,39 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: widget.selectedIngredients.map((
-                              ingredient,
-                            ) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.red600.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: AppColors.red600.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                  ),
-                                ),
-                                child: Text(
-                                  ingredient,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.red600,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                            children:
+                                (widget.displayIngredients ??
+                                        widget.selectedIngredients)
+                                    .map((ingredient) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.red600.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          border: Border.all(
+                                            color: AppColors.red600.withValues(
+                                              alpha: 0.3,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          ingredient,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: AppColors.red600,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      );
+                                    })
+                                    .toList(),
                           ),
                         ),
                       ),

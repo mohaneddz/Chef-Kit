@@ -87,6 +87,7 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (context) => RecipeLoadingPage(
                         selectedIngredients: selectedBackendIngredients,
+                        displayIngredients: selectedDisplayIngredients,
                         duration: duration,
                         language: Localizations.localeOf(context).languageCode,
                       ),
