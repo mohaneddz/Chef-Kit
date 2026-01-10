@@ -50,7 +50,9 @@ class CategoriesCarousel extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   child: SizedBox(
                     width:
-                        (MediaQuery.of(context).size.width - 60) /
+                        (MediaQuery.of(context).size.width -
+                            60 -
+                            (categories.length * 8)) /
                         categories.length,
                     child: CollectionCard(
                       title: categoryData['title'],
