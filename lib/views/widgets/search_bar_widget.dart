@@ -55,6 +55,8 @@ class SearchBarWidget extends StatelessWidget {
                       color: theme.textTheme.bodySmall?.color,
                     ),
                     border: InputBorder.none,
+                    filled: true,
+                    fillColor: isDark ? AppColors.darkCard : Colors.white,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 14,
