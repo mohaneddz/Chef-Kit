@@ -128,8 +128,8 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
         });
       });
 
-      // Add "All Saved" at the end
-      categories.add({
+      // Add "All Saved" at the beginning (index 0) so it's selected by default
+      categories.insert(0, {
         'title': allSavedTitle,
         'subtitle': _formatSubtitle(
           favoriteRecipes.length,

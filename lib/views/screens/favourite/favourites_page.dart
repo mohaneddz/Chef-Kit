@@ -204,13 +204,46 @@ class _FavouritesPageState extends State<FavouritesPage> {
                         },
                       ),
                       const SizedBox(height: 25),
-                      Text(
-                        AppLocalizations.of(context)!.categoriesTitle,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: theme.textTheme.titleLarge?.color,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.categoriesTitle,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: theme.textTheme.titleLarge?.color,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // Select the "All Favourites" category (index 0)
+                              context.read<FavouritesBloc>().add(
+                                SelectCategory(0),
+                              );
+                              // Animate the page controller to the first category
+                              if (_pageController != null &&
+                                  state.categories.isNotEmpty) {
+                                final targetPage =
+                                    1000 * state.categories.length;
+                                _pageController!.animateToPage(
+                                  targetPage,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                            child: Text(
+                              AppLocalizations.of(context)!.seeAll,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.orange,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       if (_pageController != null)
