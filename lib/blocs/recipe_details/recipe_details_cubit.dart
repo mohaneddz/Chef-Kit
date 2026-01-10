@@ -52,7 +52,7 @@ class RecipeDetailsCubit extends Cubit<RecipeDetailsState> {
       await _recipeRepository.toggleFavorite(recipeId);
     } catch (e) {
       // Don't revert UI, just show sync error via snackbar
-      print('⚠️ Favorite sync failed: $e');
+      // print('⚠️ Favorite sync failed: $e');
       emit(
         state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
       );

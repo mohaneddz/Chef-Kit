@@ -25,10 +25,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   // Initialize Firebase for background handler
   await Firebase.initializeApp();
-  print('[FCM Background] Message received: ${message.messageId}');
-  print('[FCM Background] Title: ${message.notification?.title}');
-  print('[FCM Background] Body: ${message.notification?.body}');
-  print('[FCM Background] Data: ${message.data}');
+  // print('[FCM Background] Message received: ${message.messageId}');
+  // print('[FCM Background] Title: ${message.notification?.title}');
+  // print('[FCM Background] Body: ${message.notification?.body}');
+  // print('[FCM Background] Data: ${message.data}');
 }
 
 /// Firebase Cloud Messaging Service
@@ -57,7 +57,7 @@ class FirebaseMessagingService {
 
     // Skip initialization on unsupported platforms
     if (!isFirebaseSupported) {
-      print('[FCM] Firebase not supported on this platform');
+      // print('[FCM] Firebase not supported on this platform');
       return;
     }
 
@@ -89,9 +89,9 @@ class FirebaseMessagingService {
       }
 
       _isInitialized = true;
-      print('[FCM] Firebase Messaging initialized successfully');
+      // print('[FCM] Firebase Messaging initialized successfully');
     } catch (e) {
-      print('[FCM] Error initializing Firebase Messaging: $e');
+      // print('[FCM] Error initializing Firebase Messaging: $e');
     }
   }
 
@@ -107,10 +107,10 @@ class FirebaseMessagingService {
       sound: true,
     );
 
-    print('[FCM] Permission status: ${settings.authorizationStatus}');
+    // print('[FCM] Permission status: ${settings.authorizationStatus}');
 
     if (settings.authorizationStatus == AuthorizationStatus.denied) {
-      print('[FCM] User denied notification permission');
+      // print('[FCM] User denied notification permission');
     }
   }
 
@@ -159,18 +159,18 @@ class FirebaseMessagingService {
   Future<void> _getAndSaveToken() async {
     try {
       _fcmToken = await _messaging!.getToken();
-      print('[FCM] Token obtained: $_fcmToken');
+      // print('[FCM] Token obtained: $_fcmToken');
 
       // Automatically register token if user is logged in
       await registerTokenWithBackend();
     } catch (e) {
-      print('[FCM] Error getting token: $e');
+      // print('[FCM] Error getting token: $e');
     }
   }
 
   /// Handle token refresh
   Future<void> _handleTokenRefresh(String newToken) async {
-    print('[FCM] Token refreshed: $newToken');
+    // print('[FCM] Token refreshed: $newToken');
     _fcmToken = newToken;
     await registerTokenWithBackend();
   }
@@ -179,13 +179,13 @@ class FirebaseMessagingService {
   /// Call this after user logs in
   Future<bool> registerTokenWithBackend() async {
     if (_fcmToken == null) {
-      print('[FCM] No token to register');
+      // print('[FCM] No token to register');
       return false;
     }
 
     final accessToken = await _tokenStorage.readAccessToken();
     if (accessToken == null) {
-      print('[FCM] User not logged in, skipping token registration');
+      // print('[FCM] User not logged in, skipping token registration');
       return false;
     }
 
@@ -200,26 +200,26 @@ class FirebaseMessagingService {
       );
 
       if (response.statusCode == 200) {
-        print('[FCM] Token registered with backend successfully');
+        // print('[FCM] Token registered with backend successfully');
         return true;
       } else {
-        print(
-          '[FCM] Failed to register token: ${response.statusCode} ${response.body}',
-        );
+        // print(
+          // '[FCM] Failed to register token: ${response.statusCode} ${response.body}',
+        // );
         return false;
       }
     } catch (e) {
-      print('[FCM] Error registering token with backend: $e');
+      // print('[FCM] Error registering token with backend: $e');
       return false;
     }
   }
 
   /// Handle foreground messages - show local notification
   void _handleForegroundMessage(RemoteMessage message) {
-    print('[FCM Foreground] Message received: ${message.messageId}');
-    print('[FCM Foreground] Title: ${message.notification?.title}');
-    print('[FCM Foreground] Body: ${message.notification?.body}');
-    print('[FCM Foreground] Data: ${message.data}');
+    // print('[FCM Foreground] Message received: ${message.messageId}');
+    // print('[FCM Foreground] Title: ${message.notification?.title}');
+    // print('[FCM Foreground] Body: ${message.notification?.body}');
+    // print('[FCM Foreground] Data: ${message.data}');
 
     final notification = message.notification;
     if (notification != null) {
@@ -269,20 +269,20 @@ class FirebaseMessagingService {
 
   /// Handle notification tap from FirebaseMessaging (background/terminated)
   void _handleNotificationTap(RemoteMessage message) {
-    print('[FCM] Notification tapped: ${message.data}');
+    // print('[FCM] Notification tapped: ${message.data}');
     NavigationService.handleNotificationNavigation(message.data);
   }
 
   /// Handle local notification tap (foreground)
   void _onLocalNotificationTap(NotificationResponse response) {
-    print('[FCM] Local notification tapped: ${response.payload}');
+    // print('[FCM] Local notification tapped: ${response.payload}');
     if (response.payload != null) {
       try {
         final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-        print('[FCM] Notification data: $data');
+        // print('[FCM] Notification data: $data');
         NavigationService.handleNotificationNavigation(data);
       } catch (e) {
-        print('[FCM] Error parsing notification payload: $e');
+        // print('[FCM] Error parsing notification payload: $e');
         // Fallback to notifications page
         NavigationService.navigateToNotifications();
       }
@@ -297,6 +297,6 @@ class FirebaseMessagingService {
     // Optionally notify backend to remove this device token
     // For now, we just clear the local reference
     _fcmToken = null;
-    print('[FCM] Token unregistered');
+    // print('[FCM] Token unregistered');
   }
 }

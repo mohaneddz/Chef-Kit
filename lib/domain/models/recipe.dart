@@ -54,22 +54,13 @@ class Recipe {
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
-    print('  📦 Recipe.fromJson called');
-    print('  JSON keys: ${json.keys.toList()}');
-
-
     try {
-      print('  Parsing time fields...');
       final prepTime = json['recipe_prep_time'];
       final cookTime = json['recipe_cook_time'];
-      print('  prep_time: $prepTime (${prepTime.runtimeType})');
-      print('  cook_time: $cookTime (${cookTime.runtimeType})');
-
 
       // Safely parse time values
       int prepMinutes = 0;
       int cookMinutes = 0;
-
 
       if (prepTime != null) {
         if (prepTime is int) {
@@ -79,7 +70,6 @@ class Recipe {
         }
       }
 
-
       if (cookTime != null) {
         if (cookTime is int) {
           cookMinutes = cookTime;
@@ -88,17 +78,9 @@ class Recipe {
         }
       }
 
-
-      print('  ✅ Total time: ${prepMinutes + cookMinutes} min');
-
-
       // Safely parse array fields
-      print('  Parsing ingredients...');
       final List<String> ingredients = [];
       if (json['recipe_ingredients'] != null) {
-        print(
-          '  recipe_ingredients type: ${json['recipe_ingredients'].runtimeType}',
-        );
         try {
           final rawIngredients = json['recipe_ingredients'];
           if (rawIngredients is List) {
@@ -109,18 +91,12 @@ class Recipe {
             }
           }
         } catch (e) {
-          print('Error parsing ingredients: $e');
+          // Error parsing ingredients
         }
       }
 
-      print('  ✅ Ingredients parsed: ${ingredients.length} items');
-
-      print('  Parsing instructions...');
       final List<String> instructions = [];
       if (json['recipe_instructions'] != null) {
-        print(
-          '  recipe_instructions type: ${json['recipe_instructions'].runtimeType}',
-        );
         try {
           final rawInstructions = json['recipe_instructions'];
           if (rawInstructions is List) {
@@ -131,16 +107,12 @@ class Recipe {
             }
           }
         } catch (e) {
-          print('Error parsing instructions: $e');
+          // Error parsing instructions
         }
       }
 
-      print('  ✅ Instructions parsed: ${instructions.length} items');
-
-      print('  Parsing tags...');
       final List<String> tags = [];
       if (json['recipe_tags'] != null) {
-        print('  recipe_tags type: ${json['recipe_tags'].runtimeType}');
         try {
           final rawTags = json['recipe_tags'];
           if (rawTags is List) {
@@ -151,7 +123,7 @@ class Recipe {
             }
           }
         } catch (e) {
-          print('Error parsing tags: $e');
+          // Error parsing tags
         }
       }
 
@@ -176,9 +148,6 @@ class Recipe {
           caloriesCount = int.tryParse(rawCalories) ?? 0;
         }
       }
-
-      print('  ✅ Tags parsed: ${tags.length} items');
-      print('  Constructing Recipe object...');
 
       final recipe = Recipe(
         id: json['recipe_id']?.toString() ?? '',
@@ -210,18 +179,9 @@ class Recipe {
         instructionsFr: _parseList(json['steps_fr']),
       );
 
-      print('  ✅ Recipe object created: ${recipe.name}');
       return recipe;
-    } catch (e, stackTrace) {
-      print('\n❌❌❌ CRITICAL ERROR parsing Recipe from JSON ❌❌❌');
-      print('Error: $e');
-      print('Error type: ${e.runtimeType}');
-      print('\nFull JSON data:');
-      json.forEach((key, value) {
-        print('  $key: $value (${value.runtimeType})');
-      });
-      print('\nStack trace:');
-      print(stackTrace);
+    } catch (e) {
+      // Error parsing recipe
 
       // Return a default recipe to prevent crash
       return Recipe(

@@ -10,9 +10,6 @@ class MyRecipesRepository {
 
   /// Get all recipes for the current authenticated chef
   Future<List<Recipe>> getMyRecipes() async {
-    print('=== getMyRecipes START ===');
-    print('URL: $baseUrl/api/user/recipes');
-
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/user/recipes'),
@@ -22,12 +19,8 @@ class MyRecipesRepository {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        print('Number of recipes: ${data.length}');
 
         final recipes = <Recipe>[];
         for (var i = 0; i < data.length; i++) {
@@ -35,18 +28,15 @@ class MyRecipesRepository {
             final recipe = Recipe.fromJson(data[i]);
             recipes.add(recipe);
           } catch (e) {
-            print('❌ Failed to parse recipe $i: $e');
+            // Failed to parse recipe
           }
         }
 
-        print('✅ Successfully parsed ${recipes.length} recipes');
         return recipes;
       } else {
         throw Exception('Failed to load recipes: ${response.statusCode}');
       }
-    } catch (e, stackTrace) {
-      print('❌ Error in getMyRecipes: $e');
-      print(stackTrace);
+    } catch (e) {
       rethrow;
     }
   }
@@ -64,9 +54,6 @@ class MyRecipesRepository {
     required List<String> instructions,
     required List<String> tags,
   }) async {
-    print('=== createRecipe START ===');
-    print('Recipe name: $name');
-
     final body = {
       'recipe_name': name,
       'recipe_description': description,
@@ -80,10 +67,6 @@ class MyRecipesRepository {
       'recipe_tags': tags.isEmpty ? null : tags,
     };
 
-    print('Request body: ${json.encode(body)}');
-    print('[createRecipe] Tags being sent: $tags');
-    print('[createRecipe] Tags in body: ${body['recipe_tags']}');
-
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/recipes'),
@@ -94,12 +77,8 @@ class MyRecipesRepository {
         body: json.encode(body),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
-        print('✅ Recipe created successfully');
         // Handle both List and Map responses from backend
         if (data is List && data.isNotEmpty) {
           return Recipe.fromJson(data[0] as Map<String, dynamic>);
@@ -110,9 +89,7 @@ class MyRecipesRepository {
           'Failed to create recipe: ${response.statusCode} - ${response.body}',
         );
       }
-    } catch (e, stackTrace) {
-      print('❌ Error in createRecipe: $e');
-      print(stackTrace);
+    } catch (e) {
       rethrow;
     }
   }
@@ -131,9 +108,6 @@ class MyRecipesRepository {
     required List<String> instructions,
     required List<String> tags,
   }) async {
-    print('=== updateRecipe START ===');
-    print('Recipe ID: $recipeId');
-
     final body = {
       'recipe_name': name,
       'recipe_description': description,
@@ -147,10 +121,6 @@ class MyRecipesRepository {
       'recipe_tags': tags.isEmpty ? null : tags,
     };
 
-    print('Request body: ${json.encode(body)}');
-    print('[updateRecipe] Tags being sent: $tags');
-    print('[updateRecipe] Tags in body: ${body['recipe_tags']}');
-
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/api/recipes/$recipeId'),
@@ -161,12 +131,8 @@ class MyRecipesRepository {
         body: json.encode(body),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('✅ Recipe updated successfully');
         // Handle both List and Map responses from backend
         if (data is List && data.isNotEmpty) {
           return Recipe.fromJson(data[0] as Map<String, dynamic>);
@@ -177,18 +143,13 @@ class MyRecipesRepository {
           'Failed to update recipe: ${response.statusCode} - ${response.body}',
         );
       }
-    } catch (e, stackTrace) {
-      print('❌ Error in updateRecipe: $e');
-      print(stackTrace);
+    } catch (e) {
       rethrow;
     }
   }
 
   /// Delete a recipe
   Future<void> deleteRecipe(String recipeId) async {
-    print('=== deleteRecipe START ===');
-    print('Recipe ID: $recipeId');
-
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/api/recipes/$recipeId'),
@@ -198,19 +159,14 @@ class MyRecipesRepository {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        print('✅ Recipe deleted successfully');
+        // Recipe deleted successfully
       } else {
         throw Exception(
           'Failed to delete recipe: ${response.statusCode} - ${response.body}',
         );
       }
-    } catch (e, stackTrace) {
-      print('❌ Error in deleteRecipe: $e');
-      print(stackTrace);
+    } catch (e) {
       rethrow;
     }
   }

@@ -1,4 +1,3 @@
-import 'package:sqflite/sqflite.dart';
 import '../../db_helper.dart';
 
 class IngredientTranslation {

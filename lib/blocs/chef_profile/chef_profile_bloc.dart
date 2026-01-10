@@ -22,34 +22,34 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
     LoadChefProfileEvent event,
     Emitter<ChefProfileState> emit,
   ) async {
-    print('\n🔵 ChefProfileBloc._onLoad START');
-    print('Chef ID: ${event.chefId}');
-    print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
+    // print('\n🔵 ChefProfileBloc._onLoad START');
+    // print('Chef ID: ${event.chefId}');
+    // print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
     emit(state.copyWith(loading: true, error: null));
 
     try {
-      print('Fetching chef data with auth...');
+      // print('Fetching chef data with auth...');
       final chef = await chefRepository.getChefById(
         event.chefId,
         accessToken: event.accessToken,
       );
-      print(
-        '✅ Chef loaded: ${chef?.name ?? "null"}, isFollowed: ${chef?.isFollowed}',
-      );
+      // print(
+      // '✅ Chef loaded: ${chef?.name ?? "null"}, isFollowed: ${chef?.isFollowed}',
+      // );
 
-      print('Fetching recipes...');
+      // print('Fetching recipes...');
       final recipes = await recipeRepository.fetchRecipesByChef(event.chefId);
-      print('✅ Recipes loaded: ${recipes.length} recipes');
+      // print('✅ Recipes loaded: ${recipes.length} recipes');
 
-      print('Emitting new state...');
+      // print('Emitting new state...');
       emit(state.copyWith(loading: false, chef: chef, recipes: recipes));
-      print('✅ State emitted successfully');
-      print('🔵 ChefProfileBloc._onLoad END\n');
-    } catch (e, stackTrace) {
-      print('\n❌ ERROR in ChefProfileBloc._onLoad: $e');
-      print('Stack trace: $stackTrace');
+      // print('✅ State emitted successfully');
+      // print('🔵 ChefProfileBloc._onLoad END\n');
+    } catch (e) {
+      // print('\n❌ ERROR in ChefProfileBloc._onLoad: $e');
+      // print('Stack trace: $stackTrace');
       emit(state.copyWith(loading: false, error: e.toString()));
-      print('🔵 ChefProfileBloc._onLoad END (ERROR)\n');
+      // print('🔵 ChefProfileBloc._onLoad END (ERROR)\n');
     }
   }
 
@@ -57,28 +57,28 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
     ToggleChefFollowEvent event,
     Emitter<ChefProfileState> emit,
   ) async {
-    print('\n🟡 ChefProfileBloc._onToggleFollow START');
-    print('Chef ID: ${event.chefId}');
-    print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
+    // print('\n🟡 ChefProfileBloc._onToggleFollow START');
+    // print('Chef ID: ${event.chefId}');
+    // print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
 
     try {
-      print('Calling chefRepository.toggleFollow...');
+      // print('Calling chefRepository.toggleFollow...');
       final updated = await chefRepository.toggleFollow(
         event.chefId,
         accessToken: event.accessToken,
       );
-      print('✅ Toggle follow successful');
-      print('New follow status: ${updated.isFollowed}');
-      print('New follower count: ${updated.followersCount}');
+      // print('✅ Toggle follow successful');
+      // print('New follow status: ${updated.isFollowed}');
+      // print('New follower count: ${updated.followersCount}');
 
       emit(state.copyWith(chef: updated));
-      print('✅ State updated with new chef data');
-      print('🟡 ChefProfileBloc._onToggleFollow END\n');
-    } catch (e, stackTrace) {
-      print('\n❌ ERROR in ChefProfileBloc._onToggleFollow: $e');
-      print('Stack trace: $stackTrace');
+      // print('✅ State updated with new chef data');
+      // print('🟡 ChefProfileBloc._onToggleFollow END\n');
+    } catch (e) {
+      // print('\n❌ ERROR in ChefProfileBloc._onToggleFollow: $e');
+      // print('Stack trace: $stackTrace');
       emit(state.copyWith(error: e.toString()));
-      print('🟡 ChefProfileBloc._onToggleFollow END (ERROR)\n');
+      // print('🟡 ChefProfileBloc._onToggleFollow END (ERROR)\n');
     }
   }
 
@@ -111,7 +111,7 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
       );
     } catch (e) {
       // Don't revert - keep optimistic state, just show sync error via snackbar
-      print('⚠️ Favorite sync failed: $e');
+      // print('⚠️ Favorite sync failed: $e');
       emit(
         state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
       );

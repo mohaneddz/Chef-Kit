@@ -42,10 +42,10 @@ class Chef {
             }
           }
         } catch (e) {
-          print('Error parsing specialties: $e');
+          // Error parsing specialties
         }
       }
-      
+
       // Safely parse count fields
       int followersCount = 0;
       final rawFollowers = json['user_followers_count'];
@@ -56,7 +56,7 @@ class Chef {
           followersCount = int.tryParse(rawFollowers) ?? 0;
         }
       }
-      
+
       int followingCount = 0;
       final rawFollowing = json['user_following_count'];
       if (rawFollowing != null) {
@@ -66,7 +66,7 @@ class Chef {
           followingCount = int.tryParse(rawFollowing) ?? 0;
         }
       }
-      
+
       int recipesCount = 0;
       final rawRecipes = json['user_recipes_count'];
       if (rawRecipes != null) {
@@ -76,11 +76,13 @@ class Chef {
           recipesCount = int.tryParse(rawRecipes) ?? 0;
         }
       }
-      
+
       return Chef(
         id: json['user_id']?.toString() ?? '',
         name: json['user_full_name']?.toString() ?? 'Unknown',
-        imageUrl: json['user_avatar']?.toString() ?? 'https://via.placeholder.com/250',
+        imageUrl:
+            json['user_avatar']?.toString() ??
+            'https://via.placeholder.com/250',
         bio: json['user_bio']?.toString(),
         story: json['user_story']?.toString(),
         specialties: specialties,
@@ -91,11 +93,11 @@ class Chef {
         followingCount: followingCount,
         recipesCount: recipesCount,
       );
-    } catch (e, stackTrace) {
-      print('Error parsing Chef from JSON: $e');
-      print('JSON data: $json');
-      print('Stack trace: $stackTrace');
-      
+    } catch (e) {
+      // print('Error parsing Chef from JSON: $e');
+      // print('JSON data: $json');
+      // print('Stack trace: $stackTrace');
+
       // Return a default chef to prevent crash
       return Chef(
         id: json['user_id']?.toString() ?? 'error',

@@ -27,12 +27,7 @@ class _SingupPageState extends State<SingupPage> {
     super.initState();
     Future.microtask(() {
       if (mounted) {
-        context.read<AuthCubit>().emit(
-          context.read<AuthCubit>().state.copyWith(
-            fieldErrors: {},
-            error: null,
-          ),
-        );
+        context.read<AuthCubit>().clearAuthFieldErrors();
       }
     });
   }

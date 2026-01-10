@@ -26,11 +26,6 @@ class UserProfile {
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
-    print('=== UserProfile.fromJson ===');
-    print('Raw JSON: $json');
-    print('user_full_name: ${json['user_full_name']}');
-    print('user_avatar: ${json['user_avatar']}');
-    
     // If no full name, extract username from email
     String displayName = json['user_full_name'] ?? 'Unknown';
     if (displayName == 'Unknown' || displayName.isEmpty) {
@@ -39,7 +34,7 @@ class UserProfile {
         displayName = email.split('@')[0];
       }
     }
-    
+
     final profile = UserProfile(
       id: json['user_id'] ?? '',
       name: displayName,
@@ -51,15 +46,11 @@ class UserProfile {
       isChef: json['user_is_chef'] ?? false,
       bio: json['user_bio'],
       story: json['user_story'],
-      specialties: json['user_specialties'] != null 
-          ? List<String>.from(json['user_specialties']) 
+      specialties: json['user_specialties'] != null
+          ? List<String>.from(json['user_specialties'])
           : null,
     );
-    
-    print('Parsed name: ${profile.name}');
-    print('Parsed avatarUrl: ${profile.avatarUrl}');
-    print('========================');
-    
+
     return profile;
   }
 

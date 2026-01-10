@@ -2,10 +2,8 @@ import 'package:chefkit/common/constants.dart';
 import 'package:chefkit/views/screens/recipe/recipe_results_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chefkit/l10n/app_localizations.dart';
-import 'package:chefkit/domain/models/recipe.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chefkit/domain/repositories/recipe_repository.dart';
-import 'dart:convert';
 
 class RecipeLoadingPage extends StatefulWidget {
   final List<String> selectedIngredients;
@@ -31,7 +29,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
 
   int _currentStep = 0;
   // Number of steps to iterate through
-  final int _totalSteps = 4;
 
   @override
   void initState() {
@@ -76,17 +73,6 @@ class _RecipeLoadingPageState extends State<RecipeLoadingPage>
           context,
         ).showSnackBar(SnackBar(content: Text('Error generating recipes: $e')));
         Navigator.pop(context);
-      }
-    }
-  }
-
-  void _simulateLoading() async {
-    for (int i = 0; i < _totalSteps; i++) {
-      await Future.delayed(const Duration(milliseconds: 1200));
-      if (mounted) {
-        setState(() {
-          _currentStep = i;
-        });
       }
     }
   }

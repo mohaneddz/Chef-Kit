@@ -127,9 +127,10 @@ class _InventoryPageState extends State<InventoryPage> {
   Widget _buildAvailableIngredients(InventoryState state) {
     final availableToShow = state.showMore
         ? state.available
-        : state.available.take(4).toList();
+        : state.available.take(10).toList();
     final totalItems = state.browse.length + state.available.length;
     final l10n = AppLocalizations.of(context)!;
+    final hasMoreThanTen = state.available.length > 10;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,70 +171,78 @@ class _InventoryPageState extends State<InventoryPage> {
           ],
         ),
         const SizedBox(height: 30),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 200,
-            crossAxisSpacing: 15,
-            mainAxisSpacing: 15,
-            mainAxisExtent: 180,
-          ),
-          itemCount: availableToShow.length,
-          itemBuilder: (context, index) {
-            final item = availableToShow[index];
-            final lang = state.currentLang;
-            return IngredientCard(
-              imageUrl: item["imageUrl"]!,
-              ingredientName: item["name_$lang"] ?? item["name_en"] ?? '',
-              ingredientType: item["type_$lang"] ?? item["type_en"] ?? '',
-              onRemove: () {
-                context.read<InventoryBloc>().add(RemoveIngredientEvent(item));
-              },
-            );
-          },
-        ),
-        SizedBox(height: 20),
-        Center(
-          child: Column(
-            children: [
-              TextButton(
-                style: TextButton.styleFrom(
-                  minimumSize: Size(0, 0),
-                  padding: EdgeInsets.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                onPressed: () {
-                  context.read<InventoryBloc>().add(ToggleShowMoreEvent());
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: GridView.builder(
+            shrinkWrap: true,
+            clipBehavior: Clip.none,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200,
+              crossAxisSpacing: 15,
+              mainAxisSpacing: 15,
+              mainAxisExtent: 180,
+            ),
+            itemCount: availableToShow.length,
+            itemBuilder: (context, index) {
+              final item = availableToShow[index];
+              final lang = state.currentLang;
+              return IngredientCard(
+                imageUrl: item["imageUrl"]!,
+                ingredientName: item["name_$lang"] ?? item["name_en"] ?? '',
+                ingredientType: item["type_$lang"] ?? item["type_en"] ?? '',
+                onRemove: () {
+                  context.read<InventoryBloc>().add(
+                    RemoveIngredientEvent(item),
+                  );
                 },
-                child: Text(
-                  state.showMore ? l10n.showLess : l10n.showMore,
-                  style: TextStyle(
-                    color: AppColors.browmpod,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: "LeagueSpartan",
+              );
+            },
+          ),
+        ),
+        if (hasMoreThanTen) ...[
+          SizedBox(height: 20),
+          Center(
+            child: Column(
+              children: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    minimumSize: Size(0, 0),
+                    padding: EdgeInsets.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  onPressed: () {
+                    context.read<InventoryBloc>().add(ToggleShowMoreEvent());
+                  },
+                  child: Text(
+                    state.showMore ? l10n.showLess : l10n.showMore,
+                    style: TextStyle(
+                      color: AppColors.browmpod,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: "LeagueSpartan",
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                onPressed: () {
-                  context.read<InventoryBloc>().add(ToggleShowMoreEvent());
-                },
-                icon: Icon(
-                  state.showMore ? Icons.arrow_upward : Icons.arrow_downward,
-                  size: 24,
-                  color: Color(0xFF8F4A4C),
+                IconButton(
+                  onPressed: () {
+                    context.read<InventoryBloc>().add(ToggleShowMoreEvent());
+                  },
+                  icon: Icon(
+                    state.showMore ? Icons.arrow_upward : Icons.arrow_downward,
+                    size: 24,
+                    color: Color(0xFF8F4A4C),
+                  ),
+                  padding: EdgeInsets.zero,
+                  style: IconButton.styleFrom(
+                    minimumSize: Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                 ),
-                padding: EdgeInsets.zero,
-                style: IconButton.styleFrom(
-                  minimumSize: Size(0, 0),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -293,29 +302,33 @@ class _InventoryPageState extends State<InventoryPage> {
         ),
         SizedBox(height: 30),
 
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 200,
-            crossAxisSpacing: 15,
-            mainAxisSpacing: 15,
-            mainAxisExtent: 180,
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: GridView.builder(
+            shrinkWrap: true,
+            clipBehavior: Clip.none,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200,
+              crossAxisSpacing: 15,
+              mainAxisSpacing: 15,
+              mainAxisExtent: 180,
+            ),
+            itemCount: filteredIngredients.length,
+            itemBuilder: (context, index) {
+              final item = filteredIngredients[index];
+              final lang = state.currentLang;
+              return IngredientCard(
+                imageUrl: item["imageUrl"]!,
+                ingredientName: item["name_$lang"] ?? item["name_en"] ?? '',
+                ingredientType: item["type_$lang"] ?? item["type_en"] ?? '',
+                addIngredient: true,
+                onAdd: () {
+                  context.read<InventoryBloc>().add(AddIngredientEvent(item));
+                },
+              );
+            },
           ),
-          itemCount: filteredIngredients.length,
-          itemBuilder: (context, index) {
-            final item = filteredIngredients[index];
-            final lang = state.currentLang;
-            return IngredientCard(
-              imageUrl: item["imageUrl"]!,
-              ingredientName: item["name_$lang"] ?? item["name_en"] ?? '',
-              ingredientType: item["type_$lang"] ?? item["type_en"] ?? '',
-              addIngredient: true,
-              onAdd: () {
-                context.read<InventoryBloc>().add(AddIngredientEvent(item));
-              },
-            );
-          },
         ),
       ],
     );
@@ -396,40 +409,53 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
               centerTitle: false,
             ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 15),
-                  SearchBarWidget(
-                    hintText: l10n.searchIngredient,
-                    onChanged: _onSearchChanged,
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 15),
+                      SearchBarWidget(
+                        hintText: l10n.searchIngredient,
+                        onChanged: _onSearchChanged,
+                      ),
+                      const SizedBox(height: 25),
+                    ],
                   ),
-                  const SizedBox(height: 25),
-
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: 20.0,
-                        ), // Add padding for the bottom
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (!isSearching) ...[
-                              _buildAvailableIngredients(state),
-                              SizedBox(height: 25),
-                            ],
-
-                            _buildBrowseSection(state, filteredIngredients),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!isSearching) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 25,
+                              ),
+                              child: _buildAvailableIngredients(state),
+                            ),
+                            SizedBox(height: 25),
                           ],
-                        ),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            child: _buildBrowseSection(
+                              state,
+                              filteredIngredients,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },

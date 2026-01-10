@@ -52,9 +52,8 @@ Future<void> main() async {
 
   try {
     await dotenv.load(fileName: '.env');
-    print('[Main] .env loaded');
   } catch (e) {
-    print('[Main] .env not loaded: $e');
+    // .env not loaded
   }
 
   if (isFirebaseSupported) {
@@ -70,22 +69,16 @@ Future<void> main() async {
         return true;
       };
 
-      print('[Main] Firebase Crashlytics initialized successfully');
+      // Firebase Crashlytics initialized successfully
 
       // Set up background message handler
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
       // Initialize Firebase Messaging Service
       await FirebaseMessagingService().initialize();
-
-      print('[Main] Firebase initialized successfully');
     } catch (e) {
-      print('[Main] Firebase initialization failed: $e');
+      // Firebase initialization failed
     }
-  } else {
-    print(
-      '[Main] Firebase not supported on this platform (${Platform.operatingSystem})',
-    );
   }
 
   final repo = IngredientsRepo.getInstance();

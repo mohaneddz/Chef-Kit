@@ -79,10 +79,10 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
         _instructionControllers.add(TextEditingController(text: instruction));
       }
       _tags.addAll(widget.recipe!.tags);
-      print(
-        '[initState] Edit mode - loaded tags from recipe: ${widget.recipe!.tags}',
-      );
-      print('[initState] _tags after loading: $_tags');
+      // print(
+        // '[initState] Edit mode - loaded tags from recipe: ${widget.recipe!.tags}',
+      // );
+      // print('[initState] _tags after loading: $_tags');
     } else {
       // Start with one ingredient and instruction field
       _ingredientControllers.add(TextEditingController());
@@ -137,16 +137,16 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
   void _addTag() {
     final tag = _tagController.text.trim();
-    print('[addTag] Attempting to add tag: "$tag"');
-    print('[addTag] Current tags before: $_tags');
+    // print('[addTag] Attempting to add tag: "$tag"');
+    // print('[addTag] Current tags before: $_tags');
     if (tag.isNotEmpty && !_tags.contains(tag)) {
       setState(() {
         _tags.add(tag);
         _tagController.clear();
       });
-      print('[addTag] Tag added! Current tags after: $_tags');
+      // print('[addTag] Tag added! Current tags after: $_tags');
     } else {
-      print('[addTag] Tag NOT added (empty or duplicate)');
+      // print('[addTag] Tag NOT added (empty or duplicate)');
     }
   }
 
@@ -158,7 +158,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
   Future<void> _pickAndUploadImage() async {
     try {
-      print('[recipe-image] Opening image picker...');
+      // print('[recipe-image] Opening image picker...');
       final picker = ImagePicker();
       final picked = await picker.pickImage(
         source: ImageSource.gallery,
@@ -168,7 +168,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       );
 
       if (picked == null) {
-        print('[recipe-image] User cancelled image selection');
+        // print('[recipe-image] User cancelled image selection');
         return;
       }
 
@@ -176,11 +176,11 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
         _isUploadingImage = true;
       });
 
-      print('[recipe-image] Reading image bytes...');
+      // print('[recipe-image] Reading image bytes...');
       final bytes = await picked.readAsBytes();
-      print('[recipe-image] Image size: ${bytes.length} bytes');
+      // print('[recipe-image] Image size: ${bytes.length} bytes');
 
-      print('[recipe-image] Encoding to base64...');
+      // print('[recipe-image] Encoding to base64...');
       final b64 = base64Encode(bytes);
 
       final authState = context.read<AuthCubit>().state;
@@ -191,7 +191,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
       final String baseUrl = AppConfig.baseUrl; // Use centralized config
 
-      print('[recipe-image] Uploading to backend...');
+      // print('[recipe-image] Uploading to backend...');
       final resp = await http.post(
         Uri.parse('$baseUrl/api/recipes/upload-image'),
         headers: {
@@ -202,13 +202,13 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       );
 
       if (resp.statusCode != 200) {
-        print('[recipe-image] Upload failed: ${resp.statusCode} ${resp.body}');
+        // print('[recipe-image] Upload failed: ${resp.statusCode} ${resp.body}');
         throw Exception('Upload failed: ${resp.body}');
       }
 
       final data = jsonDecode(resp.body);
       final imageUrl = data['image_url'];
-      print('[recipe-image] Upload succeeded: $imageUrl');
+      // print('[recipe-image] Upload succeeded: $imageUrl');
 
       setState(() {
         _imageUrlController.text = imageUrl;
@@ -224,7 +224,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
         );
       }
     } catch (e) {
-      print('[recipe-image] Error: $e');
+      // print('[recipe-image] Error: $e');
       setState(() {
         _isUploadingImage = false;
       });
@@ -244,14 +244,14 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       return;
     }
 
-    print('[save-recipe] === SAVE RECIPE START ===');
-    print('[save-recipe] Is edit mode: $isEditMode');
-    print(
-      '[save-recipe] Image URL controller text: "${_imageUrlController.text}"',
-    );
-    print(
-      '[save-recipe] Image URL controller isEmpty: ${_imageUrlController.text.isEmpty}',
-    );
+    // print('[save-recipe] === SAVE RECIPE START ===');
+    // print('[save-recipe] Is edit mode: $isEditMode');
+    // print(
+      // '[save-recipe] Image URL controller text: "${_imageUrlController.text}"',
+    // );
+    // print(
+      // '[save-recipe] Image URL controller isEmpty: ${_imageUrlController.text.isEmpty}',
+    // );
 
     // Collect ingredients and instructions
     final ingredients = _ingredientControllers
@@ -282,10 +282,10 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
         ? null
         : _imageUrlController.text.trim();
 
-    print('[save-recipe] Image URL being saved: $imageUrl');
-    print('[save-recipe] Image URL is null: ${imageUrl == null}');
-    print('[save-recipe] Tags being saved: $_tags');
-    print('[save-recipe] Tags count: ${_tags.length}');
+    // print('[save-recipe] Image URL being saved: $imageUrl');
+    // print('[save-recipe] Image URL is null: ${imageUrl == null}');
+    // print('[save-recipe] Tags being saved: $_tags');
+    // print('[save-recipe] Tags count: ${_tags.length}');
 
     final event = isEditMode
         ? UpdateRecipeEvent(

@@ -636,7 +636,7 @@ abstract class IngredientsRepo {
         "type_en": "Acids",
         "type_fr": "Acides",
         "type_ar": "أحماض",
-        "image_path": "assets/images/ingredients/vinegar.avif"
+        "image_path": "assets/images/ingredients/vinegar.png"
       },
       {
         "name_en": "White Vinegar",

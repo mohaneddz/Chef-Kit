@@ -108,7 +108,7 @@ class HotRecipesBloc extends Bloc<HotRecipesEvent, HotRecipesState> {
       );
     } catch (e) {
       // Don't revert - keep optimistic state, just show sync error via snackbar
-      print('⚠️ Favorite sync failed: $e');
+      // print('⚠️ Favorite sync failed: $e');
       emit(
         state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
       );
