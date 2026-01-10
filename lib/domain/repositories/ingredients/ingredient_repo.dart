@@ -25,7 +25,7 @@ abstract class IngredientsRepo {
         "type_en": "Protein",
         "type_fr": "Protéine",
         "type_ar": "بروتين",
-        "image_path": "assets/images/ingredients/chicken_breast.png"
+        "image_path": "assets/images/ingredients/chicken_breast.webp",
       },
       {
         "name_en": "Ground Beef",
@@ -34,7 +34,7 @@ abstract class IngredientsRepo {
         "type_en": "Protein",
         "type_fr": "Protéine",
         "type_ar": "بروتين",
-        "image_path": "assets/images/ingredients/ground_beef.png"
+        "image_path": "assets/images/ingredients/ground_beef.webp",
       },
       {
         "name_en": "Salmon Fillet",
@@ -43,7 +43,7 @@ abstract class IngredientsRepo {
         "type_en": "Protein",
         "type_fr": "Protéine",
         "type_ar": "بروتين",
-        "image_path": "assets/images/ingredients/salmon.png"
+        "image_path": "assets/images/ingredients/salmon.webp",
       },
       {
         "name_en": "Eggs",
@@ -52,7 +52,7 @@ abstract class IngredientsRepo {
         "type_en": "Protein",
         "type_fr": "Protéine",
         "type_ar": "بروتين",
-        "image_path": "assets/images/ingredients/eggs.png"
+        "image_path": "assets/images/ingredients/eggs.webp",
       },
       {
         "name_en": "Tofu",
@@ -61,7 +61,7 @@ abstract class IngredientsRepo {
         "type_en": "Protein",
         "type_fr": "Protéine",
         "type_ar": "بروتين",
-        "image_path": "assets/images/ingredients/tofu.png"
+        "image_path": "assets/images/ingredients/tofu.webp",
       },
       {
         "name_en": "Escalope",
@@ -70,7 +70,7 @@ abstract class IngredientsRepo {
         "type_en": "Protein",
         "type_fr": "Protéine",
         "type_ar": "بروتين",
-        "image_path": "assets/images/ingredients/escalope.png"
+        "image_path": "assets/images/ingredients/escalope.webp",
       },
 
       // Vegetables
@@ -81,7 +81,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/tomato.png"
+        "image_path": "assets/images/ingredients/tomato.webp",
       },
       {
         "name_en": "Potato",
@@ -90,7 +90,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/potato.png"
+        "image_path": "assets/images/ingredients/potato.webp",
       },
       {
         "name_en": "Onion",
@@ -99,7 +99,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/onion.png"
+        "image_path": "assets/images/ingredients/onion.webp",
       },
       {
         "name_en": "Garlic",
@@ -108,7 +108,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/garlic.png"
+        "image_path": "assets/images/ingredients/garlic.webp",
       },
       {
         "name_en": "Carrot",
@@ -117,7 +117,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/carrot.png"
+        "image_path": "assets/images/ingredients/carrot.webp",
       },
       {
         "name_en": "Broccoli",
@@ -126,7 +126,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/broccoli.png"
+        "image_path": "assets/images/ingredients/broccoli.webp",
       },
       {
         "name_en": "Spinach",
@@ -135,7 +135,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/spinach.png"
+        "image_path": "assets/images/ingredients/spinach.webp",
       },
       {
         "name_en": "Bell Pepper",
@@ -144,7 +144,7 @@ abstract class IngredientsRepo {
         "type_en": "Vegetables",
         "type_fr": "Légumes",
         "type_ar": "خضروات",
-        "image_path": "assets/images/ingredients/bell_pepper.png"
+        "image_path": "assets/images/ingredients/bell_pepper.webp",
       },
 
       // Fruits
@@ -155,7 +155,7 @@ abstract class IngredientsRepo {
         "type_en": "Fruits",
         "type_fr": "Fruits",
         "type_ar": "فواكه",
-        "image_path": "assets/images/ingredients/lemon.png"
+        "image_path": "assets/images/ingredients/lemon.webp",
       },
       {
         "name_en": "Avocado",
@@ -164,7 +164,7 @@ abstract class IngredientsRepo {
         "type_en": "Fruits",
         "type_fr": "Fruits",
         "type_ar": "فواكه",
-        "image_path": "assets/images/ingredients/avocado.png"
+        "image_path": "assets/images/ingredients/avocado.webp",
       },
 
       // Spices
@@ -175,7 +175,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/salt.png"
+        "image_path": "assets/images/ingredients/salt.webp",
       },
       {
         "name_en": "Black Pepper",
@@ -184,7 +184,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/black_pepper.png"
+        "image_path": "assets/images/ingredients/black_pepper.webp",
       },
       {
         "name_en": "Paprika",
@@ -193,7 +193,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/paprika.png"
+        "image_path": "assets/images/ingredients/paprika.webp",
       },
       {
         "name_en": "Cumin",
@@ -202,7 +202,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/cumin.png"
+        "image_path": "assets/images/ingredients/cumin.webp",
       },
       {
         "name_en": "Oregano",
@@ -211,7 +211,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/oregano.png"
+        "image_path": "assets/images/ingredients/oregano.webp",
       },
       {
         "name_en": "Basil",
@@ -220,7 +220,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/basil.png"
+        "image_path": "assets/images/ingredients/basil.webp",
       },
 
       // Dairy
@@ -231,7 +231,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/milk.png"
+        "image_path": "assets/images/ingredients/milk.webp",
       },
       {
         "name_en": "Butter",
@@ -240,7 +240,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/butter.png"
+        "image_path": "assets/images/ingredients/butter.webp",
       },
       {
         "name_en": "Cheddar Cheese",
@@ -249,7 +249,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/cheddar.png"
+        "image_path": "assets/images/ingredients/cheddar.webp",
       },
 
       // Fats
@@ -260,7 +260,7 @@ abstract class IngredientsRepo {
         "type_en": "Fats",
         "type_fr": "Graisses",
         "type_ar": "دهون",
-        "image_path": "assets/images/ingredients/olive_oil.png"
+        "image_path": "assets/images/ingredients/olive_oil.webp",
       },
 
       // Grains
@@ -271,7 +271,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/rice.png"
+        "image_path": "assets/images/ingredients/rice.webp",
       },
       {
         "name_en": "Pasta",
@@ -280,7 +280,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/pasta.png"
+        "image_path": "assets/images/ingredients/pasta.webp",
       },
       {
         "name_en": "Bread",
@@ -289,9 +289,9 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/bread.png"
+        "image_path": "assets/images/ingredients/bread.webp",
       },
-      
+
       {
         "name_en": "Sugar",
         "name_fr": "Sucre",
@@ -299,7 +299,7 @@ abstract class IngredientsRepo {
         "type_en": "Sugars",
         "type_fr": "Sucres",
         "type_ar": "سكريات",
-        "image_path": "assets/images/ingredients/sugar.png"
+        "image_path": "assets/images/ingredients/sugar.webp",
       },
       {
         "name_en": "Brown Sugar",
@@ -308,7 +308,7 @@ abstract class IngredientsRepo {
         "type_en": "Sugars",
         "type_fr": "Sucres",
         "type_ar": "سكريات",
-        "image_path": "assets/images/ingredients/brown_sugar.png"
+        "image_path": "assets/images/ingredients/brown_sugar.webp",
       },
       {
         "name_en": "Powdered Sugar",
@@ -317,7 +317,7 @@ abstract class IngredientsRepo {
         "type_en": "Sugars",
         "type_fr": "Sucres",
         "type_ar": "سكريات",
-        "image_path": "assets/images/ingredients/powdered_sugar.png"
+        "image_path": "assets/images/ingredients/powdered_sugar.webp",
       },
       {
         "name_en": "Honey",
@@ -326,7 +326,7 @@ abstract class IngredientsRepo {
         "type_en": "Sugars",
         "type_fr": "Sucres",
         "type_ar": "سكريات",
-        "image_path": "assets/images/ingredients/honey.png"
+        "image_path": "assets/images/ingredients/honey.webp",
       },
       {
         "name_en": "Maple Syrup",
@@ -335,7 +335,7 @@ abstract class IngredientsRepo {
         "type_en": "Sugars",
         "type_fr": "Sucres",
         "type_ar": "سكريات",
-        "image_path": "assets/images/ingredients/maple_syrup.png"
+        "image_path": "assets/images/ingredients/maple_syrup.webp",
       },
       {
         "name_en": "Molasses",
@@ -344,7 +344,7 @@ abstract class IngredientsRepo {
         "type_en": "Sugars",
         "type_fr": "Sucres",
         "type_ar": "سكريات",
-        "image_path": "assets/images/ingredients/molasses.png"
+        "image_path": "assets/images/ingredients/molasses.webp",
       },
       {
         "name_en": "Corn Syrup",
@@ -353,7 +353,7 @@ abstract class IngredientsRepo {
         "type_en": "Sugars",
         "type_fr": "Sucres",
         "type_ar": "سكريات",
-        "image_path": "assets/images/ingredients/corn_syrup.png"
+        "image_path": "assets/images/ingredients/corn_syrup.webp",
       },
 
       {
@@ -363,7 +363,7 @@ abstract class IngredientsRepo {
         "type_en": "Fats",
         "type_fr": "Graisses",
         "type_ar": "دهون",
-        "image_path": "assets/images/ingredients/vegetable_oil.png"
+        "image_path": "assets/images/ingredients/vegetable_oil.webp",
       },
       {
         "name_en": "Coconut Oil",
@@ -372,7 +372,7 @@ abstract class IngredientsRepo {
         "type_en": "Fats",
         "type_fr": "Graisses",
         "type_ar": "دهون",
-        "image_path": "assets/images/ingredients/coconut_oil.png"
+        "image_path": "assets/images/ingredients/coconut_oil.webp",
       },
       {
         "name_en": "Shortening",
@@ -381,7 +381,7 @@ abstract class IngredientsRepo {
         "type_en": "Fats",
         "type_fr": "Graisses",
         "type_ar": "دهون",
-        "image_path": "assets/images/ingredients/shortening.png"
+        "image_path": "assets/images/ingredients/shortening.webp",
       },
       {
         "name_en": "Margarine",
@@ -390,7 +390,7 @@ abstract class IngredientsRepo {
         "type_en": "Fats",
         "type_fr": "Graisses",
         "type_ar": "دهون",
-        "image_path": "assets/images/ingredients/margarine.png"
+        "image_path": "assets/images/ingredients/margarine.webp",
       },
 
       // Flours & Grains
@@ -401,7 +401,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/all_purpose_flour.png"
+        "image_path": "assets/images/ingredients/all_purpose_flour.webp",
       },
       {
         "name_en": "Whole Wheat Flour",
@@ -410,7 +410,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/whole_wheat_flour.png"
+        "image_path": "assets/images/ingredients/whole_wheat_flour.webp",
       },
       {
         "name_en": "Cornmeal",
@@ -419,7 +419,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/cornmeal.png"
+        "image_path": "assets/images/ingredients/cornmeal.webp",
       },
       {
         "name_en": "Cornstarch",
@@ -428,7 +428,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/cornstarch.png"
+        "image_path": "assets/images/ingredients/cornstarch.webp",
       },
       {
         "name_en": "Oats",
@@ -437,7 +437,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/oats.png"
+        "image_path": "assets/images/ingredients/oats.webp",
       },
       {
         "name_en": "Rolled Oats",
@@ -446,7 +446,7 @@ abstract class IngredientsRepo {
         "type_en": "Grains",
         "type_fr": "Céréales",
         "type_ar": "حبوب",
-        "image_path": "assets/images/ingredients/rolled_oats.png"
+        "image_path": "assets/images/ingredients/rolled_oats.webp",
       },
       {
         "name_en": "Baking Powder",
@@ -455,7 +455,7 @@ abstract class IngredientsRepo {
         "type_en": "Leavening Agents",
         "type_fr": "Agents levant",
         "type_ar": "عوامل تخمير",
-        "image_path": "assets/images/ingredients/baking_powder.png"
+        "image_path": "assets/images/ingredients/baking_powder.webp",
       },
       {
         "name_en": "Baking Soda",
@@ -464,7 +464,7 @@ abstract class IngredientsRepo {
         "type_en": "Leavening Agents",
         "type_fr": "Agents levant",
         "type_ar": "عوامل تخمير",
-        "image_path": "assets/images/ingredients/baking_soda.png"
+        "image_path": "assets/images/ingredients/baking_soda.webp",
       },
       {
         "name_en": "Yeast",
@@ -473,7 +473,7 @@ abstract class IngredientsRepo {
         "type_en": "Leavening Agents",
         "type_fr": "Agents levant",
         "type_ar": "عوامل تخمير",
-        "image_path": "assets/images/ingredients/yeast.png"
+        "image_path": "assets/images/ingredients/yeast.webp",
       },
 
       // Liquids & Dairy (milk, butter, cheddar already exist)
@@ -484,7 +484,7 @@ abstract class IngredientsRepo {
         "type_en": "Liquids",
         "type_fr": "Liquides",
         "type_ar": "سوائل",
-        "image_path": "assets/images/ingredients/water.png"
+        "image_path": "assets/images/ingredients/water.webp",
       },
       {
         "name_en": "Buttermilk",
@@ -493,7 +493,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/buttermilk.png"
+        "image_path": "assets/images/ingredients/buttermilk.webp",
       },
       {
         "name_en": "Heavy Cream",
@@ -502,7 +502,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/heavy_cream.png"
+        "image_path": "assets/images/ingredients/heavy_cream.webp",
       },
       {
         "name_en": "Yogurt",
@@ -511,7 +511,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/yogurt.png"
+        "image_path": "assets/images/ingredients/yogurt.webp",
       },
       {
         "name_en": "Sour Cream",
@@ -520,7 +520,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/sour_cream.png"
+        "image_path": "assets/images/ingredients/sour_cream.webp",
       },
       {
         "name_en": "Cream Cheese",
@@ -529,7 +529,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/cream_cheese.png"
+        "image_path": "assets/images/ingredients/cream_cheese.webp",
       },
       {
         "name_en": "Half-and-Half",
@@ -538,7 +538,7 @@ abstract class IngredientsRepo {
         "type_en": "Dairy",
         "type_fr": "Laitiers",
         "type_ar": "ألبان",
-        "image_path": "assets/images/ingredients/half_and_half.png"
+        "image_path": "assets/images/ingredients/half_and_half.webp",
       },
 
       // Eggs (eggs already exist)
@@ -549,7 +549,7 @@ abstract class IngredientsRepo {
         "type_en": "Eggs",
         "type_fr": "Œufs",
         "type_ar": "بيض",
-        "image_path": "assets/images/ingredients/egg_whites.png"
+        "image_path": "assets/images/ingredients/egg_whites.webp",
       },
 
       // Extracts & Aromatics
@@ -560,7 +560,7 @@ abstract class IngredientsRepo {
         "type_en": "Extracts",
         "type_fr": "Extraits",
         "type_ar": "مستخلصات",
-        "image_path": "assets/images/ingredients/vanilla_extract.png"
+        "image_path": "assets/images/ingredients/vanilla_extract.webp",
       },
       {
         "name_en": "Almond Extract",
@@ -569,7 +569,7 @@ abstract class IngredientsRepo {
         "type_en": "Extracts",
         "type_fr": "Extraits",
         "type_ar": "مستخلصات",
-        "image_path": "assets/images/ingredients/almond_extract.png"
+        "image_path": "assets/images/ingredients/almond_extract.webp",
       },
 
       // Spices (salt, black pepper, paprika, cumin, oregano, basil already exist)
@@ -580,7 +580,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/cinnamon.png"
+        "image_path": "assets/images/ingredients/cinnamon.webp",
       },
       {
         "name_en": "Nutmeg",
@@ -589,7 +589,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/nutmeg.png"
+        "image_path": "assets/images/ingredients/nutmeg.webp",
       },
       {
         "name_en": "Ginger",
@@ -598,7 +598,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/ginger.png"
+        "image_path": "assets/images/ingredients/ginger.webp",
       },
       {
         "name_en": "Cayenne Pepper",
@@ -607,7 +607,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/cayenne_pepper.png"
+        "image_path": "assets/images/ingredients/cayenne_pepper.webp",
       },
       {
         "name_en": "Chili Powder",
@@ -616,7 +616,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/chili_powder.png"
+        "image_path": "assets/images/ingredients/chili_powder.webp",
       },
       {
         "name_en": "Apple Pie Spice",
@@ -625,7 +625,7 @@ abstract class IngredientsRepo {
         "type_en": "Spices",
         "type_fr": "Épices",
         "type_ar": "بهارات",
-        "image_path": "assets/images/ingredients/apple_pie_spice.webp"
+        "image_path": "assets/images/ingredients/apple_pie_spice.webp",
       },
 
       // Acids
@@ -636,7 +636,7 @@ abstract class IngredientsRepo {
         "type_en": "Acids",
         "type_fr": "Acides",
         "type_ar": "أحماض",
-        "image_path": "assets/images/ingredients/vinegar.png"
+        "image_path": "assets/images/ingredients/vinegar.webp",
       },
       {
         "name_en": "White Vinegar",
@@ -645,7 +645,7 @@ abstract class IngredientsRepo {
         "type_en": "Acids",
         "type_fr": "Acides",
         "type_ar": "أحماض",
-        "image_path": "assets/images/ingredients/white_vinegar.png"
+        "image_path": "assets/images/ingredients/white_vinegar.webp",
       },
       {
         "name_en": "Apple Vinegar",
@@ -654,7 +654,7 @@ abstract class IngredientsRepo {
         "type_en": "Acids",
         "type_fr": "Acides",
         "type_ar": "أحماض",
-        "image_path": "assets/images/ingredients/apple_cider_vinegar.png"
+        "image_path": "assets/images/ingredients/apple_cider_vinegar.webp",
       },
       {
         "name_en": "Lemon Juice",
@@ -663,7 +663,7 @@ abstract class IngredientsRepo {
         "type_en": "Acids",
         "type_fr": "Acides",
         "type_ar": "أحماض",
-        "image_path": "assets/images/ingredients/lemon_juice.png"
+        "image_path": "assets/images/ingredients/lemon_juice.webp",
       },
       {
         "name_en": "Lime Juice",
@@ -672,7 +672,7 @@ abstract class IngredientsRepo {
         "type_en": "Acids",
         "type_fr": "Acides",
         "type_ar": "أحماض",
-        "image_path": "assets/images/ingredients/lime_juice.png"
+        "image_path": "assets/images/ingredients/lime_juice.webp",
       },
 
       // Nuts & Seeds
@@ -683,7 +683,7 @@ abstract class IngredientsRepo {
         "type_en": "Nuts & Seeds",
         "type_fr": "Noix et graines",
         "type_ar": "مكسرات وبذور",
-        "image_path": "assets/images/ingredients/peanut_butter.png"
+        "image_path": "assets/images/ingredients/peanut_butter.webp",
       },
       {
         "name_en": "Almonds",
@@ -692,7 +692,7 @@ abstract class IngredientsRepo {
         "type_en": "Nuts & Seeds",
         "type_fr": "Noix et graines",
         "type_ar": "مكسرات وبذور",
-        "image_path": "assets/images/ingredients/almonds.png"
+        "image_path": "assets/images/ingredients/almonds.webp",
       },
       {
         "name_en": "Walnuts",
@@ -701,7 +701,7 @@ abstract class IngredientsRepo {
         "type_en": "Nuts & Seeds",
         "type_fr": "Noix et graines",
         "type_ar": "مكسرات وبذور",
-        "image_path": "assets/images/ingredients/walnuts.png"
+        "image_path": "assets/images/ingredients/walnuts.webp",
       },
       {
         "name_en": "Pecans",
@@ -710,7 +710,7 @@ abstract class IngredientsRepo {
         "type_en": "Nuts & Seeds",
         "type_fr": "Noix et graines",
         "type_ar": "مكسرات وبذور",
-        "image_path": "assets/images/ingredients/pecans.png"
+        "image_path": "assets/images/ingredients/pecans.webp",
       },
       {
         "name_en": "Pistachios",
@@ -719,7 +719,7 @@ abstract class IngredientsRepo {
         "type_en": "Nuts & Seeds",
         "type_fr": "Noix et graines",
         "type_ar": "مكسرات وبذور",
-        "image_path": "assets/images/ingredients/pistachios.png"
+        "image_path": "assets/images/ingredients/pistachios.webp",
       },
       {
         "name_en": "Peanuts",
@@ -728,7 +728,7 @@ abstract class IngredientsRepo {
         "type_en": "Nuts & Seeds",
         "type_fr": "Noix et graines",
         "type_ar": "مكسرات وبذور",
-        "image_path": "assets/images/ingredients/peanuts.png"
+        "image_path": "assets/images/ingredients/peanuts.webp",
       },
 
       // Common Pantry Staples
@@ -739,7 +739,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/soy_sauce.png"
+        "image_path": "assets/images/ingredients/soy_sauce.webp",
       },
       {
         "name_en": "Tomato Paste",
@@ -748,7 +748,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/tomato_paste.png"
+        "image_path": "assets/images/ingredients/tomato_paste.webp",
       },
       {
         "name_en": "Mustard",
@@ -757,7 +757,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/mustard.png"
+        "image_path": "assets/images/ingredients/mustard.webp",
       },
       {
         "name_en": "Mayonnaise",
@@ -766,7 +766,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/mayonnaise.png"
+        "image_path": "assets/images/ingredients/mayonnaise.webp",
       },
       {
         "name_en": "Broth",
@@ -775,7 +775,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/broth.png"
+        "image_path": "assets/images/ingredients/broth.webp",
       },
       {
         "name_en": "Chicken Broth",
@@ -784,7 +784,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/chicken_broth.png"
+        "image_path": "assets/images/ingredients/chicken_broth.webp",
       },
       {
         "name_en": "Vegetable Broth",
@@ -793,7 +793,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/vegetable_broth.png"
+        "image_path": "assets/images/ingredients/vegetable_broth.webp",
       },
       {
         "name_en": "Ketchup",
@@ -802,7 +802,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/ketchup.png"
+        "image_path": "assets/images/ingredients/ketchup.webp",
       },
       {
         "name_en": "Worcestershire Sauce",
@@ -811,7 +811,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/worcestershire_sauce.png"
+        "image_path": "assets/images/ingredients/worcestershire_sauce.webp",
       },
       {
         "name_en": "Hot Sauce",
@@ -820,7 +820,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/hot_sauce.png"
+        "image_path": "assets/images/ingredients/hot_sauce.webp",
       },
       {
         "name_en": "Cocoa Powder",
@@ -829,7 +829,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/cocoa_powder.png"
+        "image_path": "assets/images/ingredients/cocoa_powder.webp",
       },
       {
         "name_en": "Pudding Mix",
@@ -838,7 +838,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/pudding_mix.png"
+        "image_path": "assets/images/ingredients/pudding_mix.webp",
       },
       {
         "name_en": "Gelatin",
@@ -847,7 +847,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/gelatin.png"
+        "image_path": "assets/images/ingredients/gelatin.webp",
       },
       {
         "name_en": "Marshmallows",
@@ -856,7 +856,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/marshmallows.png"
+        "image_path": "assets/images/ingredients/marshmallows.webp",
       },
       {
         "name_en": "Chocolate Chips",
@@ -865,7 +865,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/chocolate_chips.png"
+        "image_path": "assets/images/ingredients/chocolate_chips.webp",
       },
       {
         "name_en": "Coconut",
@@ -874,7 +874,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/coconut.png"
+        "image_path": "assets/images/ingredients/coconut.webp",
       },
       {
         "name_en": "Raisins",
@@ -883,7 +883,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/raisins.png"
+        "image_path": "assets/images/ingredients/raisins.webp",
       },
       {
         "name_en": "Cranberries",
@@ -892,7 +892,7 @@ abstract class IngredientsRepo {
         "type_en": "Pantry Staples",
         "type_fr": "Articles de garde-manger",
         "type_ar": "مواد غذائية أساسية",
-        "image_path": "assets/images/ingredients/cranberries.png"
+        "image_path": "assets/images/ingredients/cranberries.webp",
       },
     ];
 
@@ -900,6 +900,4 @@ abstract class IngredientsRepo {
       await repo.insertIngredient(item);
     }
   }
-
-
 }

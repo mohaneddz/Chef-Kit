@@ -164,7 +164,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar>
                     maxLines: 1,
                     style: TextStyle(
                       color: isSelected ? color : Colors.grey[400],
-                      fontSize: isSelected ? 12 : 11,
+                      fontSize: isSelected ? 8 : 6,
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w600,

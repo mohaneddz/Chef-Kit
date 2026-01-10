@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 class DBHelper {
   static const _databaseName = "chefkit.db";
-  static const _databaseVersion = 2; // Bumped for favorites table
+  static const _databaseVersion = 3; // Bumped for webp migration
 
   static Database? _db;
 
@@ -47,6 +47,10 @@ class DBHelper {
               created_at INTEGER NOT NULL
             )
           ''');
+        }
+        if (oldVersion < 3) {
+          // Clear ingredients to reseed with webp paths
+          await db.execute('DELETE FROM ingredients');
         }
       },
     );

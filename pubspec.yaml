@@ -54,12 +54,6 @@ flutter:
   fonts:
     - family: Poppins
       fonts:
-        - asset: assets/fonts/Poppins/Poppins-Thin.ttf
-          weight: 100
-        - asset: assets/fonts/Poppins/Poppins-ExtraLight.ttf
-          weight: 200
-        - asset: assets/fonts/Poppins/Poppins-Light.ttf
-          weight: 300
         - asset: assets/fonts/Poppins/Poppins-Regular.ttf
           weight: 400
         - asset: assets/fonts/Poppins/Poppins-Medium.ttf
@@ -75,10 +69,6 @@ flutter:
 
     - family: LeagueSpartan
       fonts:
-        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Thin.ttf
-          weight: 100
-        - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Light.ttf
-          weight: 300
         - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Regular.ttf
           weight: 400
         - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Medium.ttf
@@ -91,3 +81,10 @@ flutter:
           weight: 800
         - asset: assets/fonts/LeagueSpartan/LeagueSpartan-Black.ttf
           weight: 900
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon/bg.webp"
+  adaptive_icon_background: "#ea514a"
+  adaptive_icon_foreground: "assets/images/icon/fg.webp"
