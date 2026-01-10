@@ -7,11 +7,16 @@ import 'favourites_state.dart';
 
 class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
   final RecipeRepository recipeRepository;
-  final FavoritesCacheService _cacheService = FavoritesCacheService();
+  final FavoritesCacheService _cacheService;
 
-  FavouritesBloc({required this.recipeRepository}) : super(FavouritesState()) {
+  FavouritesBloc({
+    required this.recipeRepository,
+    FavoritesCacheService? cacheService,
+  }) : _cacheService = cacheService ?? FavoritesCacheService(),
+       super(FavouritesState()) {
     on<LoadFavourites>(_onLoad);
     on<SelectCategory>(_onSelectCategory);
+
     on<ToggleFavoriteRecipe>(_onToggleFavorite);
     on<SearchFavourites>(_onSearch);
     on<RefreshFavourites>(_onRefresh);
