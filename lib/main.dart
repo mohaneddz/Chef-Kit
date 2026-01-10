@@ -27,7 +27,6 @@ import 'package:chefkit/blocs/chefs/chefs_bloc.dart';
 import 'package:chefkit/blocs/chefs/chefs_events.dart';
 import 'package:chefkit/blocs/inventory/inventory_bloc.dart';
 import 'package:chefkit/blocs/favourites/favourites_bloc.dart';
-import 'package:chefkit/blocs/favourites/favourites_events.dart';
 import 'package:chefkit/blocs/locale/locale_cubit.dart';
 import 'package:chefkit/blocs/notifications/notifications_bloc.dart';
 import 'package:chefkit/blocs/notifications/notifications_event.dart';
@@ -140,8 +139,7 @@ class MainApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (_) =>
-                FavouritesBloc(recipeRepository: recipeRepository)
-                  ..add(LoadFavourites()),
+                FavouritesBloc(recipeRepository: recipeRepository),
           ),
           BlocProvider(
             create: (_) => NotificationsBloc()..add(const LoadNotifications()),

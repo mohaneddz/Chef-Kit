@@ -122,16 +122,16 @@ void main() {
     return MediaQuery(
       data: mediaQueryData,
       child: DefaultAssetBundle(
-        bundle: _TestAssetBundle(),
-        child: MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: MultiBlocProvider(
-            providers: [
-              BlocProvider<InventoryBloc>.value(value: mockInventoryBloc),
-              BlocProvider<LocaleCubit>.value(value: mockLocaleCubit),
-            ],
-            child: const InventoryPage(),
+      bundle: _TestAssetBundle(),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<InventoryBloc>.value(value: mockInventoryBloc),
+            BlocProvider<LocaleCubit>.value(value: mockLocaleCubit),
+          ],
+          child: const InventoryPage(),
           ),
         ),
       ),

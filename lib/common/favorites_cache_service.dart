@@ -4,6 +4,27 @@ import '../domain/db_helper.dart';
 /// Service for caching favorite recipe IDs locally using SQLite.
 /// This provides immediate persistence before syncing to the server.
 class FavoritesCacheService {
+  bool _isReadonlyDbError(Object e) {
+    final msg = e.toString().toLowerCase();
+    return msg.contains('readonly database') ||
+        msg.contains('attempt to write a readonly database');
+  }
+
+  Future<T> _withWriteRecovery<T>(Future<T> Function(Database db) action) async {
+    try {
+      final db = await DBHelper.database;
+      return await action(db);
+    } on DatabaseException catch (e) {
+      if (_isReadonlyDbError(e)) {
+        // Self-heal: drop the local DB and recreate it, then retry once.
+        await DBHelper.resetDatabase();
+        final db = await DBHelper.database;
+        return await action(db);
+      }
+      rethrow;
+    }
+  }
+
   /// Get all cached favorite recipe IDs
   Future<Set<String>> getFavoriteIds() async {
     final db = await DBHelper.database;
@@ -13,17 +34,27 @@ class FavoritesCacheService {
 
   /// Add a recipe to the favorites cache
   Future<void> addFavorite(String recipeId) async {
-    final db = await DBHelper.database;
-    await db.insert('favorites', {
-      'recipe_id': recipeId,
-      'created_at': DateTime.now().millisecondsSinceEpoch,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await _withWriteRecovery<void>((db) async {
+      await db.insert(
+        'favorites',
+        {
+          'recipe_id': recipeId,
+          'created_at': DateTime.now().millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    });
   }
 
   /// Remove a recipe from the favorites cache
   Future<void> removeFavorite(String recipeId) async {
-    final db = await DBHelper.database;
-    await db.delete('favorites', where: 'recipe_id = ?', whereArgs: [recipeId]);
+    await _withWriteRecovery<void>((db) async {
+      await db.delete(
+        'favorites',
+        where: 'recipe_id = ?',
+        whereArgs: [recipeId],
+      );
+    });
   }
 
   /// Toggle favorite status and return the new state
@@ -54,20 +85,20 @@ class FavoritesCacheService {
   /// Sync local cache with server data.
   /// Call this on app start after fetching favorite IDs from server.
   Future<void> syncFromServer(List<String> serverFavoriteIds) async {
-    final db = await DBHelper.database;
+    await _withWriteRecovery<void>((db) async {
+      // Use a transaction for atomic update
+      await db.transaction((txn) async {
+        // Clear existing favorites
+        await txn.delete('favorites');
 
-    // Use a transaction for atomic update
-    await db.transaction((txn) async {
-      // Clear existing favorites
-      await txn.delete('favorites');
-
-      // Insert all server favorites
-      final batch = txn.batch();
-      final now = DateTime.now().millisecondsSinceEpoch;
-      for (final id in serverFavoriteIds) {
-        batch.insert('favorites', {'recipe_id': id, 'created_at': now});
-      }
-      await batch.commit(noResult: true);
+        // Insert all server favorites
+        final batch = txn.batch();
+        final now = DateTime.now().millisecondsSinceEpoch;
+        for (final id in serverFavoriteIds) {
+          batch.insert('favorites', {'recipe_id': id, 'created_at': now});
+        }
+        await batch.commit(noResult: true);
+      });
     });
   }
 }

@@ -7,14 +7,38 @@ class DBHelper {
 
   static Database? _db;
 
+  static Future<String> get databasePath async {
+    return join(await getDatabasesPath(), _databaseName);
+  }
+
   static Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await _initDB();
     return _db!;
   }
 
+  /// Closes and deletes the local SQLite DB.
+  ///
+  /// This is used as a self-healing recovery path if the database becomes
+  /// read-only/corrupt on device (e.g. iOS "attempt to write a readonly database").
+  static Future<void> resetDatabase() async {
+    final db = _db;
+    _db = null;
+    try {
+      await db?.close();
+    } catch (_) {
+      // ignore close errors
+    }
+    final path = await databasePath;
+    try {
+      await deleteDatabase(path);
+    } catch (_) {
+      // ignore delete errors
+    }
+  }
+
   static Future<Database> _initDB() async {
-    final path = join(await getDatabasesPath(), _databaseName);
+    final path = await databasePath;
     return await openDatabase(
       path,
       version: _databaseVersion,

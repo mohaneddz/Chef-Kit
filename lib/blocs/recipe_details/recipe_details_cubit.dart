@@ -42,16 +42,29 @@ class RecipeDetailsCubit extends Cubit<RecipeDetailsState> {
 
   Future<void> toggleFavorite() async {
     // Optimistic update immediately
-    emit(state.copyWith(isFavorite: !state.isFavorite));
+    final newFavoriteStatus = !state.isFavorite;
+    emit(state.copyWith(isFavorite: newFavoriteStatus, syncError: null));
 
     // Save to local cache immediately for persistence
-    await _cacheService.toggleFavorite(recipeId);
+    try {
+      await _cacheService.toggleFavorite(recipeId);
+    } catch (_) {
+      // Local cache failure should never block the main server sync.
+    }
+
+    // If the page was popped while awaiting, don't emit anything else.
+    if (isClosed) return;
 
     // Sync to server in background - don't revert on failure
     try {
       await _recipeRepository.toggleFavorite(recipeId);
+      if (isClosed) return;
+      // Success - clear any previous sync errors
+      emit(state.copyWith(syncError: null));
     } catch (e) {
+      if (isClosed) return;
       // Don't revert UI, just show sync error via snackbar
+      // The favorite is already saved locally, so it will persist
       // print('⚠️ Favorite sync failed: $e');
       emit(
         state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),

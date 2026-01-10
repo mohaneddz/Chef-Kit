@@ -5,6 +5,8 @@ import '../../../domain/models/recipe.dart';
 import '../../../domain/repositories/recipe_repository.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../blocs/auth/auth_cubit.dart';
+import '../../../blocs/favourites/favourites_bloc.dart';
+import '../../../blocs/favourites/favourites_events.dart';
 import '../../../blocs/recipe_details/recipe_details_cubit.dart';
 import '../../../blocs/recipe_details/recipe_details_state.dart';
 import '../../../common/constants.dart';
@@ -177,7 +179,7 @@ class _RecipeDetailsContent extends StatelessWidget {
                 shadowColor: Colors.black.withOpacity(0.15),
                 shape: const CircleBorder(),
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     // Check if user is logged in
                     final userId = context.read<AuthCubit>().state.userId;
                     if (userId == null) {
@@ -189,7 +191,25 @@ class _RecipeDetailsContent extends StatelessWidget {
                       );
                       return;
                     }
-                    context.read<RecipeDetailsCubit>().toggleFavorite();
+                    await context.read<RecipeDetailsCubit>().toggleFavorite();
+
+                    // Refresh favourites list globally so the recipe appears immediately
+                    try {
+                      final favBloc = context.read<FavouritesBloc>();
+                      final l10n = AppLocalizations.of(context)!;
+                      final locale = Localizations.localeOf(context).languageCode;
+                      favBloc.add(
+                        RefreshFavourites(
+                          allSavedText: l10n.allSaved,
+                          recipeText: l10n.recipeSingular,
+                          recipesText: l10n.recipePlural,
+                          locale: locale,
+                          otherText: 'Other',
+                        ),
+                      );
+                    } catch (_) {
+                      // FavouritesBloc not available in this context; ignore
+                    }
                   },
                   customBorder: const CircleBorder(),
                   child: Padding(

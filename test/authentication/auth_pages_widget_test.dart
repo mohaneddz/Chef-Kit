@@ -96,12 +96,12 @@ void main() {
     return MediaQuery(
       data: mediaQueryData,
       child: DefaultAssetBundle(
-        bundle: _TestAssetBundle(),
+      bundle: _TestAssetBundle(),
         child: BlocProvider<AuthCubit>.value(
           value: mockAuthCubit,
-          child: MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
             navigatorObservers: [
               if (observer != null) observer,
             ],

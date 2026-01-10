@@ -186,48 +186,40 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     ToggleFavoriteRecipe event,
     Emitter<FavouritesState> emit,
   ) async {
-
-    List<Recipe> removeFromList(List<Recipe> list) {
-      return list.where((r) => r.id != event.recipeId).toList();
+    // Save to local cache immediately for persistence
+    try {
+      await _cacheService.toggleFavorite(event.recipeId);
+    } catch (_) {
+      // Local cache failure should not block server sync or UI.
     }
 
-    final optimisticCategories = state.categories.map((cat) {
-      final recipes = cat['recipes'] as List<Recipe>;
-      final updatedRecipes = removeFromList(recipes);
-      final count = updatedRecipes.length;
-      return {
-        ...cat,
-        'recipes': updatedRecipes,
-        'subtitle': _formatSubtitle(count, 'recipe', 'recipes'),
-        'imagePaths': _getPreviewImagePaths(updatedRecipes),
-      };
-    }).toList();
-
-    final optimisticCurrentCategoryRecipes =
-        optimisticCategories[state.selectedCategoryIndex]['recipes']
-            as List<Recipe>;
-    final optimisticFilteredRecipes = state.searchQuery.isEmpty
-        ? optimisticCurrentCategoryRecipes
-        : optimisticCurrentCategoryRecipes
-              .where(
-                (recipe) => recipe.name.toLowerCase().contains(
-                  state.searchQuery.toLowerCase(),
-                ),
-              )
-              .toList();
-
-    emit(
-      state.copyWith(
-        categories: optimisticCategories,
-        displayRecipes: optimisticFilteredRecipes,
-      ),
-    );
-
-    await _cacheService.toggleFavorite(event.recipeId);
-
     try {
+      // Toggle favorite on server - this might throw, but we handle it
       await recipeRepository.toggleFavorite(event.recipeId);
+      
+      // After successful toggle, refresh favorites list to reflect the change
+      // This ensures newly favorited recipes appear in the favorites page
+      // Use the same parameters that were used to load favorites initially
+      // If we don't have them in state, use sensible defaults
+      final allSavedTitle = state.categories.isNotEmpty 
+          ? (state.categories[0]['title'] as String)
+          : 'All Saved';
+      
+      // Default to 'en' locale if not stored in state - this is fine as it just affects tag categorization
+      final locale = 'en'; // Can be improved later by storing locale in state
+      
+      // Refresh favorites from server with current locale and text
+      await _loadData(
+        emit,
+        allSavedTitle,
+        'recipe',
+        'recipes',
+        locale,
+        'Other',
+      );
     } catch (e) {
+      // If sync fails, show error but don't revert optimistic state
+      // The favorite is already saved locally, so it will sync later
       emit(
         state.copyWith(syncError: 'Failed to sync favorite. Will retry later.'),
       );

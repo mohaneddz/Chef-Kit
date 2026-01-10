@@ -57,28 +57,32 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
     ToggleChefFollowEvent event,
     Emitter<ChefProfileState> emit,
   ) async {
-    // print('\n🟡 ChefProfileBloc._onToggleFollow START');
-    // print('Chef ID: ${event.chefId}');
-    // print('Access Token: ${event.accessToken != null ? "PROVIDED" : "NULL"}');
+    final currentChef = state.chef;
+    if (currentChef == null) return;
+
+    // Optimistic update
+    final newFollowed = !currentChef.isFollowed;
+    final newFollowers =
+        (currentChef.followersCount + (newFollowed ? 1 : -1)).clamp(0, 1 << 31);
+    emit(
+      state.copyWith(
+        chef: currentChef.copyWith(
+          isFollowed: newFollowed,
+          followersCount: newFollowers,
+        ),
+        error: null,
+      ),
+    );
 
     try {
-      // print('Calling chefRepository.toggleFollow...');
       final updated = await chefRepository.toggleFollow(
         event.chefId,
         accessToken: event.accessToken,
       );
-      // print('✅ Toggle follow successful');
-      // print('New follow status: ${updated.isFollowed}');
-      // print('New follower count: ${updated.followersCount}');
-
-      emit(state.copyWith(chef: updated));
-      // print('✅ State updated with new chef data');
-      // print('🟡 ChefProfileBloc._onToggleFollow END\n');
+      emit(state.copyWith(chef: updated, error: null));
     } catch (e) {
-      // print('\n❌ ERROR in ChefProfileBloc._onToggleFollow: $e');
-      // print('Stack trace: $stackTrace');
-      emit(state.copyWith(error: e.toString()));
-      // print('🟡 ChefProfileBloc._onToggleFollow END (ERROR)\n');
+      // Revert to previous state on failure
+      emit(state.copyWith(chef: currentChef, error: e.toString()));
     }
   }
 
@@ -97,7 +101,11 @@ class ChefProfileBloc extends Bloc<ChefProfileEvents, ChefProfileState> {
     emit(state.copyWith(recipes: updatedRecipes));
 
     // Save to local cache immediately for persistence
-    await _cacheService.toggleFavorite(event.recipeId);
+    try {
+      await _cacheService.toggleFavorite(event.recipeId);
+    } catch (_) {
+      // Local cache failure should not block server sync or UI.
+    }
 
     // Sync to server in background - don't revert on failure
     try {

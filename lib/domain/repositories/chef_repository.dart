@@ -49,33 +49,56 @@ class ChefRepository {
 
     final url = '$baseUrl/api/chefs/$id/follow';
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await http
+          .post(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $accessToken',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-
-      // Fetch updated chef data
-      final chef = await getChefById(id, accessToken: accessToken);
-      if (chef == null) {
-        throw Exception('Chef not found');
+      // Even if parsing fails, we treat status 200 as success and fallback to existing data
+      bool? isFollowing;
+      int? followersCount;
+      if (response.statusCode == 200) {
+        try {
+          final data = json.decode(response.body);
+          isFollowing = data['is_following'] as bool?;
+          followersCount = data['followers_count'] is int
+              ? data['followers_count'] as int
+              : int.tryParse(data['followers_count']?.toString() ?? '');
+        } catch (_) {
+          // ignore parse errors, will fallback below
+        }
+      } else {
+        throw Exception(
+          'Failed to toggle follow: ${response.statusCode} - ${response.body}',
+        );
       }
 
-      final updatedChef = chef.copyWith(
-        isFollowed: data['is_following'] ?? !chef.isFollowed,
-        followersCount: data['followers_count'] ?? chef.followersCount,
-      );
-      return updatedChef;
-    }
+      // Fetch updated chef data (best effort)
+      final chef = await getChefById(id, accessToken: accessToken);
+      if (chef == null) {
+        // If we can't fetch, return minimal info with toggled flag
+        return Chef(
+          id: id,
+          name: 'Chef',
+          imageUrl: 'https://via.placeholder.com/250',
+          isFollowed: isFollowing ?? true,
+          followersCount: followersCount ?? 0,
+        );
+      }
 
-    throw Exception(
-      'Failed to toggle follow: ${response.statusCode} - ${response.body}',
-    );
+      return chef.copyWith(
+        isFollowed: isFollowing ?? !chef.isFollowed,
+        followersCount: followersCount ?? chef.followersCount,
+      );
+    } catch (e) {
+      throw Exception('Failed to toggle follow: ${e.toString()}');
+    }
   }
 
   Future<List<Chef>> fetchChefsOnFire() async {
