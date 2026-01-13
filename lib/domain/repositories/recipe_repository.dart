@@ -6,10 +6,12 @@ import '../models/recipe.dart';
 // unused foundation import removed
 import '../../common/config.dart';
 import '../../common/token_storage.dart';
+import '../../common/authenticated_http_client.dart';
 
 class RecipeRepository {
   late final String baseUrl;
   final TokenStorage _tokenStorage = TokenStorage();
+  final AuthenticatedHttpClient _authClient = AuthenticatedHttpClient();
 
   RecipeRepository() {
     baseUrl = AppConfig.baseUrl;
@@ -183,13 +185,11 @@ class RecipeRepository {
   }
 
   Future<List<Recipe>> fetchFavoriteRecipes() async {
-    final headers = await _getHeaders();
-    if (!headers.containsKey('Authorization')) return [];
+    final token = await _tokenStorage.readAccessToken();
+    if (token == null) return [];
 
-    final response = await _httpGetWithRetry(
-      Uri.parse('$baseUrl/api/favorites'),
-      headers: headers,
-    );
+    // Use AuthenticatedHttpClient for automatic token refresh on 401
+    final response = await _authClient.get(Uri.parse('$baseUrl/api/favorites'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -201,18 +201,16 @@ class RecipeRepository {
   }
 
   Future<Recipe> toggleFavorite(String recipeId) async {
-    final headers = await _getHeaders();
-    if (!headers.containsKey('Authorization')) {
+    final token = await _tokenStorage.readAccessToken();
+    if (token == null) {
       throw Exception('User not logged in');
     }
 
     try {
-      final response = await http
-          .post(
-            Uri.parse('$baseUrl/api/favorites/$recipeId/toggle'),
-            headers: headers,
-          )
-          .timeout(const Duration(seconds: 10));
+      // Use AuthenticatedHttpClient for automatic token refresh on 401
+      final response = await _authClient.post(
+        Uri.parse('$baseUrl/api/favorites/$recipeId/toggle'),
+      );
 
       // Assume toggle request succeeded if we reached here (even if status != 200 we will handle gracefully)
       bool isFav = true;
@@ -225,11 +223,8 @@ class RecipeRepository {
 
       // Best-effort fetch of full recipe (optional)
       try {
-        final recipeResponse = await _httpGetWithRetry(
+        final recipeResponse = await _authClient.get(
           Uri.parse('$baseUrl/api/recipes/$recipeId'),
-          headers: headers,
-          maxRetries: 1,
-          timeout: const Duration(seconds: 5),
         );
         if (recipeResponse.statusCode == 200) {
           final recipeData = json.decode(recipeResponse.body);

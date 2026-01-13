@@ -1,555 +1,711 @@
-# Firebase Cloud Messaging (FCM) Implementation
+# 🍳 Chef-Kit Project Architecture
 
-## Overview
+> A comprehensive guide to understanding the Flutter mobile application structure, state management, and data flow.
 
-This document explains how Firebase Cloud Messaging (FCM) is implemented in the Chef-Kit application to deliver push notifications to users.
+---
 
-## Architecture
+## 📁 Project Structure Overview
 
 ```
-┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
-│   Flutter App   │──────│  Python Backend │──────│  Firebase FCM   │
-│   (Frontend)    │      │    (Flask)      │      │    (Google)     │
-└─────────────────┘      └─────────────────┘      └─────────────────┘
-        │                        │                        │
-        │ 1. Get FCM Token       │                        │
-        │◄───────────────────────┼────────────────────────┤
-        │                        │                        │
-        │ 2. Send token to       │                        │
-        │    backend on login    │                        │
-        ├───────────────────────►│                        │
-        │                        │                        │
-        │                        │ 3. Store token in      │
-        │                        │    Supabase DB         │
-        │                        │                        │
-        │                        │ 4. When event occurs,  │
-        │                        │    send notification   │
-        │                        ├───────────────────────►│
-        │                        │                        │
-        │ 5. FCM delivers push   │                        │
-        │◄───────────────────────┼────────────────────────┤
-        │                        │                        │
+lib/
+├── main.dart                 # App entry point, sets up BLoC providers
+├── blocs/                    # All BLoC state management
+│   ├── discovery/           # Discovery page state
+│   ├── profile/             # Profile page state
+│   ├── favourites/          # Favorites state
+│   ├── auth/                # Authentication state
+│   ├── chef_profile/        # Chef profile viewing state
+│   ├── chefs/               # Chefs list state
+│   ├── inventory/           # Ingredient inventory state
+│   ├── notifications/       # Notifications state
+│   ├── locale/              # Language settings
+│   └── theme/               # Dark/Light mode
+├── domain/                   # Business logic layer
+│   ├── models/              # Data models (Recipe, Chef, UserProfile)
+│   └── repositories/        # API calls (RecipeRepository, ChefRepository)
+├── views/
+│   ├── screens/             # Full pages/screens
+│   │   ├── discovery/       # Discovery page + related pages
+│   │   ├── profile/         # Profile page + related pages
+│   │   ├── recipe/          # Recipe details + creation
+│   │   ├── favourite/       # Favorites page
+│   │   ├── inventory/       # Inventory management
+│   │   └── authentication/  # Login/Signup pages
+│   ├── widgets/             # Reusable UI components
+│   └── layout/              # Layout components (bottom navbar)
+├── common/                   # Shared utilities
+│   ├── config.dart          # API configuration
+│   ├── constants.dart       # Colors, themes
+│   └── token_storage.dart   # JWT token management
+└── l10n/                     # Localization (English, French, Arabic)
 ```
 
-## Components
+---
 
-### 1. Flutter App (Frontend)
+## 🧠 Understanding BLoC Pattern (Business Logic Component)
 
-#### Files:
-- `lib/common/firebase_messaging_service.dart` - Main FCM service
-- `lib/main.dart` - Firebase initialization
-- `lib/blocs/auth/auth_cubit.dart` - Sends token on login
+### What is BLoC?
 
-#### How it works:
+BLoC is a **state management pattern** that separates business logic from UI. It makes your app:
 
-**Step 1: Initialize Firebase on app start**
+- **Testable** - Logic is separate from widgets
+- **Predictable** - Data flows in one direction
+- **Scalable** - Easy to add new features
+
+### The Three Components
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│    EVENT    │ →  │    BLoC     │ →  │    STATE    │
+│ (user action)│    │  (logic)    │    │ (UI data)   │
+└─────────────┘    └─────────────┘    └─────────────┘
+```
+
+| Component | Description                               | Example                           |
+| --------- | ----------------------------------------- | --------------------------------- |
+| **Event** | An action triggered by the user or system | `LoadDiscovery`, `ToggleFavorite` |
+| **BLoC**  | Processes events and calls repositories   | `DiscoveryBloc`, `ProfileBloc`    |
+| **State** | Holds the current data for the UI         | `DiscoveryState`, `ProfileState`  |
+
+### How Data Flows
+
+1. **User taps a button** → UI dispatches an Event
+2. **BLoC receives Event** → Calls repository to fetch/update data
+3. **Repository makes API call** → Returns data to BLoC
+4. **BLoC emits new State** → UI rebuilds with new data
+
+---
+
+## 🔍 Discovery Page Deep Dive
+
+### Overview
+
+The Discovery page (`discovery_page.dart`) is the **main home screen** showing:
+
+- 🔍 Search bar
+- 👨‍🍳 Chefs on Fire (horizontal scroll)
+- 🔥 Hot Recipes (2-column grid, max 4 items)
+- 🍂 Seasonal Recipes (vertical list)
+
+### File Structure
+
+```
+lib/
+├── views/screens/discovery/
+│   ├── discovery_page.dart      # Main discovery screen
+│   ├── all_chefs_page.dart      # "See All" chefs page
+│   ├── all_hot_recipes_page.dart # "See All" hot recipes
+│   └── search_page.dart         # Search functionality
+└── blocs/discovery/
+    ├── discovery_bloc.dart      # Business logic
+    ├── discovery_events.dart    # Available events
+    └── discovery_state.dart     # State definition
+```
+
+### Discovery Events (`discovery_events.dart`)
+
 ```dart
-// main.dart
+// Base class for all discovery events
+abstract class DiscoveryEvent {}
+
+// Event: Load initial data
+class LoadDiscovery extends DiscoveryEvent {}
+
+// Event: Pull-to-refresh (force reload)
+class RefreshDiscovery extends DiscoveryEvent {}
+
+// Event: Like/unlike a recipe
+class ToggleDiscoveryRecipeFavorite extends DiscoveryEvent {
+  final String recipeId;
+  ToggleDiscoveryRecipeFavorite(this.recipeId);
+}
+```
+
+### Discovery State (`discovery_state.dart`)
+
+```dart
+class DiscoveryState {
+  final bool loading;              // Show loading spinner?
+  final List<Chef> chefsOnFire;    // List of featured chefs
+  final List<Recipe> hotRecipes;   // Trending recipes
+  final List<Recipe> seasonalRecipes;  // Seasonal recipes
+  final String? error;             // Error message if any
+  final String? syncError;         // Non-blocking error for favorites
+
+  // copyWith method allows creating new state with modified fields
+  DiscoveryState copyWith({...}) => DiscoveryState(...);
+}
+```
+
+### Discovery BLoC (`discovery_bloc.dart`)
+
+```dart
+class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
+  final ChefRepository chefRepository;
+  final RecipeRepository recipeRepository;
+
+  DiscoveryBloc({required this.chefRepository, required this.recipeRepository})
+    : super(DiscoveryState()) {
+    // Register event handlers
+    on<LoadDiscovery>(_onLoad);
+    on<RefreshDiscovery>(_onRefresh);
+    on<ToggleDiscoveryRecipeFavorite>(_onToggleFavorite);
+  }
+
+  // Handler: Load initial data
+  Future<void> _onLoad(LoadDiscovery event, Emitter<DiscoveryState> emit) async {
+    // Skip if already loading or has data
+    if (state.loading) return;
+    if (state.chefsOnFire.isNotEmpty && state.hotRecipes.isNotEmpty) return;
+
+    emit(state.copyWith(loading: true));  // Show spinner
+
+    // Load each section independently
+    final chefs = await chefRepository.fetchChefsOnFire();
+    final hot = await recipeRepository.fetchHotRecipes();
+    final seasonal = await recipeRepository.fetchSeasonalRecipes();
+
+    emit(state.copyWith(
+      loading: false,
+      chefsOnFire: chefs,
+      hotRecipes: hot,
+      seasonalRecipes: seasonal,
+    ));
+  }
+
+  // Handler: Toggle favorite (with optimistic update)
+  Future<void> _onToggleFavorite(ToggleDiscoveryRecipeFavorite event, Emitter emit) async {
+    // 1. Immediately update UI (optimistic)
+    final updatedRecipes = state.hotRecipes.map((r) {
+      if (r.id == event.recipeId) {
+        return r.copyWith(isFavorite: !r.isFavorite);
+      }
+      return r;
+    }).toList();
+    emit(state.copyWith(hotRecipes: updatedRecipes));
+
+    // 2. Sync with server in background
+    try {
+      await recipeRepository.toggleFavorite(event.recipeId);
+    } catch (e) {
+      // Don't revert - show error via snackbar instead
+      emit(state.copyWith(syncError: 'Failed to sync favorite'));
+    }
+  }
+}
+```
+
+### Discovery Page UI (`discovery_page.dart`)
+
+```dart
+class RecipeDiscoveryScreen extends StatefulWidget {
+  @override
+  State<RecipeDiscoveryScreen> createState() => _RecipeDiscoveryScreenState();
+}
+
+class _RecipeDiscoveryScreenState extends State<RecipeDiscoveryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger data loading when page initializes
+    context.read<DiscoveryBloc>().add(LoadDiscovery());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Discover Recipes')),
+      body: BlocBuilder<DiscoveryBloc, DiscoveryState>(
+        builder: (context, state) {
+          // Handle loading state
+          if (state.loading) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          // Handle error state
+          if (state.error != null) {
+            return Center(
+              child: Column(
+                children: [
+                  Text('Connection Issue'),
+                  ElevatedButton(
+                    onPressed: () => context.read<DiscoveryBloc>().add(LoadDiscovery()),
+                    child: Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // Display data
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<DiscoveryBloc>().add(RefreshDiscovery());
+            },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Search Bar
+                  SearchBarWidget(onTap: () => Navigator.push(...)),
+
+                  // Chefs Section
+                  SectionHeaderWidget(title: 'Chefs', onSeeAllPressed: () => ...),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final chef in state.chefsOnFire)
+                          ChefCardWidget(
+                            name: chef.name,
+                            imageUrl: chef.imageUrl,
+                            onTap: () => Navigator.push(...),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // Hot Recipes Section
+                  SectionHeaderWidget(title: 'Hot Recipes'),
+                  GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
+                    itemCount: state.hotRecipes.length.clamp(0, 4),
+                    itemBuilder: (context, index) {
+                      final recipe = state.hotRecipes[index];
+                      return RecipeCardWidget(
+                        title: recipe.name,
+                        imageUrl: recipe.imageUrl,
+                        isFavorite: recipe.isFavorite,
+                        onFavoritePressed: () {
+                          context.read<DiscoveryBloc>().add(
+                            ToggleDiscoveryRecipeFavorite(recipe.id),
+                          );
+                        },
+                        onTap: () => Navigator.push(...RecipeDetailsPage...),
+                      );
+                    },
+                  ),
+
+                  // Seasonal Recipes Section
+                  for (final recipe in state.seasonalRecipes)
+                    SeasonalItemWidget(title: recipe.name, ...),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+```
+
+---
+
+## 👤 Profile Page Deep Dive
+
+### Overview
+
+The Profile page shows:
+
+- 👤 User avatar and name
+- 📊 Stats (recipes count, followers, following)
+- ⚙️ Settings menu (Personal Info, Security, Language, Dark Mode)
+- 🚪 Logout button
+
+### Key Feature: Guest vs Logged-in User
+
+```dart
+class ProfilePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final userId = context.watch<AuthCubit>().state.userId;
+
+    // Guest user - show limited profile with signup prompt
+    if (userId == null) {
+      return _GuestProfilePage();
+    }
+
+    // Logged-in user - create ProfileBloc and load data
+    return BlocProvider(
+      create: (context) => ProfileBloc(
+        repository: ProfileRepository(...),
+      )..add(LoadProfile(userId: userId)),
+      child: _ProfilePageContent(),
+    );
+  }
+}
+```
+
+### Profile Events (`profile_events.dart`)
+
+```dart
+abstract class ProfileEvent {}
+
+// Load user profile data
+class LoadProfile extends ProfileEvent {
+  final String userId;
+  LoadProfile({required this.userId});
+}
+
+// Increment recipe count (after creating a recipe)
+class IncrementProfileRecipes extends ProfileEvent {}
+
+// Update personal information
+class UpdatePersonalInfo extends ProfileEvent {
+  final String userId;
+  final String fullName;
+  final String bio;
+  final String story;
+  final List<String> specialties;
+  UpdatePersonalInfo({...});
+}
+```
+
+### Profile State (`profile_state.dart`)
+
+```dart
+class ProfileState {
+  final bool loading;           // Loading profile?
+  final bool saving;            // Saving changes?
+  final UserProfile? profile;   // User data
+  final String? error;          // Error message
+
+  ProfileState copyWith({...}) => ProfileState(...);
+}
+```
+
+### Profile BLoC (`profile_bloc.dart`)
+
+```dart
+class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
+  final ProfileRepository repository;
+
+  ProfileBloc({required this.repository}) : super(ProfileState()) {
+    on<LoadProfile>(_onLoad);
+    on<UpdatePersonalInfo>(_onUpdatePersonalInfo);
+  }
+
+  Future<void> _onLoad(LoadProfile event, Emitter<ProfileState> emit) async {
+    emit(state.copyWith(loading: true, error: null));
+    try {
+      final profile = await repository.fetchProfile(event.userId);
+      emit(state.copyWith(loading: false, profile: profile));
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdatePersonalInfo(UpdatePersonalInfo event, Emitter emit) async {
+    emit(state.copyWith(saving: true));
+    try {
+      final updated = await repository.updatePersonalInfo(
+        userId: event.userId,
+        fullName: event.fullName,
+        bio: event.bio,
+        story: event.story,
+        specialties: event.specialties,
+      );
+      emit(state.copyWith(saving: false, profile: updated));
+    } catch (e) {
+      emit(state.copyWith(saving: false, error: e.toString()));
+    }
+  }
+}
+```
+
+### Profile Sub-pages
+
+| Page          | File                            | Description                 |
+| ------------- | ------------------------------- | --------------------------- |
+| Personal Info | `personal_info_page.dart`       | Edit name, bio, specialties |
+| Security      | `security_page.dart`            | Change password             |
+| Chef Profile  | `chef_profile_public_page.dart` | View other chef's profiles  |
+
+---
+
+## 🏠 Home Page (Navigation Hub)
+
+The `HomePage` uses `IndexedStack` to manage tab navigation:
+
+```dart
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  // All screens in tab order
+  final List<Widget> _screens = [
+    RecipeDiscoveryScreen(),  // Tab 0: Discovery
+    InventoryPage(),          // Tab 1: Inventory
+    _PlaceholderScreen(),     // Tab 2: Recipe generation (modal)
+    FavouritesPage(),         // Tab 3: Favorites
+    ProfilePage(),            // Tab 4: Profile
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // IndexedStack keeps all screens alive but only shows selected one
+      body: IndexedStack(index: _selectedIndex, children: _screens),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: (index) {
+          if (index == 2) {
+            // Special case: show modal for recipe generation
+            showModalBottomSheet(...);
+          } else {
+            setState(() => _selectedIndex = index);
+          }
+        },
+      ),
+    );
+  }
+}
+```
+
+---
+
+## 🔗 App Initialization (`main.dart`)
+
+### Entry Point
+
+```dart
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Load environment variables
+  await dotenv.load(fileName: '.env');
+
+  // Initialize Firebase (for notifications, crashlytics)
   if (isFirebaseSupported) {
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     await FirebaseMessagingService().initialize();
   }
-  
-  runApp(MainApp());
+
+  // Load saved preferences
+  final savedLocale = await storage.read(key: 'selected_locale');
+  final savedTheme = await ThemeCubit.loadSavedTheme();
+
+  runApp(MainApp(initialLocale: savedLocale, initialTheme: savedTheme));
 }
 ```
 
-**Step 2: Request notification permissions and get FCM token**
-```dart
-// firebase_messaging_service.dart
-Future<void> initialize() async {
-  // Request permission
-  await _messaging.requestPermission(alert: true, badge: true, sound: true);
-  
-  // Get the unique device token
-  _fcmToken = await _messaging.getToken();
-  
-  // Listen for token refresh (tokens can change)
-  _messaging.onTokenRefresh.listen(_handleTokenRefresh);
-  
-  // Handle incoming messages
-  FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-  FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
-}
-```
+### Global BLoC Providers
 
-**Step 3: Send token to backend during login**
 ```dart
-// auth_cubit.dart
-Future<void> login(String email, String password) async {
-  String? deviceToken;
-  if (isFirebaseSupported) {
-    deviceToken = FirebaseMessagingService().fcmToken;
+class MainApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider.value(value: ChefRepository()),
+        RepositoryProvider.value(value: RecipeRepository()),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          // Discovery - loads immediately
+          BlocProvider(
+            create: (_) => DiscoveryBloc(...)..add(LoadDiscovery()),
+          ),
+          // Auth - manages login state
+          BlocProvider(create: (_) => AuthCubit(...)),
+          // Favorites
+          BlocProvider(
+            create: (_) => FavouritesBloc(...)..add(LoadFavourites()),
+          ),
+          // Notifications
+          BlocProvider(
+            create: (_) => NotificationsBloc()..add(LoadNotifications()),
+          ),
+          // Settings
+          BlocProvider(create: (_) => LocaleCubit(initialLocale)),
+          BlocProvider(create: (_) => ThemeCubit(initialTheme)),
+        ],
+        child: MaterialApp(
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          home: AuthInitializer(),  // Checks onboarding + auth
+        ),
+      ),
+    );
   }
-  
-  final resp = await http.post(
-    Uri.parse('$baseUrl/auth/login'),
-    body: jsonEncode({
-      'email': email,
-      'password': password,
-      'device_token': deviceToken,  // <-- FCM token sent here
-    }),
-  );
 }
 ```
 
-**Step 4: Handle incoming notifications**
-```dart
-// For foreground messages, show local notification
-void _handleForegroundMessage(RemoteMessage message) {
-  _showLocalNotification(
-    title: message.notification?.title ?? 'Chef Kit',
-    body: message.notification?.body ?? '',
-  );
-}
+---
 
-// For background/terminated messages, Flutter handles automatically
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  // Message is automatically shown by the system
-}
+## 🎨 Reusable Widgets
+
+### Widget Organization
+
+```
+lib/views/widgets/
+├── recipe/
+│   ├── recipe_card_widget.dart      # Recipe cards in grids
+│   ├── seasonal_item_widget.dart    # Seasonal recipe row
+│   └── ingredient_chip_widget.dart  # Ingredient tags
+├── profile/
+│   └── chef_card_widget.dart        # Chef avatar cards
+├── favourites/
+│   └── favourite_card_widget.dart   # Favorite recipe cards
+├── search_bar_widget.dart           # Search bar
+├── section_header_widget.dart       # "Title" + "See All" button
+├── button_widget.dart               # Custom buttons
+├── text_field_widget.dart           # Custom text inputs
+├── top_navbar.dart                  # Custom app bar
+└── login_required_modal.dart        # "Please login" popup
 ```
 
-### 2. Python Backend (Flask)
-
-#### Files:
-- `backend/services.py` - Contains FCM sending logic
-- `backend/app.py` - API endpoints
-
-#### How it works:
-
-**Step 1: Initialize Firebase Admin SDK**
-```python
-# services.py
-import firebase_admin
-from firebase_admin import credentials, messaging
-
-cred = credentials.Certificate('serviceAccountKey.json')
-firebase_admin.initialize_app(cred)
-```
-
-**Step 2: Store device token on login**
-```python
-# services.py
-def auth_login(email: str, password: str, device_token: str = None):
-    # ... authentication logic ...
-    
-    # Store device token for push notifications
-    if device_token and user_id:
-        update_fcm_token(user_id, device_token)
-    
-    return {"access_token": ..., "user": ...}
-
-def update_fcm_token(user_id: str, token: str):
-    # Get current tokens
-    resp = supabase_admin.table("users").select("user_devices").eq("user_id", user_id).execute()
-    
-    # Add new token if not exists
-    devices = json.loads(resp.data.get("user_devices") or "[]")
-    if token not in devices:
-        devices.append(token)
-        supabase_admin.table("users").update({
-            "user_devices": json.dumps(devices)
-        }).eq("user_id", user_id).execute()
-```
-
-**Step 3: Send push notification when events occur**
-```python
-# services.py
-def _send_push_notification(data: Dict[str, Any]):
-    user_id = data.get("user_id")
-    title = data.get("notification_title")
-    body = data.get("notification_message")
-    
-    # Get user's device tokens from database
-    user_resp = supabase_admin.table("users").select("user_devices").eq("user_id", user_id).execute()
-    tokens = json.loads(user_resp.data.get("user_devices") or "[]")
-    
-    # Send to each device
-    for token in tokens:
-        message = messaging.Message(
-            notification=messaging.Notification(title=title, body=body),
-            token=token,
-        )
-        messaging.send(message)
-
-def create_notification(data: Dict[str, Any]):
-    # Insert into database
-    supabase_admin.table("notifications").insert(data).execute()
-    
-    # Send push notification
-    _send_push_notification(data)
-```
-
-**Step 4: Trigger notifications on user actions**
-```python
-# services.py
-def follow_chef(user_id: str, chef_id: str):
-    # ... follow logic ...
-    
-    # Create notification for the chef
-    create_notification({
-        "user_id": chef_id,
-        "notification_title": "New Follower",
-        "notification_message": f"{follower_name} started following you.",
-        "notification_type": "follow",
-        "notification_data": {"follower_id": user_id}
-    })
-```
-
-## Database Schema
-
-The `users` table in Supabase stores FCM tokens:
-
-```sql
-CREATE TABLE users (
-    user_id UUID PRIMARY KEY,
-    user_email TEXT,
-    user_full_name TEXT,
-    user_devices TEXT,  -- JSON array of FCM tokens: ["token1", "token2"]
-    ...
-);
-```
-
-The `notifications` table stores notification history:
-
-```sql
-CREATE TABLE notifications (
-    notification_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(user_id),
-    notification_title TEXT,
-    notification_message TEXT,
-    notification_type TEXT,
-    notification_data JSONB,
-    notification_is_read BOOLEAN DEFAULT FALSE,
-    notification_created_at TIMESTAMPTZ DEFAULT now()
-);
-```
-
-## Configuration Files
-
-### Flutter (Android)
-
-**`android/app/google-services.json`**
-- Downloaded from Firebase Console
-- Contains project configuration (project_id, api_key, etc.)
-- Links the Android app to the Firebase project
-
-**`android/app/build.gradle.kts`**
-```kotlin
-plugins {
-    id("com.google.gms.google-services")  // Firebase plugin
-}
-
-dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
-    implementation("com.google.firebase:firebase-analytics")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-}
-```
-
-**`android/app/src/main/AndroidManifest.xml`**
-```xml
-<!-- Required permissions -->
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-<uses-permission android:name="android.permission.VIBRATE"/>
-
-<!-- Default notification channel -->
-<meta-data
-    android:name="com.google.firebase.messaging.default_notification_channel_id"
-    android:value="chef_kit_notifications"/>
-```
-
-### Backend (Python)
-
-**`backend/serviceAccountKey.json`**
-- Downloaded from Firebase Console → Project Settings → Service Accounts
-- Used by Firebase Admin SDK to authenticate
-- Contains private key (keep secret!)
-
-**Environment Variables**
-```bash
-GOOGLE_APPLICATION_CREDENTIALS=serviceAccountKey.json
-```
-
-## Notification Types
-
-| Type | Trigger | Title | Message |
-|------|---------|-------|---------|
-| `follow` | User follows a chef | "New Follower" | "{name} started following you." |
-| `like` | User likes a recipe | "New Like" | "{name} liked your recipe." |
-| `comment` | User comments on a recipe | "New Comment" | "{name} commented on your recipe." |
-
-## Message Flow Example
-
-**Scenario: User A follows Chef B**
-
-1. **Flutter App** (User A's phone):
-   - User taps "Follow" button
-   - App sends POST request to `/api/chefs/{chef_id}/follow`
-
-2. **Backend**:
-   - Receives follow request
-   - Updates follow relationship in database
-   - Calls `create_notification()` with Chef B's user_id
-   - Fetches Chef B's FCM tokens from `user_devices` column
-   - Sends push notification via Firebase Admin SDK
-
-3. **Firebase**:
-   - Receives message from backend
-   - Routes to Chef B's devices using FCM tokens
-
-4. **Flutter App** (Chef B's phone):
-   - If app is in foreground: `onMessage` listener shows local notification
-   - If app is in background: System shows notification automatically
-   - If app is terminated: `onBackgroundMessage` handler processes it
-
-## Handling Different App States
-
-| App State | Handler | Notification Display |
-|-----------|---------|---------------------|
-| Foreground | `FirebaseMessaging.onMessage` | Local notification via `flutter_local_notifications` |
-| Background | `FirebaseMessaging.onBackgroundMessage` | System shows automatically |
-| Terminated | `FirebaseMessaging.onBackgroundMessage` | System shows automatically |
-| Opened from notification | `FirebaseMessaging.onMessageOpenedApp` | Navigate to relevant screen |
-
-## Security Considerations
-
-1. **Service Account Key**: Never commit `serviceAccountKey.json` to git (it's in .gitignore)
-
-2. **RLS (Row Level Security)**: Backend uses `supabase_admin` (service role) to bypass RLS for creating notifications for other users
-
-3. **Token Validation**: FCM tokens are validated by Firebase before sending
-
-4. **Stale Tokens**: When a token is invalid, the send fails gracefully and should be removed from the database
-
-## Dependencies
-
-### Flutter (`pubspec.yaml`)
-```yaml
-dependencies:
-  firebase_core: ^3.8.1
-  firebase_messaging: ^15.1.6
-  flutter_local_notifications: ^18.0.1
-```
-
-### Python (`requirements.txt`)
-```
-firebase-admin>=6.0.0
-```
-
-## Testing
-
-1. **Check FCM token is obtained**:
-   - Look for `[FCM] Token obtained: ...` in Flutter debug console
-
-2. **Check token is sent to backend**:
-   - Look for `[AuthCubit] FCM token available: true` on login
-
-3. **Check token is stored**:
-   - Look for `[update_fcm_token] Adding new token` in backend logs
-
-4. **Check notification is sent**:
-   - Look for `[_send_push_notification] Sent X messages` in backend logs
-
-## Common Issues
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| "Platform not supported" | Running on Windows/Linux desktop | Firebase only works on Android/iOS/Web |
-| "Token not found" | FCM token not obtained | Check Firebase initialization |
-| 404 on /batch | Deprecated API | Use `messaging.send()` instead of `send_multicast()` |
-| RLS policy violation | Using regular Supabase client | Use `supabase_admin` for cross-user inserts |
-| Session not found | Calling `sign_out()` in backend | Remove `sign_out()` calls |
-| **No notification when app killed** | Missing high priority config | See "Background Delivery" section below |
-
-## Background Notification Delivery (When App is Killed)
-
-For push notifications to be delivered when the app is **fully closed/killed**, FCM messages must be configured with **high priority** settings.
-
-### Android Configuration
-
-**`AndroidManifest.xml`** - Required permissions:
-```xml
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-<uses-permission android:name="android.permission.VIBRATE"/>
-<uses-permission android:name="android.permission.WAKE_LOCK"/>  <!-- Required for background delivery -->
-```
-
-### Backend: High Priority FCM Messages
-
-The backend MUST send messages with high priority for Android and iOS:
-
-```python
-# services.py - _send_push_notification()
-message = messaging.Message(
-    notification=messaging.Notification(
-        title=title,
-        body=body,
-    ),
-    data={...},
-    token=token,
-    # HIGH PRIORITY - Required for delivery when app is killed!
-    android=messaging.AndroidConfig(
-        priority="high",
-        notification=messaging.AndroidNotification(
-            channel_id="chef_kit_notifications",
-            priority="high",
-        ),
-    ),
-    apns=messaging.APNSConfig(
-        headers={"apns-priority": "10"},
-        payload=messaging.APNSPayload(
-            aps=messaging.Aps(content_available=True),
-        ),
-    ),
-)
-```
-
-### Why This Matters
-
-| Priority | Behavior |
-|----------|----------|
-| `normal` (default) | Message may be delayed or batched. Won't wake device in Doze mode. |
-| `high` | Message delivered immediately. Wakes device from Doze mode. |
-
-### Phone-Specific Issues
-
-Some phone manufacturers aggressively kill background apps:
-
-| Brand | Fix |
-|-------|-----|
-| **Xiaomi** | Settings → Battery → App battery saver → ChefKit → No restrictions |
-| **Huawei** | Settings → Battery → App launch → ChefKit → Manage manually → Enable all |
-| **Samsung** | Settings → Apps → ChefKit → Battery → Unrestricted |
-| **OnePlus** | Settings → Battery → Battery optimization → ChefKit → Don't optimize |
-
-### Testing Background Delivery
-
-1. **Kill the app** completely (swipe away from recents)
-2. **Send a notification** from another device
-3. **Expected**: Notification should appear in system tray
-
-If it doesn't work:
-- Check backend logs for `[_send_push_notification] Sent X messages`
-- Verify phone battery settings allow background notifications
-- Ensure the FCM token is correctly registered
-
-## Notification Navigation (Click to Open Correct Screen)
-
-When a user taps a notification, the app navigates to the relevant screen based on the notification type.
-
-### Navigation Service
-
-**File**: `lib/common/navigation_service.dart`
-
-The `NavigationService` uses a global navigator key to enable navigation from outside the widget tree (i.e., from the FCM service).
+### Example: RecipeCardWidget
 
 ```dart
-class NavigationService {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  
-  static Future<void> navigateToRecipe(String recipeId) async { ... }
-  static void navigateToChefProfile(String chefId) { ... }
-  static void navigateToNotifications() { ... }
-  static Future<void> handleNotificationNavigation(Map<String, dynamic> data) async { ... }
+class RecipeCardWidget extends StatelessWidget {
+  final String title;
+  final String? imageUrl;
+  final bool isFavorite;
+  final VoidCallback? onTap;
+  final VoidCallback? onFavoritePressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [...],
+        ),
+        child: Column(
+          children: [
+            // Image with favorite button overlay
+            Stack(
+              children: [
+                ClipRRect(
+                  child: Image.network(imageUrl, fit: BoxFit.cover),
+                ),
+                Positioned(
+                  top: 12, right: 12,
+                  child: GestureDetector(
+                    onTap: onFavoritePressed,
+                    child: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.grey,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Title and subtitle
+            Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 ```
 
-### Supported Notification Types
+---
 
-| Type | Trigger | Navigation Target | Data Sent |
-|------|---------|-------------------|-----------|
-| `new_recipe` | Chef posts a new recipe | Recipe Details Page | `recipe_id`, `chef_id` |
-| `like` | Someone likes your recipe | Recipe Details Page | `recipe_id`, `user_id` |
-| `follow` | Someone follows you | Chef Profile Page | `follower_id` |
-| `hot_recipes` | Daily 9 AM / Manual trigger | All Hot Recipes Page | (none) |
-| (default) | Unknown type | Notifications Page | - |
+## 📊 Data Flow Diagram
 
-
-### How It Works
-
-1. **User taps notification** (background or terminated state)
-2. `FirebaseMessaging.onMessageOpenedApp` calls `_handleNotificationTap`
-3. `NavigationService.handleNotificationNavigation(data)` is called
-4. Based on `notification_type`, navigates to appropriate screen
-5. For recipe types, fetches recipe from API first (needs full Recipe object)
-
-## Scheduled/Periodic Notifications
-
-The backend can automatically send notifications at specified times using APScheduler.
-
-### Backend Configuration
-
-**File**: `backend/app.py`
-
-```python
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(
-    send_scheduled_recipe_notification,
-    CronTrigger(hour=9, minute=0),  # Daily at 9:00 AM
-    id='daily_recipe_notification',
-    name='Daily Recipe Notification'
-)
-scheduler.start()
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                         FLUTTER APP                               │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────────┐    │
+│  │  UI (Views) │ ←→  │    BLoC     │ ←→  │   Repository    │    │
+│  │             │     │             │     │                 │    │
+│  │ - Widgets   │     │ - Events    │     │ - HTTP client   │    │
+│  │ - Screens   │     │ - State     │     │ - JSON parsing  │    │
+│  │ - Pages     │     │ - Handlers  │     │ - Error handling│    │
+│  └─────────────┘     └─────────────┘     └─────────────────┘    │
+│         ↑                                        ↓               │
+│         │                                        │               │
+│    User sees                              HTTP Requests          │
+│    UI updates                                    │               │
+│                                                  ↓               │
+└──────────────────────────────────────────────────┼───────────────┘
+                                                   │
+                                          ┌────────┴────────┐
+                                          │  Flask Backend  │
+                                          │   (Render)      │
+                                          │                 │
+                                          │  - REST API     │
+                                          │  - Auth         │
+                                          │  - Business     │
+                                          │    Logic        │
+                                          └────────┬────────┘
+                                                   │
+                                          ┌────────┴────────┐
+                                          │    Supabase     │
+                                          │                 │
+                                          │  - PostgreSQL   │
+                                          │  - Auth         │
+                                          │  - Storage      │
+                                          └─────────────────┘
 ```
 
-### Scheduled Notification Function
+---
 
-**File**: `backend/services.py`
+## 🗣️ Presentation Talking Points
 
-```python
-def send_scheduled_recipe_notification():
-    """Send daily trending recipe notification to all users."""
-    trending = get_trending_recipes()
-    recipe = trending[0]
-    
-    # Get all users with device tokens
-    users = supabase_admin.table("users").select("user_id, user_devices")...
-    
-    for user in users:
-        create_notification({
-            "user_id": user["user_id"],
-            "notification_title": "🍳 Recipe of the Day",
-            "notification_type": "daily_recipe",
-            "notification_message": f"Try today's trending recipe: {recipe_name}",
-            "notification_data": {"recipe_id": recipe_id}
-        })
-```
+### If asked: "Explain your architecture"
 
-### API Endpoints
+> "We use the **BLoC (Business Logic Component) pattern** for state management. Each feature has its own BLoC that handles business logic separately from the UI. When the user performs an action, the UI dispatches an **Event**. The BLoC processes this event, typically calling a **Repository** to fetch or update data via HTTP. Once complete, the BLoC emits a new **State**, and the UI automatically rebuilds using `BlocBuilder`."
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/notifications/trigger-daily` | POST | Manually trigger daily notification (for testing) |
-| `/api/notifications/schedule-status` | GET | Check scheduler status and next run time |
+### If asked: "Why BLoC instead of setState?"
 
-### Testing Scheduled Notifications
+> "BLoC provides better **separation of concerns** - UI code doesn't contain business logic. It's also more **testable** since we can unit test BLoCs without widgets. Finally, it handles **complex state** better - for example, our Discovery page needs to track loading state, error state, and three different lists of data simultaneously."
 
-```bash
-# Manually trigger (for demo/testing)
-curl -X POST https://your-backend.render.com/api/notifications/trigger-daily
+### If asked: "How does the Discovery page work?"
 
-# Check scheduler status
-curl https://your-backend.render.com/api/notifications/schedule-status
-```
+> "When the user opens the app, `initState` calls `add(LoadDiscovery())` to dispatch an event. The `DiscoveryBloc` receives this and calls three repository methods in parallel: `fetchChefsOnFire()`, `fetchHotRecipes()`, and `fetchSeasonalRecipes()`. These make HTTP GET requests to our Flask backend. When all data is received, the bloc emits a new state with `loading: false` and the data lists populated. The `BlocBuilder` widget in the UI detects this state change and rebuilds, showing the recipe cards and chef avatars."
 
-### Dependencies
+### If asked: "How do favorites work?"
 
-Add to `requirements.txt`:
-```
-APScheduler>=3.10.0
-```
+> "We use **optimistic updates**. When the user taps the heart icon, we immediately toggle `isFavorite` in the local state so the UI updates instantly. Then we call the backend API in the background. If the API call fails, we show a non-blocking error message but don't revert the UI - the local cache preserves their intent until the next successful sync."
 
+### If asked: "How is the Profile page different for guests?"
 
+> "The Profile page checks `AuthCubit.state.userId`. If it's null (guest user), we show `_GuestProfilePage` which has a 'Sign Up' button and basic settings like language and dark mode. If the user is logged in, we create a `ProfileBloc`, dispatch `LoadProfile(userId)`, and show the full profile with stats, menu items, and logout button."
 
+---
+
+## 📝 Key Files Reference
+
+| File                     | Purpose                                         |
+| ------------------------ | ----------------------------------------------- |
+| `main.dart`              | App entry, Firebase init, global BLoC providers |
+| `home_page.dart`         | Tab navigation with IndexedStack                |
+| `discovery_page.dart`    | Main home screen with recipes/chefs             |
+| `discovery_bloc.dart`    | Discovery business logic                        |
+| `profile_page.dart`      | User profile with guest handling                |
+| `profile_bloc.dart`      | Profile business logic                          |
+| `recipe_repository.dart` | All recipe API calls                            |
+| `chef_repository.dart`   | All chef API calls                              |
+| `recipe.dart`            | Recipe data model                               |
+| `user_profile.dart`      | User profile data model                         |
+
+---
+
+## 🚀 Good Luck with Your Presentation!
+
+Remember:
+
+- BLoC = Events → BLoC → State
+- Repositories handle API calls
+- Widgets are reusable UI components
+- Screens are full pages that use widgets
+
+You've got this! 💪
