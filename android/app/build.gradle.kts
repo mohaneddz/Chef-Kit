@@ -12,7 +12,7 @@ plugins {
 android {
     namespace = "com.example.chefkit"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "29.0.14206865"
 
     compileOptions {
         // Enable core library desugaring for flutter_local_notifications
@@ -53,7 +53,7 @@ flutter {
 
 dependencies {
         // Core library desugaring for Java 8+ APIs on older Android versions
-        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
         
         // Import the Firebase BoM
         implementation(platform("com.google.firebase:firebase-bom:34.6.0"))

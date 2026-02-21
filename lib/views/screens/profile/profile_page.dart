@@ -20,6 +20,7 @@ import 'security_page.dart';
 import '../recipe/my_recipes_page.dart';
 import '../../../blocs/profile/popups/language_popup.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:chefkit/common/token_storage.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -702,6 +703,26 @@ class _ProfilePageContent extends StatelessWidget {
                                     child: const Text('Crash Now'),
                                   ),
                                 ],
+                              ),
+                            );
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.token_outlined,
+                          title: 'Expire Token (Test Refresh)',
+                          onTap: () async {
+                            // Set an INVALID token to simulate expiry (not delete it)
+                            // This triggers 401 response from backend, which triggers refresh
+                            await TokenStorage().saveAccessToken(
+                              'expired_test_token',
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Token invalidated! Go to Favorites to test refresh.',
+                                ),
+                                backgroundColor: Colors.orange,
                               ),
                             );
                           },

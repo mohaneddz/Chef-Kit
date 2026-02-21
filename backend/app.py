@@ -1143,6 +1143,10 @@ def get_favorites(token_claims, token=None):
         favorites = get_user_favorites(user_id)
         return jsonify(favorites), 200
     except Exception as e:
+        error_str = str(e).lower()
+        # Return 401 for JWT errors so frontend can refresh token
+        if 'jwt' in error_str or 'expired' in error_str or 'pgrst303' in error_str:
+            return jsonify({"error": str(e), "code": "JWT_EXPIRED"}), 401
         return jsonify({"error": str(e)}), 400
 
 

@@ -710,6 +710,7 @@ def get_user_favorites(user_id: str) -> List[Dict[str, Any]]:
     """Get all favorite recipes for a user."""
     try:
         client = supabase_admin if supabase_admin else supabase
+        
         # First get the list of favorite IDs
         user_resp = client.table("users").select("user_favourite_recipees").eq("user_id", user_id).single().execute()
         user_data = _extract_response_data(user_resp)
@@ -725,11 +726,14 @@ def get_user_favorites(user_id: str) -> List[Dict[str, Any]]:
         # Mark them as favorites
         for r in recipes:
             r["isFavorite"] = True
-            
+        
         return recipes
     except Exception as e:
-        print(f"Error fetching favorites: {e}")
-        return []
+        # Re-raise JWT errors so frontend can handle token refresh
+        error_str = str(e).lower()
+        if 'jwt' in error_str or 'pgrst303' in error_str or 'expired' in error_str:
+            raise RuntimeError(f"JWT expired: {e}")
+        raise
 
 
 def toggle_user_favorite(user_id: str, recipe_id: str) -> bool:
